@@ -116,7 +116,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				property.isInteger = true
 			}
 			"BigDecimal", "BigDecimal?" -> {
-				property.vendorExtensions["columnType"] = "decimal"
+				property.vendorExtensions["columnType"] = "decimal(10,2)"
 				property.isNumber = true
 			}
 			"Long", "Long?" -> {
