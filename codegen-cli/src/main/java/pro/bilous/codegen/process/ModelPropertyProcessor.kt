@@ -34,6 +34,21 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		if ("null" == property.example) {
 			property.example = null
 		}
+		processIfGuidOrObjectWithXDataTypesOrInteger(property)
+		processIfOptional(property)
+		populateTableExtension(model, property)
+		resolvePropertyType(property)
+		// TODO support all possible types
+		property.vendorExtensions["isNeedSkip"] = "id" == property.name.toLowerCase()
+		if (processIfXCodegenType(model, property)) return
+		processIfListOrIdentityComplexModelEndsWithId(model, property)
+		if (isEnum(property)) {
+			convertToMetadataProperty(property, model)
+		}
+		addGuidAnnotation(property, model)
+	}
+
+	private fun processIfGuidOrObjectWithXDataTypesOrInteger(property: CodegenProperty) {
 		if (property.vendorExtensions["x-data-type"] == "Guid") {
 			property.datatypeWithEnum = "String"
 			property.dataType = "String"
@@ -51,21 +66,16 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			property.dataType = "Int"
 			property.datatypeWithEnum = "Int"
 		}
-		if (property.datatypeWithEnum == "Date") {
-			model.imports.add("Date")
-		}
+	}
 
-		// set property as optional
+	private fun processIfOptional(property: CodegenProperty) {
 		if (!property.required) {
 			val realType = "${property.datatypeWithEnum}?"
 			property.datatypeWithEnum = realType
 		}
+	}
 
-		populateTableExtension(model, property)
-		resolvePropertyType(property)
-		// TODO support all possible types
-		property.vendorExtensions["isNeedSkip"] = "id" == property.name.toLowerCase()
-
+	private fun processIfXCodegenType(model: CodegenModel, property: CodegenProperty): Boolean {
 		if (property.vendorExtensions.containsKey("x-codegen-type")) {
 			val codegenType = property.vendorExtensions["x-codegen-type"].toString()
 			if (importMappings.containsKey(codegenType)) {
@@ -76,18 +86,21 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 					property.vendorExtensions["columnType"] = "\${JSON_OBJECT}"
 					model.imports.add("Type")
 				}
-				return
+				return true
 			}
 		}
+		return false
+	}
 
+	private fun processIfListOrIdentityComplexModelEndsWithId(model: CodegenModel, property: CodegenProperty) {
 		if (property.isListContainer && property.datatypeWithEnum.startsWith("List")) {
 //			property.datatypeWithEnum = "Set" + property.datatypeWithEnum.removePrefix("List")
 			property.defaultValue = if (property.required) "listOf()" else "null"
 			model.imports.remove("List")
 			model.imports.remove("ArrayList")
-		} else if (property.isModel && !property.complexType.isNullOrEmpty() && property.complexType.endsWith("IdentityModel") && property.name.endsWith(
-				"Id"
-			)
+		} else if (property.isModel && !property.complexType.isNullOrEmpty() &&
+			property.complexType.endsWith("IdentityModel") &&
+			property.name.endsWith("Id")
 		) {
 			// convert Reference Type to the String
 			property.dataType = "String"
@@ -95,11 +108,6 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			property.isModel = false
 			property.isString = true
 		}
-
-		if (isEnum(property)) {
-			convertToMetadataProperty(property, model)
-		}
-		addGuidAnnotation(property, model)
 	}
 
 	fun resolvePropertyType(property: CodegenProperty) {
@@ -271,26 +279,15 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			if (complexType == "Identity" && property.name == "tags") {
 				return
 			}
+
 			// if we do not have information for the join table. set it to JSON field
 			if (complexType == null) {
 				property.vendorExtensions["hasJsonType"] = true
 				property.vendorExtensions["columnType"] = "\${JSON_OBJECT}"
 				model.imports.add("JsonType")
 				return
-			} else if (property.complexType != null) {
-				val realType = property.complexType.removeSuffix("Model")
-				val innerModelSchema = codegen.getOpenApi().components.schemas[realType] as Schema<*>
-				val innerModel = codegen.fromModel(realType, innerModelSchema)
-
-				val forceToJson = innerModel.parent == null
-						&& innerModel.allVars.find { it.name == "id" || it.name == "identity" } == null
-				if (forceToJson) {
-					property.vendorExtensions["hasJsonType"] = true
-					property.vendorExtensions["columnType"] = "\${JSON_OBJECT}"
-					model.imports.add("JsonType")
-					return
-				}
 			}
+			if (setForJsonField(model, property)) return
 
 			val hasOtherPropertyWithSameType =
 			// consider to build reference table with a custom name instead of adding _identity suffix
@@ -308,9 +305,8 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 
 			val joinTableName = joinTableName(modelTableName, propertyTableName, !hasOtherPropertyWithSameType)
 
-			val inverseColName = if (propertyTableColumnName == modelTableName) {
-				"ref_$propertyTableColumnName"
-			} else propertyTableColumnName
+			val inverseColName =
+				if (propertyTableColumnName == modelTableName) "ref_$propertyTableColumnName" else propertyTableColumnName
 
 			property.getVendorExtensions()["modelTableName"] = SqlNamingUtils.escapeTableNameIfNeeded(modelTableName)
 			property.getVendorExtensions()["propertyTableName"] = realPropertyTableName
@@ -319,14 +315,31 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			property.getVendorExtensions()["joinColumnName"] = "${modelTableName}_id"
 			property.getVendorExtensions()["inverseJoinColumnName"] = "${inverseColName}_id"
 			property.vendorExtensions["isReferenceElement"] = property.complexType.isNullOrEmpty()
-			property.vendorExtensions["joinReferencedColumnName"] = if (modelTableName == "entity") {
-				"entity_id"
-			} else "id"
+			property.vendorExtensions["joinReferencedColumnName"] =
+				if (modelTableName == "entity") "entity_id" else "id"
 
 			if (!joinProperties.any { it.vendorExtensions["joinTableName"] == joinTableName }) {
 				joinProperties.add(property)
 			}
 		}
+	}
+
+	private fun setForJsonField(model: CodegenModel, property: CodegenProperty): Boolean {
+		if (property.complexType != null) {
+			val realType = property.complexType.removeSuffix("Model")
+			val innerModelSchema = codegen.getOpenApi().components.schemas[realType] as Schema<*>
+			val innerModel = codegen.fromModel(realType, innerModelSchema)
+
+			val forceToJson = innerModel.parent == null
+					&& innerModel.allVars.find { it.name == "id" || it.name == "identity" } == null
+			if (forceToJson) {
+				property.vendorExtensions["hasJsonType"] = true
+				property.vendorExtensions["columnType"] = "\${JSON_OBJECT}"
+				model.imports.add("JsonType")
+				return true
+			}
+		}
+		return false
 	}
 
 	private fun readComplexTypeFromProperty(property: CodegenProperty): String? {
