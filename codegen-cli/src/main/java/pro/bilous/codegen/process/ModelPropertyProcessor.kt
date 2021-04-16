@@ -4,15 +4,20 @@ import io.swagger.v3.oas.models.media.Schema
 import org.openapitools.codegen.CodeCodegen
 import org.openapitools.codegen.CodegenModel
 import org.openapitools.codegen.CodegenProperty
+import pro.bilous.codegen.configurator.Database
 import pro.bilous.codegen.utils.CamelCaseConverter
 import pro.bilous.codegen.utils.SqlNamingUtils
+import java.lang.IllegalArgumentException
 
 open class ModelPropertyProcessor(val codegen: CodeCodegen) {
+
+	companion object {
+		const val DEFAULT_STRING_SIZE = 255
+	}
 
 	private val additionalProperties = codegen.additionalProperties()
 	private val entityMode = codegen.entityMode
 	private val importMappings = codegen.importMapping()
-
 	private val joinProperties: MutableList<CodegenProperty>
 
 	var openApiWrapper: IOpenApiWrapper =
@@ -60,7 +65,6 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		populateTableExtension(model, property)
 		resolvePropertyType(property)
 		// TODO support all possible types
-		resolvePropertyType(property)
 		property.vendorExtensions["isNeedSkip"] = "id" == property.name.toLowerCase()
 
 		if (property.vendorExtensions.containsKey("x-codegen-type")) {
@@ -82,7 +86,10 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			property.defaultValue = if (property.required) "listOf()" else "null"
 			model.imports.remove("List")
 			model.imports.remove("ArrayList")
-		} else if (property.isModel && !property.complexType.isNullOrEmpty() && property.complexType.endsWith("IdentityModel") && property.name.endsWith("Id")) {
+		} else if (property.isModel && !property.complexType.isNullOrEmpty() && property.complexType.endsWith("IdentityModel") && property.name.endsWith(
+				"Id"
+			)
+		) {
 			// convert Reference Type to the String
 			property.dataType = "String"
 			property.datatypeWithEnum = property.dataType
@@ -100,6 +107,21 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		if (property.vendorExtensions["columnType"] != null) {
 			return
 		}
+		val defaultStringSize = additionalProperties["defaultStringSize"]?.let { it as Int } ?: DEFAULT_STRING_SIZE
+		val databaseName = additionalProperties["database"]?.let { it as Database }?.name
+			?: throw IllegalArgumentException("database is not specified")
+		when (databaseName) {
+			"mysql" -> {
+				resolvePropertyTypeForMySQL(property, defaultStringSize)
+			}
+			"postgresql" -> {
+				resolvePropertyTypeForPostgreSQL(property, defaultStringSize)
+			}
+			else -> throw IllegalArgumentException("unknown database")
+		}
+	}
+
+	private fun resolvePropertyTypeForMySQL(property: CodegenProperty, defaultStringSize: Int) {
 		when (property.datatypeWithEnum) {
 			"Boolean", "Boolean?" -> {
 				property.vendorExtensions["columnType"] = "\${BOOLEAN_VALUE}"
@@ -124,8 +146,41 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				property.isNumber = true
 			}
 			else -> {
-				val maxLength = if (property.maxLength != null && property.maxLength > 0) property.maxLength else 255
+				val maxLength =
+					if (property.maxLength != null && property.maxLength > 0) property.maxLength else defaultStringSize
 				property.vendorExtensions["columnType"] = "VARCHAR($maxLength)"
+				property.vendorExtensions["hibernateType"] = "java.lang.String"
+			}
+		}
+	}
+
+	private fun resolvePropertyTypeForPostgreSQL(property: CodegenProperty, defaultStringSize: Int) {
+		when (property.datatypeWithEnum) {
+			"Boolean", "Boolean?" -> {
+				property.vendorExtensions["columnType"] = "\${BOOLEAN_VALUE}"
+				property.vendorExtensions["hibernateType"] = "java.lang.Boolean"
+				property.isBoolean = true
+			}
+			"Date", "Date?" -> {
+				property.vendorExtensions["columnType"] = "datetime"
+				property.vendorExtensions["hibernateType"] = "java.util.Date"
+				property.isDate = true
+			}
+			"Int", "Int?" -> {
+				property.vendorExtensions["columnType"] = "int"
+				property.isInteger = true
+			}
+			"BigDecimal", "BigDecimal?" -> {
+				property.vendorExtensions["columnType"] = "decimal(10,2)"
+				property.isNumber = true
+			}
+			"Long", "Long?" -> {
+				property.vendorExtensions["columnType"] = "bigint"
+				property.isNumber = true
+			}
+			else -> {
+				property.vendorExtensions["columnType"] =
+					if (property.maxLength != null && property.maxLength > 0) "VARCHAR(${property.maxLength})" else "VARCHAR"
 				property.vendorExtensions["hibernateType"] = "java.lang.String"
 			}
 		}
@@ -146,7 +201,8 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 
 	fun convertToMetadataProperty(property: CodegenProperty, model: CodegenModel) {
 		property.vendorExtensions["isMetadataAnnotation"] = true
-		property.vendorExtensions["metaGroupName"] = CamelCaseConverter.convert(property.complexType.removeSuffix("Model"))
+		property.vendorExtensions["metaGroupName"] =
+			CamelCaseConverter.convert(property.complexType.removeSuffix("Model"))
 		if (property.isListContainer) {
 			property.datatypeWithEnum = if (property.required) "List<String>" else "List<String>?"
 		} else {
@@ -196,7 +252,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				val innerModel = codegen.fromModel(realType, innerModelSchema)
 
 				val forceToJson = innerModel.parent == null
-							&& innerModel.allVars.find { it.name == "id" || it.name == "identity" } == null
+						&& innerModel.allVars.find { it.name == "id" || it.name == "identity" } == null
 				if (forceToJson) {
 					property.vendorExtensions["hasJsonType"] = true
 					property.vendorExtensions["columnType"] = "\${JSON_OBJECT}"
@@ -206,7 +262,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			}
 
 			val hasOtherPropertyWithSameType =
-				// consider to build reference table with a custom name instead of adding _identity suffix
+			// consider to build reference table with a custom name instead of adding _identity suffix
 				// hardcode for the CodeableConcept as well, consider to implement a feature for this use case
 				arrayOf("Identity", "CodeableConcept").contains(complexType)
 						|| (complexType.isNotEmpty() && model.vars.any {
@@ -236,7 +292,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				"entity_id"
 			} else "id"
 
-			if (!joinProperties.any { it.vendorExtensions["joinTableName"] == joinTableName}) {
+			if (!joinProperties.any { it.vendorExtensions["joinTableName"] == joinTableName }) {
 				joinProperties.add(property)
 			}
 		}
@@ -303,7 +359,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		val innerModel = codegen.fromModel(realType, innerModelSchema)
 		if (innerModel.vendorExtensions["isEmbeddable"] == true) {
 			assignEmbeddedModel(property, innerModel, true)
-		} else if(property.name == "_extends") {
+		} else if (property.name == "_extends") {
 			assignExtendsModel(property, innerModel)
 		} else { // assign one-to-one relationship if not isEmbeddable model (has id)
 			property.vendorExtensions["isOneToOne"] = true
