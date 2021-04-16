@@ -28,5 +28,6 @@ dependencies {
 jib {
 	container {
 		jvmFlags = listOf("-Dspring.profiles.active=prod")
+		creationTime = "USE_CURRENT_TIMESTAMP"
 	}
 }
