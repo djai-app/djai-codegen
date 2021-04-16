@@ -7,7 +7,6 @@ import org.openapitools.codegen.CodegenProperty
 import pro.bilous.codegen.configurator.Database
 import pro.bilous.codegen.utils.CamelCaseConverter
 import pro.bilous.codegen.utils.SqlNamingUtils
-import java.lang.IllegalArgumentException
 
 open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 
@@ -109,7 +108,6 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		}
 		val defaultStringSize = additionalProperties["defaultStringSize"]?.let { it as Int } ?: DEFAULT_STRING_SIZE
 		val databaseName = additionalProperties["database"]?.let { it as Database }?.name
-			?: throw IllegalArgumentException("database is not specified")
 		when (databaseName) {
 			"mysql" -> {
 				resolvePropertyTypeForMySQL(property, defaultStringSize)
@@ -117,7 +115,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			"postgresql" -> {
 				resolvePropertyTypeForPostgreSQL(property, defaultStringSize)
 			}
-			else -> throw IllegalArgumentException("unknown database")
+			else -> resolvePropertyTypeByDefault(property, defaultStringSize)
 		}
 	}
 
@@ -181,6 +179,39 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			else -> {
 				property.vendorExtensions["columnType"] =
 					if (property.maxLength != null && property.maxLength > 0) "VARCHAR(${property.maxLength})" else "VARCHAR"
+				property.vendorExtensions["hibernateType"] = "java.lang.String"
+			}
+		}
+	}
+
+	private fun resolvePropertyTypeByDefault(property: CodegenProperty, defaultStringSize: Int) {
+		when (property.datatypeWithEnum) {
+			"Boolean", "Boolean?" -> {
+				property.vendorExtensions["columnType"] = "\${BOOLEAN_VALUE}"
+				property.vendorExtensions["hibernateType"] = "java.lang.Boolean"
+				property.isBoolean = true
+			}
+			"Date", "Date?" -> {
+				property.vendorExtensions["columnType"] = "datetime"
+				property.vendorExtensions["hibernateType"] = "java.util.Date"
+				property.isDate = true
+			}
+			"Int", "Int?" -> {
+				property.vendorExtensions["columnType"] = "int"
+				property.isInteger = true
+			}
+			"BigDecimal", "BigDecimal?" -> {
+				property.vendorExtensions["columnType"] = "decimal(10,2)"
+				property.isNumber = true
+			}
+			"Long", "Long?" -> {
+				property.vendorExtensions["columnType"] = "bigint"
+				property.isNumber = true
+			}
+			else -> {
+				val maxLength =
+					if (property.maxLength != null && property.maxLength > 0) property.maxLength else defaultStringSize
+				property.vendorExtensions["columnType"] = "VARCHAR($maxLength)"
 				property.vendorExtensions["hibernateType"] = "java.lang.String"
 			}
 		}
