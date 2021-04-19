@@ -57,8 +57,11 @@ abstract class AbstractController<E: BaseResource, S: CommonService<E>>(val  ser
 	}
 
 	override fun create(parentId: String, domain: E): ResponseEntity<E> {
-		if(domain.entity.parent != null) domain.entity.parent!!.id = parentId
-		else domain.entity.parent = Identity(id = parentId)
+		if(domain.entity.parent != null) {
+			domain.entity.parent!!.id = parentId
+		} else {
+			domain.entity.parent = Identity(id = parentId)
+		}
 		val result = service.save(domain) ?: throw InvalidRequestException()
 		return ResponseEntity(result, HttpStatus.CREATED)
 	}
