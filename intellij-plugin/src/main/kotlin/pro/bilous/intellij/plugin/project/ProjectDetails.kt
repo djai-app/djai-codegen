@@ -64,13 +64,15 @@ class ProjectDetails(moduleBuilder: ProjectModuleBuilder, wizardContext: WizardC
 				row("Description") { textField(request::description) }
 				row("Base Package") { textField(request::basePackage) }
 				row("Database") { databaseComboBox() }
-				row("Default size of string in database") { defaultDatabaseStringLengthTextBox() }
 				row("Enable Authorization") { enableAuthorizationCheckBox() }
 //                row("DB Name") { textField(request::dbName) }
 //                row("Binding Entity") { checkBox("", request::addBindingEntity) }
 			}
+			titledRow("Advanced parameters") {
+				row("Default size of string in database") { defaultDatabaseStringLengthTextBox() }
+			}
 		}
-		rootPanel?.preferredSize = Dimension(400, 400)
+		rootPanel?.preferredSize = Dimension(400, 500)
 		return rootPanel!!
 	}
 
