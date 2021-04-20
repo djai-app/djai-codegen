@@ -5,21 +5,19 @@ import org.openapitools.codegen.CodeCodegen
 import org.openapitools.codegen.CodegenModel
 import org.openapitools.codegen.CodegenProperty
 import pro.bilous.codegen.configurator.Database
+import pro.bilous.codegen.process.strateges.MySqlTypeResolvingStrategy
+import pro.bilous.codegen.process.strateges.PostgreSqlTypeResolvingStrategy
+import pro.bilous.codegen.process.strateges.DefaultTypeResolvingStrategy
 import pro.bilous.codegen.utils.CamelCaseConverter
 import pro.bilous.codegen.utils.SqlNamingUtils
-import java.lang.IllegalArgumentException
-import java.util.*
 
 open class ModelPropertyProcessor(val codegen: CodeCodegen) {
-
-	companion object {
-		const val DEFAULT_STRING_SIZE = 255
-	}
 
 	private val additionalProperties = codegen.additionalProperties()
 	private val entityMode = codegen.entityMode
 	private val importMappings = codegen.importMapping()
 	private val joinProperties: MutableList<CodegenProperty>
+	private val defaultTypeResolvingStrategy = DefaultTypeResolvingStrategy()
 
 	var openApiWrapper: IOpenApiWrapper = OpenApiWrapper(codegen)
 
@@ -115,113 +113,16 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		if (property.vendorExtensions["columnType"] != null) {
 			return
 		}
-		val defaultStringSize = additionalProperties["defaultStringSize"]?.let { it as Int } ?: DEFAULT_STRING_SIZE
-		val databaseName = additionalProperties["database"]?.let { it as Database }?.name
-		when (databaseName) {
+		val defaultStringSize = additionalProperties["defaultStringSize"]?.let { it as Int }
+		when (additionalProperties["database"]?.let { it as Database }?.name) {
 			"mysql" -> {
-				resolvePropertyTypeForMySQL(property, defaultStringSize)
+				MySqlTypeResolvingStrategy.resolvePropertyType(property, defaultStringSize)
 			}
 			"postgresql" -> {
-				resolvePropertyTypeForPostgreSQL(property, defaultStringSize)
-			}
-			else -> resolvePropertyTypeByDefault(property, defaultStringSize)
-		}
-	}
-
-	private fun resolvePropertyTypeForMySQL(property: CodegenProperty, defaultStringSize: Int) {
-		when (property.datatypeWithEnum) {
-			"Boolean", "Boolean?" -> {
-				property.vendorExtensions["columnType"] = "\${BOOLEAN_VALUE}"
-				property.vendorExtensions["hibernateType"] = "java.lang.Boolean"
-				property.isBoolean = true
-			}
-			"Date", "Date?" -> {
-				property.vendorExtensions["columnType"] = "datetime"
-				property.vendorExtensions["hibernateType"] = "java.util.Date"
-				property.isDate = true
-			}
-			"Int", "Int?" -> {
-				property.vendorExtensions["columnType"] = "int"
-				property.isInteger = true
-			}
-			"BigDecimal", "BigDecimal?" -> {
-				property.vendorExtensions["columnType"] = "decimal(10,2)"
-				property.isNumber = true
-			}
-			"Long", "Long?" -> {
-				property.vendorExtensions["columnType"] = "bigint"
-				property.isNumber = true
+				PostgreSqlTypeResolvingStrategy.resolvePropertyType(property, defaultStringSize)
 			}
 			else -> {
-				val maxLength =
-					if (property.maxLength != null && property.maxLength > 0) property.maxLength else defaultStringSize
-				property.vendorExtensions["columnType"] = "VARCHAR($maxLength)"
-				property.vendorExtensions["hibernateType"] = "java.lang.String"
-			}
-		}
-	}
-
-	private fun resolvePropertyTypeForPostgreSQL(property: CodegenProperty, defaultStringSize: Int) {
-		when (property.datatypeWithEnum) {
-			"Boolean", "Boolean?" -> {
-				property.vendorExtensions["columnType"] = "\${BOOLEAN_VALUE}"
-				property.vendorExtensions["hibernateType"] = "java.lang.Boolean"
-				property.isBoolean = true
-			}
-			"Date", "Date?" -> {
-				property.vendorExtensions["columnType"] = "datetime"
-				property.vendorExtensions["hibernateType"] = "java.util.Date"
-				property.isDate = true
-			}
-			"Int", "Int?" -> {
-				property.vendorExtensions["columnType"] = "int"
-				property.isInteger = true
-			}
-			"BigDecimal", "BigDecimal?" -> {
-				property.vendorExtensions["columnType"] = "decimal(10,2)"
-				property.isNumber = true
-			}
-			"Long", "Long?" -> {
-				property.vendorExtensions["columnType"] = "bigint"
-				property.isNumber = true
-			}
-			else -> {
-				property.vendorExtensions["columnType"] =
-					if (property.maxLength != null && property.maxLength > 0) "VARCHAR(${property.maxLength})" else "VARCHAR"
-				property.vendorExtensions["hibernateType"] = "java.lang.String"
-			}
-		}
-	}
-
-	private fun resolvePropertyTypeByDefault(property: CodegenProperty, defaultStringSize: Int) {
-		when (property.datatypeWithEnum) {
-			"Boolean", "Boolean?" -> {
-				property.vendorExtensions["columnType"] = "\${BOOLEAN_VALUE}"
-				property.vendorExtensions["hibernateType"] = "java.lang.Boolean"
-				property.isBoolean = true
-			}
-			"Date", "Date?" -> {
-				property.vendorExtensions["columnType"] = "datetime"
-				property.vendorExtensions["hibernateType"] = "java.util.Date"
-				property.isDate = true
-			}
-			"Int", "Int?" -> {
-				property.vendorExtensions["columnType"] = "int"
-				property.isInteger = true
-			}
-			"BigDecimal", "BigDecimal?" -> {
-				property.vendorExtensions["columnType"] = "decimal(10,2)"
-				property.isNumber = true
-			}
-			"Long", "Long?" -> {
-				property.vendorExtensions["columnType"] = "bigint"
-				property.isNumber = true
-			}
-			else -> {
-				val maxLength =
-					if (property.maxLength != null && property.maxLength > 0) property.maxLength else defaultStringSize
-				property.vendorExtensions["columnType"] = "VARCHAR($maxLength)"
-				property.vendorExtensions["hibernateType"] = "java.lang.String"
+				defaultTypeResolvingStrategy.resolvePropertyType(property, defaultStringSize)
 			}
 		}
 	}

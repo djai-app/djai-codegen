@@ -15,13 +15,13 @@ import pro.bilous.difhub.model.Model
 class DefinitionConverter(private val source: Model) {
 	private val definitions = mutableMapOf<String, Schema<*>>()
 
-	fun convert(): Map<String, Schema<*>>  {
+	fun convert(): Map<String, Schema<*>> {
 		val schema = createModelImpl(source)
 		definitions[schema.name] = schema
 		return definitions
 	}
 
-	private fun createModelImpl(model: Model) : Schema<*> {
+	private fun createModelImpl(model: Model): Schema<*> {
 		val schemaName = normalizeTypeName(model.identity.name)
 		val schema = when (model.`object`?.usage) {
 			"Enum" -> createEnumSchema(model)
@@ -72,7 +72,7 @@ class DefinitionConverter(private val source: Model) {
 			return true
 		}
 		return (modelName == "Identity" && propertyName == "translations")
-			|| ((modelName == "Entity" || modelName == "Error") && propertyName == "properties")
+				|| ((modelName == "Entity" || modelName == "Error") && propertyName == "properties")
 	}
 
 	private fun fieldToProperty(item: FieldsItem): Schema<Any> {
@@ -189,7 +189,7 @@ class DefinitionConverter(private val source: Model) {
 			schema.description = description
 		}
 		if (item.type == "Enum") {
-			var source : Model? = null
+			var source: Model? = null
 			try {
 				source = ModelLoader(DefLoader()).loadModel(item.reference)
 			} catch (e: MismatchedInputException) {
@@ -207,6 +207,7 @@ class DefinitionConverter(private val source: Model) {
 
 	private fun addExtensions(schema: Schema<*>, item: FieldsItem) {
 		schema.addExtension("x-data-type", item.type)
+		item.usage?.let { schema.addExtension("x-usage", it) }
 		item.properties?.forEach {
 			if (it.identity != null) {
 				schema.addExtension("x-${it.identity.name}", it.value)
@@ -218,7 +219,7 @@ class DefinitionConverter(private val source: Model) {
 		val refParts = item.reference.split("/")
 		val dataType = readReference("datasets", refParts)
 		val application = readReference("applications", refParts)
-		val system =  readReference("systems", refParts)
+		val system = readReference("systems", refParts)
 		return "system: $system | application: $application | dataType: $dataType"
 	}
 
