@@ -23,6 +23,7 @@ class ProjectCreationRequest {
     var dateLibrary = "default"
     var addBindingEntity = true
     var authorizationEnabled = false
+	var defaultStringSize: String = "255"
 
     fun getMetadata(): Any? {
         return null

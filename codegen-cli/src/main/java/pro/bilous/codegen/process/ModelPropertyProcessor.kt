@@ -7,6 +7,8 @@ import org.openapitools.codegen.CodegenProperty
 import pro.bilous.codegen.configurator.Database
 import pro.bilous.codegen.utils.CamelCaseConverter
 import pro.bilous.codegen.utils.SqlNamingUtils
+import java.lang.IllegalArgumentException
+import java.util.*
 
 open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 
@@ -19,8 +21,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	private val importMappings = codegen.importMapping()
 	private val joinProperties: MutableList<CodegenProperty>
 
-	var openApiWrapper: IOpenApiWrapper =
-		OpenApiWrapper(codegen)
+	var openApiWrapper: IOpenApiWrapper = OpenApiWrapper(codegen)
 
 	init {
 		if (additionalProperties["joinTables"] == null) {
