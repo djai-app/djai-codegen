@@ -207,7 +207,11 @@ class DefinitionConverter(private val source: Model) {
 
 	private fun addExtensions(schema: Schema<*>, item: FieldsItem) {
 		schema.addExtension("x-data-type", item.type)
-		item.usage?.let { schema.addExtension("x-usage", it) }
+		schema.addExtension("x-usage", item.usage)
+		val format = item.format.trim()
+		if (format.isNotEmpty()) {
+			schema.addExtension("x-format", format)
+		}
 		item.properties?.forEach {
 			if (it.identity != null) {
 				schema.addExtension("x-${it.identity.name}", it.value)

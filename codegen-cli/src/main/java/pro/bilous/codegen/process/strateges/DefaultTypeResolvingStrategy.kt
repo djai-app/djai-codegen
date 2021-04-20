@@ -7,7 +7,7 @@ open class DefaultTypeResolvingStrategy {
 	companion object {
 		const val DEFAULT_STRING_SIZE = 255
 		const val USAGE_DESCRIPTION_NAME = "Description"
-		const val SIZE_FOR_DESCRIPTION = 4096
+		const val DEFAULT_SIZE_FOR_DESCRIPTION = 4096
 	}
 
 	fun resolvePropertyType(property: CodegenProperty, defaultStringSize: Int?) {
@@ -41,21 +41,35 @@ open class DefaultTypeResolvingStrategy {
 		}
 	}
 
-	private fun resolveUndefinedType(property: CodegenProperty, resolvedStringSize: Int) {
+	private fun resolveUndefinedType(property: CodegenProperty, defaultStringSize: Int) {
 		property.vendorExtensions["columnType"] =
 			if (property.maxLength != null && property.maxLength > 0) {
-				"VARCHAR(${property.maxLength})"
-//			} else if (property.vendorExtensions["x-format"] != null) {
-			} else
-				if (property.vendorExtensions["x-usage"] == USAGE_DESCRIPTION_NAME) {
-				"VARCHAR(${SIZE_FOR_DESCRIPTION})"
-			} else resolveToStringWhenSizeIsUndefined(property, resolvedStringSize)
-
+				resolveStringTypeWithSize(property.maxLength, defaultStringSize)
+			} else {
+				val format = property.vendorExtensions["x-format"]?.let { it as String }
+				format?.let { resolveStringTypeWithFormat(it) } ?: run {
+					val usage = property.vendorExtensions["x-usage"]?.let { it as String }
+					if (usage != null && usage == USAGE_DESCRIPTION_NAME) {
+						resolveStringTypeWithSize(DEFAULT_SIZE_FOR_DESCRIPTION, defaultStringSize)
+					} else {
+						resolveNoSizeStringType(property, defaultStringSize)
+					}
+				}
+			}
 		property.vendorExtensions["hibernateType"] = "java.lang.String"
 	}
 
-	protected open fun resolveToStringWhenSizeIsUndefined(property: CodegenProperty, defaultStingSize: Int): String {
-		return "VARCHAR($defaultStingSize)"
+	protected open fun resolveNoSizeStringType(property: CodegenProperty, defaultStringSize: Int): String {
+		return "VARCHAR(${defaultStringSize})"
 	}
 
+	protected open fun resolveStringTypeWithSize(size: Int, defaultStringSize: Int): String {
+		return if (size <= 0) {
+			"VARCHAR(${defaultStringSize})"
+		} else {
+			"VARCHAR(${size})"
+		}
+	}
+
+	protected open fun resolveStringTypeWithFormat(format: String): String? = null
 }
