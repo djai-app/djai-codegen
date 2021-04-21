@@ -57,6 +57,7 @@ class ProjectFilesCreator {
             "basePackage" to request.basePackage,
             "dbName" to request.dbName,
             "database" to request.database,
+			"defaultStringSize" to request.defaultStringSize.toInt(),
             "addKotlin" to request.addKotlin,
             "dateLibrary" to request.dateLibrary,
             "addBindingEntity" to request.addBindingEntity,
@@ -66,6 +67,6 @@ class ProjectFilesCreator {
     }
 
     private fun executeCodeGenerator(projectPath: String) {
-        CodeGenerator().generate(projectPath)
+		CodeGenerator().generate(projectPath)
     }
 }
