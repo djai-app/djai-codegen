@@ -11,7 +11,12 @@ open class DefaultTypeResolvingStrategy {
 	}
 
 	fun resolvePropertyType(property: CodegenProperty, defaultStringSize: Int?) {
-		val resolvedDefaultStringSize = defaultStringSize ?: DEFAULT_STRING_SIZE
+		val resolvedDefaultStringSize =
+			if(defaultStringSize != null && defaultStringSize > 0) {
+				defaultStringSize
+			} else {
+				DEFAULT_STRING_SIZE
+			}
 		when (property.datatypeWithEnum) {
 			"Boolean", "Boolean?" -> {
 				property.vendorExtensions["columnType"] = "\${BOOLEAN_VALUE}"
@@ -44,32 +49,24 @@ open class DefaultTypeResolvingStrategy {
 	private fun resolveUndefinedType(property: CodegenProperty, defaultStringSize: Int) {
 		property.vendorExtensions["columnType"] =
 			if (property.maxLength != null && property.maxLength > 0) {
-				resolveStringTypeWithSize(property.maxLength, defaultStringSize)
+				resolveStringTypeWithSize(property.maxLength)
 			} else {
-				val format = property.vendorExtensions["x-format"]?.let { it as String }
+				val format = property.vendorExtensions["x-format"]?.let { it as? String }
 				format?.let { resolveStringTypeWithFormat(it) } ?: run {
-					val usage = property.vendorExtensions["x-usage"]?.let { it as String }
+					val usage = property.vendorExtensions["x-usage"]?.let { it as? String }
 					if (usage != null && usage == USAGE_DESCRIPTION_NAME) {
-						resolveStringTypeWithSize(DEFAULT_SIZE_FOR_DESCRIPTION, defaultStringSize)
+						resolveStringTypeWithSize(DEFAULT_SIZE_FOR_DESCRIPTION)
 					} else {
-						resolveNoSizeStringType(property, defaultStringSize)
+						resolveNoSizeStringType(defaultStringSize)
 					}
 				}
 			}
 		property.vendorExtensions["hibernateType"] = "java.lang.String"
 	}
 
-	protected open fun resolveNoSizeStringType(property: CodegenProperty, defaultStringSize: Int): String {
-		return "VARCHAR(${defaultStringSize})"
-	}
+	protected open fun resolveNoSizeStringType(defaultStringSize: Int): String = "VARCHAR(${defaultStringSize})"
 
-	protected open fun resolveStringTypeWithSize(size: Int, defaultStringSize: Int): String {
-		return if (size <= 0) {
-			"VARCHAR(${defaultStringSize})"
-		} else {
-			"VARCHAR(${size})"
-		}
-	}
+	protected open fun resolveStringTypeWithSize(size: Int): String = "VARCHAR(${size})"
 
 	protected open fun resolveStringTypeWithFormat(format: String): String? = null
 }

@@ -113,8 +113,8 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		if (property.vendorExtensions["columnType"] != null) {
 			return
 		}
-		val defaultStringSize = additionalProperties["defaultStringSize"]?.let { it as Int }
-		when (additionalProperties["database"]?.let { it as Database }?.name) {
+		val defaultStringSize = additionalProperties["defaultStringSize"]?.let { it as? Int }
+		when (additionalProperties["database"]?.let { it as? Database }?.name) {
 			"mysql" -> {
 				MySqlTypeResolvingStrategy.resolvePropertyType(property, defaultStringSize)
 			}
