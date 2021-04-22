@@ -73,7 +73,7 @@ abstract class AbstractService<E: BaseResource, R: CommonRepository<E>>(protecte
 	private fun getAll(pageable: Pageable): Page<E> {
 		val rootNode: Node = RsqlParserFactory.instance().parse("entity.state=isNull=true,entity.state!=deleted")
 		val spec: Specification<E> = rootNode.accept(JpaRsqlVisitor())
-		return repository.findAll(pageable)
+		return repository.findAll(spec, pageable)
 	}
 
 	private fun doGetAll(pageable: Pageable, query: String): Page<E> {
