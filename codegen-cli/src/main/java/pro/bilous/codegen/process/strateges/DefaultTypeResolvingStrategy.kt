@@ -2,6 +2,8 @@ package pro.bilous.codegen.process.strateges
 
 import org.openapitools.codegen.CodegenProperty
 
+data class ColumnTypePare(val columnType:String, val columnDefinition: String?)
+
 open class DefaultTypeResolvingStrategy {
 
 	companion object {
@@ -12,7 +14,7 @@ open class DefaultTypeResolvingStrategy {
 
 	fun resolvePropertyType(property: CodegenProperty, defaultStringSize: Int?) {
 		val resolvedDefaultStringSize =
-			if(defaultStringSize != null && defaultStringSize > 0) {
+			if (defaultStringSize != null && defaultStringSize > 0) {
 				defaultStringSize
 			} else {
 				DEFAULT_STRING_SIZE
@@ -47,7 +49,7 @@ open class DefaultTypeResolvingStrategy {
 	}
 
 	private fun resolveUndefinedType(property: CodegenProperty, defaultStringSize: Int) {
-		property.vendorExtensions["columnType"] =
+		val (columnType, columnDefinition) =
 			if (property.maxLength != null && property.maxLength > 0) {
 				resolveStringTypeWithSize(property.maxLength)
 			} else {
@@ -61,12 +63,16 @@ open class DefaultTypeResolvingStrategy {
 					}
 				}
 			}
+		property.vendorExtensions["columnType"] = columnType
+		if(columnDefinition != null) property.vendorExtensions["columnDefinition"] = columnDefinition
 		property.vendorExtensions["hibernateType"] = "java.lang.String"
 	}
 
-	protected open fun resolveNoSizeStringType(defaultStringSize: Int): String = "VARCHAR(${defaultStringSize})"
+	protected open fun resolveNoSizeStringType(defaultStringSize: Int): ColumnTypePare =
+		ColumnTypePare("VARCHAR(${defaultStringSize})", null)
 
-	protected open fun resolveStringTypeWithSize(size: Int): String = "VARCHAR(${size})"
+	protected open fun resolveStringTypeWithSize(size: Int): ColumnTypePare =
+		ColumnTypePare("VARCHAR(${size})", null)
 
-	protected open fun resolveStringTypeWithFormat(format: String): String? = null
+	protected open fun resolveStringTypeWithFormat(format: String): ColumnTypePare? = null
 }

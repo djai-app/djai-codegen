@@ -87,7 +87,7 @@ data class {{classname}}(
 	@JoinColumn(name = "{{{vendorExtensions.escapedColumnName}}}", referencedColumnName = "id")
 	{{/vendorExtensions.isOneToOne}}
 	{{^vendorExtensions.isOneToOne}}
-	@Column(name = "{{{vendorExtensions.escapedColumnName}}}")
+	@Column(name = "{{{vendorExtensions.escapedColumnName}}}"{{>app-module/src/main/kotlin/domain/columnDefinition}})
 	{{/vendorExtensions.isOneToOne}}
 	{{/isListContainer}}
 	{{/vendorExtensions.hasJsonType}}
