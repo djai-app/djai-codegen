@@ -40,7 +40,7 @@ class PostgreSqlTypeResolvingStrategyTest {
 
 	@Test
 	@DisplayName(
-		"Should assign type VARCHAR if property datatype is undefined" +
+		"Should assign type VARCHAR(DEFAULT_STRING_SIZE) if property datatype is undefined" +
 				"and property.maxLength is undefined"
 	)
 	fun `should assign VARCHAR with default string size`() {
@@ -49,7 +49,7 @@ class PostgreSqlTypeResolvingStrategyTest {
 		PostgreSqlTypeResolvingStrategy.resolvePropertyType(property, DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("VARCHAR", ve["columnType"])
+		kotlin.test.assertEquals("VARCHAR(${DEFAULT_STRING_SIZE})", ve["columnType"])
 		kotlin.test.assertEquals("java.lang.String", ve["hibernateType"])
 	}
 
