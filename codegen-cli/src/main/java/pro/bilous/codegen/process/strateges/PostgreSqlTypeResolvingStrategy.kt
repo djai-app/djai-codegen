@@ -9,10 +9,6 @@ object PostgreSqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
 
 	private const val MAX_SIZE_FOR_VARCHAR = 10485760
 
-	override fun resolveNoSizeStringType(defaultStringSize: Int): ColumnTypePare {
-		return ColumnTypePare("VARCHAR", DATA_TYPES["VARCHAR"])
-	}
-
 	override fun resolveStringTypeWithSize(size: Int): ColumnTypePare {
 		return if (size <= MAX_SIZE_FOR_VARCHAR) {
 			ColumnTypePare("VARCHAR(${size})", null)

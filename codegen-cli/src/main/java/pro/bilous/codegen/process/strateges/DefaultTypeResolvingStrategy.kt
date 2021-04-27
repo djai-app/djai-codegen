@@ -59,7 +59,7 @@ open class DefaultTypeResolvingStrategy {
 					if (usage != null && usage == USAGE_DESCRIPTION_NAME) {
 						resolveStringTypeWithSize(DEFAULT_SIZE_FOR_DESCRIPTION)
 					} else {
-						resolveNoSizeStringType(defaultStringSize)
+						resolveStringTypeWithSize(defaultStringSize)
 					}
 				}
 			}
@@ -67,9 +67,6 @@ open class DefaultTypeResolvingStrategy {
 		if(columnDefinition != null) property.vendorExtensions["columnDefinition"] = columnDefinition
 		property.vendorExtensions["hibernateType"] = "java.lang.String"
 	}
-
-	protected open fun resolveNoSizeStringType(defaultStringSize: Int): ColumnTypePare =
-		ColumnTypePare("VARCHAR(${defaultStringSize})", null)
 
 	protected open fun resolveStringTypeWithSize(size: Int): ColumnTypePare =
 		ColumnTypePare("VARCHAR(${size})", null)

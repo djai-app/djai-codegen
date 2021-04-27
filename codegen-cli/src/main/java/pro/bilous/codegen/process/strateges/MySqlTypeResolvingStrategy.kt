@@ -15,10 +15,6 @@ object MySqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
 
 	private const val MAX_SIZE_FOR_VARCHAR = 21844
 
-	override fun resolveNoSizeStringType(defaultStringSize: Int): ColumnTypePare {
-		return resolveStringTypeWithSize(defaultStringSize)
-	}
-
 	override fun resolveStringTypeWithSize(size: Int): ColumnTypePare {
 		return if (size <= MAX_SIZE_FOR_VARCHAR) {
 			ColumnTypePare("VARCHAR(${size})", null)
