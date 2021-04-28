@@ -12,7 +12,21 @@ open class DefaultTypeResolvingStrategy {
 		const val DEFAULT_SIZE_FOR_DESCRIPTION = 4096
 	}
 
-	fun resolvePropertyType(property: CodegenProperty, defaultStringSize: Int?) {
+	fun resolve(databaseName: String?, property: CodegenProperty, defaultStringSize: Int?) {
+		when (databaseName) {
+			"mysql" -> {
+				MySqlTypeResolvingStrategy.resolvePropertyType(property, defaultStringSize)
+			}
+			"postgresql" -> {
+				PostgreSqlTypeResolvingStrategy.resolvePropertyType(property, defaultStringSize)
+			}
+			else -> {
+				resolvePropertyType(property, defaultStringSize)
+			}
+		}
+	}
+
+	protected fun resolvePropertyType(property: CodegenProperty, defaultStringSize: Int?) {
 		val resolvedDefaultStringSize =
 			if (defaultStringSize != null && defaultStringSize > 0) {
 				defaultStringSize

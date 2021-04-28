@@ -3,8 +3,8 @@ package pro.bilous.codegen.process.strateges
 object PostgreSqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
 
 	private val DATA_TYPES = mapOf(
-		"VARCHAR" to "varchar",
-		"TEXT" to "text",
+		"VARCHAR" to "\${VARCHAR_OBJECT}",
+		"TEXT" to "\${TEXT_OBJECT}",
 	)
 
 	private const val MAX_SIZE_FOR_VARCHAR = 10485760

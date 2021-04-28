@@ -3,14 +3,14 @@ package pro.bilous.codegen.process.strateges
 object MySqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
 
 	private val DATA_TYPES = mapOf(
-		"TINYBLOB" to "tinyblob",
-		"TEXT" to "text",
-		"TINYTEXT" to "tinytext",
-		"BLOB" to "blob",
-		"MEDIUMBLOB" to "mediumblob",
-		"MEDIUMTEXT" to "mediumtext",
-		"LONGBLOB" to "longblob",
-		"LONGTEXT" to "longtext"
+		"TINYBLOB" to "\${TINYBLOB_OBJECT}",
+		"TEXT" to "\${TEXT_OBJECT}",
+		"TINYTEXT" to "\${TINYTEXT_OBJECT}",
+		"BLOB" to "\${BLOB}",
+		"MEDIUMBLOB" to "\${MEDIUMBLOB_OBJECT}",
+		"MEDIUMTEXT" to "\${MEDIUMTEXT_OBJECT}",
+		"LONGBLOB" to "\${LONGBLOB_OBJECT}",
+		"LONGTEXT" to "\${LONGTEXT_OBJECT}"
 	)
 
 	private const val MAX_SIZE_FOR_VARCHAR = 21844
