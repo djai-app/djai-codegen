@@ -10,14 +10,11 @@
 	<property name="JSON_OBJECT" value="json" dbms="{{database.name}}"/>
 	<property name="JSON_OBJECT" value="${TEST_VARCHAR}" dbms="h2"/>
 	<property name="BOOLEAN_VALUE" value="boolean" dbms="{{database.name}},h2"/>
-
+	{{#isMySQL}}
 	<property name="TINYBLOB_OBJECT" value="tinyblob" dbms="mysql"/>
 	<property name="TINYBLOB_OBJECT" value="${TEST_VARCHAR}" dbms="h2"/>
-
-	<property name="TEXT_OBJECT" value="text" dbms="postgresql"/>
 	<property name="TEXT_OBJECT" value="text" dbms="mysql"/>
 	<property name="TEXT_OBJECT" value="${TEST_VARCHAR}" dbms="h2"/>
-
 	<property name="TINYTEXT_OBJECT" value="tinytext" dbms="mysql"/>
 	<property name="TINYTEXT_OBJECT" value="${TEST_VARCHAR}" dbms="h2"/>
 	<property name="BLOB_OBJECT" value="blob" dbms="mysql"/>
@@ -30,7 +27,11 @@
 	<property name="LONGBLOB_OBJECT" value="${TEST_VARCHAR}" dbms="h2"/>
 	<property name="LONGTEXT_OBJECT" value="longtext" dbms="mysql"/>
 	<property name="LONGTEXT_OBJECT" value="${TEST_VARCHAR}" dbms="h2"/>
-
+	{{/isMySQL}}
+	{{#isPostgreSQL}}
 	<property name="VARCHAR_OBJECT" value="text" dbms="postgresql"/>
 	<property name="VARCHAR_OBJECT" value="${TEST_VARCHAR}" dbms="h2"/>
+	<property name="TEXT_OBJECT" value="text" dbms="postgresql"/>
+	<property name="TEXT_OBJECT" value="${TEST_VARCHAR}" dbms="h2"/>
+	{{/isPostgreSQL}}
 </databaseChangeLog>

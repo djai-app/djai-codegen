@@ -3,14 +3,14 @@ package pro.bilous.codegen.process.strateges
 object MySqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
 
 	private val DATA_TYPES = mapOf(
-		"TINYBLOB" to "\${TINYBLOB_OBJECT}",
-		"TEXT" to "\${TEXT_OBJECT}",
-		"TINYTEXT" to "\${TINYTEXT_OBJECT}",
-		"BLOB" to "\${BLOB}",
-		"MEDIUMBLOB" to "\${MEDIUMBLOB_OBJECT}",
-		"MEDIUMTEXT" to "\${MEDIUMTEXT_OBJECT}",
-		"LONGBLOB" to "\${LONGBLOB_OBJECT}",
-		"LONGTEXT" to "\${LONGTEXT_OBJECT}"
+		"TINYBLOB" to ColumnTypePare("\${TINYBLOB_OBJECT}", "tinyblob"),
+		"TEXT" to ColumnTypePare("\${TEXT_OBJECT}", "text"),
+		"TINYTEXT" to ColumnTypePare("\${TINYTEXT_OBJECT}", "tinytext"),
+		"BLOB" to ColumnTypePare("\${BLOB_OBJECT}", "blob"),
+		"MEDIUMBLOB" to ColumnTypePare("\${MEDIUMBLOB_OBJECT}", "mediumblob"),
+		"MEDIUMTEXT" to ColumnTypePare("\${MEDIUMTEXT_OBJECT}", "mediumtext"),
+		"LONGBLOB" to ColumnTypePare("\${LONGBLOB_OBJECT}", "longblob"),
+		"LONGTEXT" to ColumnTypePare("\${LONGTEXT_OBJECT}", "longtext")
 	)
 
 	private const val MAX_SIZE_FOR_VARCHAR = 21844
@@ -19,17 +19,12 @@ object MySqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
 		return if (size <= MAX_SIZE_FOR_VARCHAR) {
 			ColumnTypePare("VARCHAR(${size})", null)
 		} else {
-			ColumnTypePare("TEXT", DATA_TYPES["TEXT"])
+			DATA_TYPES["TEXT"]!!
 		}
 	}
 
 	override fun resolveStringTypeWithFormat(format: String): ColumnTypePare? {
 		val columnType = format.trim().toUpperCase()
-		val columnDefinition = DATA_TYPES[columnType]
-		return if (columnDefinition != null) {
-			ColumnTypePare(columnType, columnDefinition)
-		} else {
-			null
-		}
+		return DATA_TYPES[columnType]
 	}
 }
