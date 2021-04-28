@@ -21,7 +21,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = "Boolean"
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("\${BOOLEAN_VALUE}", ve["columnType"])
@@ -36,7 +36,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = "Boolean?"
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("\${BOOLEAN_VALUE}", ve["columnType"])
@@ -51,7 +51,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = "Date"
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("datetime", ve["columnType"])
@@ -66,7 +66,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = "Date?"
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("datetime", ve["columnType"])
@@ -81,7 +81,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = "Int"
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("int", ve["columnType"])
@@ -95,7 +95,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = "Int?"
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("int", ve["columnType"])
@@ -109,7 +109,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = "BigDecimal"
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("decimal(10,2)", ve["columnType"])
@@ -123,7 +123,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = "BigDecimal?"
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("decimal(10,2)", ve["columnType"])
@@ -137,7 +137,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = "Long"
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("bigint", ve["columnType"])
@@ -151,7 +151,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = "Long?"
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("bigint", ve["columnType"])
@@ -166,7 +166,7 @@ class DefaultTypeResolvingStrategyTest {
 		val property = CodegenProperty()
 		property.datatypeWithEnum = UNDEFINED_PROPERTY_TYPE
 		property.maxLength = PROPERTY_MAX_LENGTH
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("VARCHAR(${PROPERTY_MAX_LENGTH})", ve["columnType"])
@@ -180,7 +180,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		val property = CodegenProperty()
 		property.datatypeWithEnum = UNDEFINED_PROPERTY_TYPE
-		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
+		resolvingStrategy.resolve(null, property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("VARCHAR(${PROJECT_DEFAULT_STRING_SIZE})", ve["columnType"])
@@ -198,7 +198,7 @@ class DefaultTypeResolvingStrategyTest {
 		val property = CodegenProperty()
 		property.datatypeWithEnum = UNDEFINED_PROPERTY_TYPE
 		property.vendorExtensions["x-usage"] = "Description"
-		resolvingStrategy.resolvePropertyType(property, null)
+		resolvingStrategy.resolve(null, property, null)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("VARCHAR(${STRING_SIZE_WHEN_USAGE_IS_DESCRIPTION})", ve["columnType"])
@@ -213,7 +213,7 @@ class DefaultTypeResolvingStrategyTest {
 		val property = CodegenProperty()
 		property.datatypeWithEnum = UNDEFINED_PROPERTY_TYPE
 		property.vendorExtensions["x-usage"] = "not description"
-		resolvingStrategy.resolvePropertyType(property, null)
+		resolvingStrategy.resolve(null, property, null)
 
 		val ve = property.vendorExtensions
 		kotlin.test.assertEquals("VARCHAR(${DEFAULT_STRING_SIZE})", ve["columnType"])
