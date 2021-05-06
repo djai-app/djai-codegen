@@ -59,8 +59,11 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 		for (operation in ops) {
 			if (operation.isListContainer) {
 				val filterQueries = models.find { it.name == operation.returnType }?.let { model ->
-					operation.headerParams
-						.filter { param -> model.vars.any { it.name == param.baseName } }
+					operation.allParams
+						.filter { it.isHeaderParam }
+						.filter { param -> model.vars.any {	it.name == param.baseName &&
+									it.datatypeWithEnum.removeSuffix("?") == param.dataType.removeSuffix("?")
+								} }
 						.map {
 							val map = HashMap<String, Any>()
 							map["filter"] = it.baseName
