@@ -13,5 +13,5 @@ interface CommonParameterizedController<E : BaseResource> {
     fun modify(parentId: String, id: String, domain: E): ResponseEntity<E>
     fun saveAll(parentId: String, domains: List<E>): List<E>
     fun deleteAll(parentId: String, ids: List<String>): List<E>
-    fun getAll(parentId: String, search: String?, pageable : Pageable): ResponseEntity<Page<E>>
+    fun getAll(parentId: String, search: String?, pageable : Pageable, filter: Map<String, Any?>? = null): ResponseEntity<Page<E>>
 }
