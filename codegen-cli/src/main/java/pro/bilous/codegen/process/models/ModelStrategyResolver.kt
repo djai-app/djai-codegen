@@ -82,21 +82,9 @@ class ModelStrategyResolver(val model: CodegenModel, val codegen: CodeCodegen) :
 					maxLength = null
 					vendorExtensions["x-usage"] = "Description"
 				}
-
-		when (databaseName) {
-			"mysql" -> {
-				MySqlTypeResolvingStrategy.resolvePropertyType(nameProperty, defaultStringSize)
-				MySqlTypeResolvingStrategy.resolvePropertyType(descriptionProperty, defaultStringSize)
-			}
-			"postgresql" -> {
-				PostgreSqlTypeResolvingStrategy.resolvePropertyType(nameProperty, defaultStringSize)
-				PostgreSqlTypeResolvingStrategy.resolvePropertyType(descriptionProperty, defaultStringSize)
-			}
-			else -> {
-				DefaultTypeResolvingStrategy().resolvePropertyType(nameProperty, defaultStringSize)
-				DefaultTypeResolvingStrategy().resolvePropertyType(descriptionProperty, defaultStringSize)
-			}
-		}
+		val typeResolvingStrategy = DefaultTypeResolvingStrategy()
+		typeResolvingStrategy.resolve(databaseName, nameProperty, defaultStringSize)
+		typeResolvingStrategy.resolve(databaseName, descriptionProperty, defaultStringSize)
 		model.vendorExtensions["identityNameType"] = nameProperty.vendorExtensions["columnType"]
 		model.vendorExtensions["identityDescriptionType"] = descriptionProperty.vendorExtensions["columnType"]
 	}
