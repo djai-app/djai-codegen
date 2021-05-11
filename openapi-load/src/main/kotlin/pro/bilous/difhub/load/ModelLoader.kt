@@ -68,9 +68,10 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 		var resolvedReference = reference
 
 		if(reference.contains("/datasets/")) {
-			val statusCommand = systemSettings.datasetStatus.command
-			val statusParam = statusCommand?.let { "status=${statusCommand}" } ?: ""
-			resolvedReference = "$reference?$statusParam"
+			val datasetStatusParam = systemSettings.datasetStatus.pathParam
+			if(!datasetStatusParam.isNullOrEmpty()) {
+				resolvedReference = "$reference?status=${datasetStatusParam}"
+			}
 		}
 
 		return resolvedReference
