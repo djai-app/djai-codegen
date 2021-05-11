@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.swagger.util.Json
+import pro.bilous.difhub.config.SystemSettings
 
 class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 
@@ -17,13 +18,13 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 		Json.mapper().registerKotlinModule()
 	}
 
-	override fun loadModel(reference: String): Model? {
+	override fun loadModel(reference: String, systemSettings: SystemSettings): Model? {
 		// remove the version suffix to always get the latest one.
 		var fixedRef = reference
 		if (fixedRef.contains("/versions/")) {
 			fixedRef = reference.split("/").dropLast(2).joinToString("/")
 		}
-		val text = loadString(fixedRef)
+		val text = loadString(fixedRef, systemSettings)
 		return if (text.isNullOrEmpty()) null else try {
 			Json.mapper().readValue<Model>(text)
 		} catch (e: MismatchedInputException) {
@@ -34,24 +35,44 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 	}
 
 	override fun loadModels(reference: String): List<Model>? {
-		val text = loadString(reference)
+		val text = loadString(reference, null)
 		return if (text.isNullOrEmpty()) null else Json.mapper().readValue<List<Model>>(text)
 	}
 
 	private inline fun <reified T> ObjectMapper.readValue(json: String): T
 			= readValue(json, object : TypeReference<T>(){})
 
-	private fun loadString(reference: String): String? {
+	private fun loadString(reference: String, systemSettings: SystemSettings?): String? {
 		val fixedReference = reference.replace("//", "/")
 
 		if (globalModelCache.containsKey(fixedReference)) {
 			return globalModelCache[fixedReference]
 		}
-		val sourceText = defLoader.load(fixedReference)
+
+		val url = if(systemSettings!=null) {
+			resolveReference(fixedReference, systemSettings)
+		} else {
+			fixedReference
+		}
+
+		val sourceText = defLoader.load(url)
 		if (sourceText == null || sourceText.contains("EntityForbiddenException")) {
 			return null
 		}
 		globalModelCache[fixedReference] = sourceText
 		return sourceText
+	}
+
+	private fun resolveReference(reference: String, systemSettings: SystemSettings) : String {
+
+		var resolvedReference = reference
+
+		if(reference.contains("/datasets/")) {
+			val statusCommand = systemSettings.datasetStatus.command
+			val statusParam = statusCommand?.let { "status=${statusCommand}" } ?: ""
+			resolvedReference = "$reference?$statusParam"
+		}
+
+		return resolvedReference
 	}
 }
