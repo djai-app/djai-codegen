@@ -18,13 +18,9 @@ dependencies {
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
-group = "pro.bilous.code"
-version = "0.0.7"
-
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-//    pulginName = "DifHub"
-    version = "2020.2.2"
+    version = "2021.1"
 }
 
 tasks.patchPluginXml {

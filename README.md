@@ -1,10 +1,10 @@
-[![Build Status](https://dev.azure.com/vovabilous/Bilous/_apis/build/status/DJetCloud.djet-codegen?branchName=master)](https://dev.azure.com/vovabilous/Bilous/_build/latest?definitionId=2&branchName=master) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDJetCloud%2Fdjet-codegen.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FDJetCloud%2Fdjet-codegen?ref=badge_shield)
-
+[![Build Status](https://dev.azure.com/vovabilous/Bilous/_apis/build/status/DJetCloud.djet-codegen?branchName=master)](https://dev.azure.com/vovabilous/Bilous/_build/latest?definitionId=2&branchName=master) 
 [![codecov](https://codecov.io/gh/DJetCloud/djet-codegen/branch/master/graph/badge.svg?token=J1Y895B9QV)](https://codecov.io/gh/DJetCloud/djet-codegen) 
 [![CodeFactor](https://www.codefactor.io/repository/github/djetcloud/djet-codegen/badge)](https://www.codefactor.io/repository/github/djetcloud/djet-codegen) 
 [![Join the chat at https://gitter.im/DJetCloud/Public](https://badges.gitter.im/DJetCloud/Public.svg)](https://gitter.im/DJetCloud/Public?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDJetCloud%2Fdjet-codegen.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FDJetCloud%2Fdjet-codegen?ref=badge_shield)
 
-# Djet Code Generation tools.
+# DJet Code Generation instrumentation.
 Set of tools for the integration with https://metucat.com (previously https://difhub.com). Contains API loader, codegen and IntelliJ Idea plugin. New features and instrumentation coming soon.
 
 Projects:
