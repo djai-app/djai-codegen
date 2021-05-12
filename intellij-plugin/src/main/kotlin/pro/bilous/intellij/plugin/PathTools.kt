@@ -1,7 +1,6 @@
 package pro.bilous.intellij.plugin
 
 import com.intellij.openapi.vfs.VirtualFileManager
-import pro.bilous.intellij.plugin.project.ProjectFileManager
 import java.lang.IllegalStateException
 
 object PathTools {
@@ -28,11 +27,11 @@ object PathTools {
 	}
 
 	fun resolveHomePathForOldProjects(projectPath: String) {
-		val oldConfigFolderPath = "file://$projectPath/.difhub-codegen"
+		val oldHomePath = "file://$projectPath/.difhub-codegen"
 
-		val oldConfigFolder = VirtualFileManager.getInstance().findFileByUrl(oldConfigFolderPath)
-		if (oldConfigFolder != null) {
-			oldConfigFolder.rename(null, HOME_PATH)
+		val oldHomeFolder = VirtualFileManager.getInstance().findFileByUrl(oldHomePath)
+		if (oldHomeFolder != null) {
+			oldHomeFolder.rename(null, HOME_PATH)
 			VirtualFileManager.getInstance().syncRefresh()
 		}
 	}
