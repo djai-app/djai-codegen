@@ -50,13 +50,13 @@ internal class DifHubToSwaggerConverterTest {
 	@Test
 	fun `should convert to app`() {
 		val mockModelLoader: IModelLoader = mock()
-		whenever(mockModelLoader.loadModel(any(),any())).thenReturn(readValue(appJson))
+		whenever(mockModelLoader.loadModel(any(), any())).thenReturn(readValue(appJson))
 
 		val appLoader = ApplicationsLoader().apply {
 			modelLoader = mockModelLoader
 		}
 
-		val converter = DifHubToSwaggerConverter(SystemSettings("system",DatasetStatus.APPROVED))
+		val converter = DifHubToSwaggerConverter(SystemSettings("system", DatasetStatus.APPROVED))
 		converter.appLoader = appLoader
 		converter.datasetsLoader = mock()
 		converter.interfacesLoader = mock()
