@@ -39,21 +39,21 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 		return if (text.isNullOrEmpty()) null else Json.mapper().readValue<List<Model>>(text)
 	}
 
-	private inline fun <reified T> ObjectMapper.readValue(json: String): T
-			= readValue(json, object : TypeReference<T>(){})
+	private inline fun <reified T> ObjectMapper.readValue(json: String): T =
+		readValue(json, object : TypeReference<T>() {})
 
 	private fun loadString(reference: String, systemSettings: SystemSettings?): String? {
-		val fixedReference = reference.replace("//", "/")
+		var fixedReference = reference.trim()
+		while (fixedReference.contains("//")) {
+			fixedReference = fixedReference.replace("//", "/")
+		}
+		fixedReference = fixedReference.removePrefix("/")
 
 		if (globalModelCache.containsKey(fixedReference)) {
 			return globalModelCache[fixedReference]
 		}
 
-		val url = if(systemSettings!=null) {
-			resolveReference(fixedReference, systemSettings)
-		} else {
-			fixedReference
-		}
+		val url = resolveReference(fixedReference, systemSettings)
 
 		val sourceText = defLoader.load(url)
 		if (sourceText == null || sourceText.contains("EntityForbiddenException")) {
@@ -63,13 +63,17 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 		return sourceText
 	}
 
-	private fun resolveReference(reference: String, systemSettings: SystemSettings) : String {
+	private fun resolveReference(reference: String, systemSettings: SystemSettings?): String {
 
 		var resolvedReference = reference
 
-		val datasetStatusParam = systemSettings.datasetStatus.pathParam
-		if(!datasetStatusParam.isNullOrEmpty()) {
-			resolvedReference = "$reference?status=${datasetStatusParam}"
+		val datasetStatusParam = systemSettings?.datasetStatus?.pathParam
+		if (!datasetStatusParam.isNullOrEmpty()) {
+			resolvedReference = if (reference.contains("?")) {
+				"$reference&status=${datasetStatusParam}"
+			} else {
+				"$reference?status=${datasetStatusParam}"
+			}
 		}
 
 		return resolvedReference
