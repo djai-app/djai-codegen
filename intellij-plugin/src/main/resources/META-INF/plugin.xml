@@ -5,8 +5,8 @@
     <depends>org.intellij.groovy</depends>
     <depends>XPathView</depends>-->
 
-    <name>djet-codegen</name>
-    <vendor email="vova.bilous@hotmail.com" url="https://djet.cloud">DJetCloud</vendor>
+    <name>DJet</name>
+    <vendor email="contact@bilous.pro" url="https://djet.cloud">DJetCloud</vendor>
 
     <description><![CDATA[
     Plugin to bootstrap entire Cloud Native microservice system based on Metadata Driven design.

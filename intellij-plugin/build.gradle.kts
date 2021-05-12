@@ -18,9 +18,12 @@ dependencies {
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
+group = "cloud.djet"
+version = "1.0.0-alpha"
+
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version = "2021.1"
+    version = "2021.1.1"
 }
 
 tasks.patchPluginXml {
