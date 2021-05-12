@@ -1,9 +1,11 @@
 package pro.bilous.intellij.plugin
 
+import com.intellij.openapi.vfs.VirtualFileManager
+import pro.bilous.intellij.plugin.project.ProjectFileManager
 import java.lang.IllegalStateException
 
 object PathTools {
-	private const val HOME_PATH = ".difhub-codegen"
+	private const val HOME_PATH = "djet"
 	private const val CREDENTIALS_FILE = ".credentials"
 	private const val SETTINGS_FILE = "settings"
 
@@ -11,7 +13,10 @@ object PathTools {
 		if (projectPath == null) {
 			throw IllegalStateException("projectPath can not be null")
 		}
-		return "${projectPath}/$HOME_PATH"
+
+		resolveHomePathForOldProjects(projectPath)
+
+		return "$projectPath/$HOME_PATH"
 	}
 
 	fun getCredentialsPath(projectPath: String?): String {
@@ -20,5 +25,15 @@ object PathTools {
 
 	fun getSettingsPath(projectPath: String?): String {
 		return "${getHomePath(projectPath)}/$SETTINGS_FILE.yaml"
+	}
+
+	fun resolveHomePathForOldProjects(projectPath: String) {
+		val oldConfigFolderPath = "file://$projectPath/.difhub-codegen"
+
+		val oldConfigFolder = VirtualFileManager.getInstance().findFileByUrl(oldConfigFolderPath)
+		if (oldConfigFolder != null) {
+			oldConfigFolder.rename(null, HOME_PATH)
+			VirtualFileManager.getInstance().syncRefresh()
+		}
 	}
 }
