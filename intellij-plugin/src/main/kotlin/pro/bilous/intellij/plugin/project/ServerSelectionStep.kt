@@ -16,19 +16,21 @@ class ServerSelectionStep(val moduleBuilder: ProjectModuleBuilder) : ModuleWizar
 
     private val userField = JBTextField()
     private val passwordField = JBTextField()
-    private val textFieldWithHistory = TextFieldWithHistory()
+    private val organizationField = TextFieldWithHistory()
 
     val difhub = ConfigReader.loadConfig().difhub
 
     override fun updateDataModel() {
 		moduleBuilder.request.username = userField.text
 		moduleBuilder.request.password = passwordField.text
-		moduleBuilder.request.organization = textFieldWithHistory.text
+		moduleBuilder.request.organization = organizationField.text
 		writeCredentialsToProps()
+		writeSettingsToProps()
     }
 
     override fun getComponent(): JComponent {
 		loadCredentials()
+		loadSettings()
         return panel {
             titledRow("DifHub Credentials") {
                 row {
@@ -48,7 +50,7 @@ class ServerSelectionStep(val moduleBuilder: ProjectModuleBuilder) : ModuleWizar
                 row {
                     cell {
                         label("Organization Name")
-                        textFieldWithHistory()
+                        organizationField()
                     }
                 }.enabled = true
             }
@@ -63,7 +65,7 @@ class ServerSelectionStep(val moduleBuilder: ProjectModuleBuilder) : ModuleWizar
             throw ConfigurationException("Password must be set")
         }
 
-        val serverUrl = "${difhub.api}/${URLEncoder.encode(textFieldWithHistory.text, "utf-8")}"
+        val serverUrl = "${difhub.api}/${URLEncoder.encode(organizationField.text, "utf-8")}"
 
         if (StringUtils.isEmpty(serverUrl)) {
             throw ConfigurationException("Organization Name must be set")
@@ -77,15 +79,21 @@ class ServerSelectionStep(val moduleBuilder: ProjectModuleBuilder) : ModuleWizar
     }
 
 	private fun loadCredentials() {
-		textFieldWithHistory.text = System.getProperty("DIFHUB_ORG_NAME", "")
 		userField.text = System.setProperty("DIFHUB_USERNAME", "")
 		passwordField.text = System.setProperty("DIFHUB_PASSWORD", "")
 	}
 
+	private fun loadSettings() {
+		organizationField.text = System.getProperty("DIFHUB_ORG_NAME", "")
+	}
+
     private fun writeCredentialsToProps() {
-        System.setProperty("DIFHUB_ORG_NAME", textFieldWithHistory.text)
         System.setProperty("DIFHUB_USERNAME", userField.text)
         System.setProperty("DIFHUB_PASSWORD", passwordField.text)
     }
+
+	private fun writeSettingsToProps() {
+		System.setProperty("DIFHUB_ORG_NAME", organizationField.text)
+	}
 
 }

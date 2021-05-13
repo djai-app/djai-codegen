@@ -29,8 +29,7 @@ class ProjectFilesCreator {
 	fun createCredentialsFile(request: ProjectCreationRequest, configFolder: String) {
         val fileContent = mapOf(
             "username" to request.username,
-            "password" to request.password,
-            "organization" to request.organization
+            "password" to request.password
         )
         YamlWriter(request.system).writeFile(fileContent, configFolder, ".credentials")
     }
@@ -47,6 +46,7 @@ class ProjectFilesCreator {
 
 	fun createConfigFile(request: ProjectCreationRequest, configFolder: String) {
         val configMap = mapOf(
+			"organization" to request.organization,
             "system" to request.system,
             "application" to request.applications,
             "groupId" to request.groupId,
