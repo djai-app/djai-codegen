@@ -21,7 +21,7 @@ class DatasetsLoader : IDatasetsLoader {
 				.filter { it.`object` != null && allowedTypes.contains(it.`object`.usage) }
 				.forEach {
 
-					var url = difhub.getDatatsetTypeUrl(system, app, it.identity.name)
+					var url = difhub.getDatasetTypeUrl(system, app, it.identity.name)
 //					if (it.version != null) {
 //						url = "$url/versions/${it.version.major}.${it.version.minor}.${it.version.revision}"
 //					}

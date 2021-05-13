@@ -1,26 +1,19 @@
-package pro.bilous.intellij.plugin.migration
+package pro.bilous.intellij.plugin
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.intellij.openapi.vfs.VirtualFileManager
 import io.swagger.util.Yaml
-import org.slf4j.LoggerFactory
 import pro.bilous.difhub.write.YamlWriter
 import java.io.IOException
 
 object Migrations {
-	private val log = LoggerFactory.getLogger(Migrations::class.java)
-
 	const val ANSI_GREEN = "\u001B[32m"
 
-	fun perform(projectPath: String) {
-		moveOrganizationParamFromCredentialsToSettings(projectPath)
-	}
-
-	private fun moveOrganizationParamFromCredentialsToSettings(projectPath: String) {
+	fun movePropertyOrganizationFromCredentialsToSettings(projectPath: String) {
 		val homePath = "file://$projectPath/.difhub-codegen"
 		val credentialsPath = "$homePath/.credentials.yaml"
 		val credentials = getPropertiesFromYamlFile(credentialsPath) ?: return
-		val organization = credentials["organization"].asText() ?: return
+		val organization = credentials["organization"]?.asText() ?: return
 		val settingsPath = "$homePath/settings.yaml"
 		val settings = getPropertiesFromYamlFile(settingsPath) ?: return
 		settings.put("organization", organization)
@@ -42,6 +35,6 @@ object Migrations {
 	}
 
 	private fun info(message: String) {
-		println("${ANSI_GREEN}Migration: $message${ANSI_GREEN}")
+		println("${ANSI_GREEN}Migration: $message$ANSI_GREEN")
 	}
 }
