@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import io.swagger.util.Yaml
 import pro.bilous.difhub.convert.DifHubToSwaggerConverter
 import pro.bilous.difhub.write.YamlWriter
+import pro.bilous.intellij.plugin.migration.Migrations
 import java.lang.IllegalArgumentException
 
 class DifHubLoadOpenApiAction : AnAction() {
@@ -18,6 +19,9 @@ class DifHubLoadOpenApiAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project
         val basePath = project!!.basePath ?: throw IllegalArgumentException("Base path not found")
+
+		Migrations.perform(basePath)
+		return
 
         val configFolder = PathTools.getHomePath(basePath)
 
@@ -40,6 +44,9 @@ class DifHubLoadOpenApiAction : AnAction() {
 			return null
 		}
 		val configTree = Yaml.mapper().readTree(configFile.inputStream)
+
+		System.setProperty("DIFHUB_ORG_NAME", configTree.get("organization").asText())
+
 		return configTree.get("system").asText()
 	}
 
@@ -52,7 +59,6 @@ class DifHubLoadOpenApiAction : AnAction() {
 		}
 		val fileTree = Yaml.mapper().readTree(configFile.inputStream)
 
-		System.setProperty("DIFHUB_ORG_NAME", fileTree.get("organization").asText())
 		System.setProperty("DIFHUB_USERNAME", fileTree.get("username").asText())
 		System.setProperty("DIFHUB_PASSWORD", fileTree.get("password").asText())
 		return true

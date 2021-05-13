@@ -13,7 +13,6 @@ internal class ProjectFilesCreatorTest {
 		val request = ProjectCreationRequest().apply {
 			username = "test@username"
 			password = "test password"
-			organization = "Demo org"
 		}
 
 		val configFolder = Paths.get("build/tmp").toAbsolutePath().toString()
@@ -25,10 +24,8 @@ internal class ProjectFilesCreatorTest {
 		val configTree = Yaml.mapper().readTree(configFile.inputStream())
 		val username = configTree.get("username").asText()
 		val password = configTree.get("password").asText()
-		val organization = configTree.get("organization").asText()
 
 		assertEquals(request.username, username)
 		assertEquals(request.password, password)
-		assertEquals(request.organization, organization)
 	}
 }
