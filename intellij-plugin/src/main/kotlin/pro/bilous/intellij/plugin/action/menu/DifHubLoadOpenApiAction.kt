@@ -7,21 +7,19 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import io.swagger.util.Yaml
+import org.slf4j.LoggerFactory
 import pro.bilous.difhub.convert.DifHubToSwaggerConverter
 import pro.bilous.difhub.write.YamlWriter
-import pro.bilous.intellij.plugin.migration.Migrations
-import java.lang.IllegalArgumentException
 
 class DifHubLoadOpenApiAction : AnAction() {
+	private val log = LoggerFactory.getLogger(DifHubLoadOpenApiAction::class.java)
 
 	private val fileManager = ProjectFileManager()
 
     override fun actionPerformed(e: AnActionEvent) {
-        val project = e.project
-        val basePath = project!!.basePath ?: throw IllegalArgumentException("Base path not found")
-
-		Migrations.perform(basePath)
-		return
+		val ve = VerifiedEvent(e)
+        val project = ve.project
+        val basePath = ve.basePath
 
         val configFolder = PathTools.getHomePath(basePath)
 
