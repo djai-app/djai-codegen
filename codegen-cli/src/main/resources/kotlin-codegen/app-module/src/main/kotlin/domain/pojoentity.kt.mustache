@@ -36,9 +36,11 @@ data class {{classname}}(
 	{{/vendorExtensions.extraAnnotation}}
 	{{#vendorExtensions.isEmbedded}}
 	{{^vendorExtensions.isHistory}}
+	{{#vendorExtensions.isAttributeOverrides}}
 	{{#vendorExtensions.embeddedComponent}}
 	@AttributeOverrides(
 		{{#vars}}
+			{{^vendorExtensions.isOneToOne}}
 			{{#vendorExtensions.isEmbedded}}
 				{{#vendorExtensions.embeddedComponent}}
 					{{#vars}}
@@ -49,9 +51,22 @@ data class {{classname}}(
 			{{^vendorExtensions.isEmbedded}}
 		AttributeOverride(name = "{{name}}", column = Column(name = "{{vendorExtensions.embeddedColumnName}}"{{#vendorExtensions.hasJsonType}}, columnDefinition = "json"{{/vendorExtensions.hasJsonType}})),
 			{{/vendorExtensions.isEmbedded}}
+			{{/vendorExtensions.isOneToOne}}
 		{{/vars}}
 	)
 	{{/vendorExtensions.embeddedComponent}}
+	{{/vendorExtensions.isAttributeOverrides}}
+	{{#vendorExtensions.isAssociationOverrides}}
+	{{#vendorExtensions.embeddedComponent}}
+	@AssociationOverrides(
+		{{#vars}}
+		{{#vendorExtensions.isOneToOne}}
+		AssociationOverride( name = "{{name}}",	joinColumns = [JoinColumn(name = "{{vendorExtensions.embeddedColumnName}}", referencedColumnName = "id")])
+		{{/vendorExtensions.isOneToOne}}
+		{{/vars}}
+	)
+	{{/vendorExtensions.embeddedComponent}}
+	{{/vendorExtensions.isAssociationOverrides}}
 	{{/vendorExtensions.isHistory}}
 	@Embedded
 	{{/vendorExtensions.isEmbedded}}
