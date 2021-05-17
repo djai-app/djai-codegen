@@ -14,12 +14,12 @@ class ProjectPropertiesAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
 		val ve = VerifiedEvent(e)
 		val project = ve.project
-		val basePath = ve.basePath
+		val projectPath = ve.projectPath
 
-        val filePath = PathTools.getSettingsPath(basePath)
+        val filePath = PathTools.getSettingsPath(projectPath)
         val file = VirtualFileManager.getInstance().findFileByUrl("file://$filePath")
 		if (file == null) {
-			fileManager.createAndOpenProjectSettings(PathTools.getHomePath(basePath), project)
+			fileManager.createAndOpenProjectSettings(PathTools.getHomePath(projectPath), project)
 		} else {
 			OpenFileDescriptor(project, file).navigate(true)
 		}

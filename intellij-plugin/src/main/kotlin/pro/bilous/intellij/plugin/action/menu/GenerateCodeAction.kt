@@ -7,6 +7,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 class GenerateCodeAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
 		val ve = VerifiedEvent(e)
-        CodeGenerator().generate(ve.basePath)
+        CodeGenerator().generate(ve.projectPath)
     }
 }

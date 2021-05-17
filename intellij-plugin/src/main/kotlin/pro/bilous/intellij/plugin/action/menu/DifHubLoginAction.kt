@@ -13,13 +13,14 @@ class DifHubLoginAction: AnAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
 		val ve = VerifiedEvent(e)
-		val project = ve.project
-		val basePath = ve.basePath
 
-		val filePath = PathTools.getCredentialsPath(basePath)
+		val project = ve.project
+		val projectPath = ve.projectPath
+
+		val filePath = PathTools.getCredentialsPath(projectPath)
 		val file = VirtualFileManager.getInstance().findFileByUrl("file://$filePath")
 		if (file == null) {
-			fileManager.createAndOpenProjectCredentials(PathTools.getHomePath(basePath), project)
+			fileManager.createAndOpenProjectCredentials(PathTools.getHomePath(projectPath), project)
 		} else {
 			OpenFileDescriptor(project, file).navigate(true)
 		}

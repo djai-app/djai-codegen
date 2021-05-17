@@ -7,21 +7,18 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import io.swagger.util.Yaml
-import org.slf4j.LoggerFactory
 import pro.bilous.difhub.convert.DifHubToSwaggerConverter
 import pro.bilous.difhub.write.YamlWriter
 
 class DifHubLoadOpenApiAction : AnAction() {
-	private val log = LoggerFactory.getLogger(DifHubLoadOpenApiAction::class.java)
-
 	private val fileManager = ProjectFileManager()
 
     override fun actionPerformed(e: AnActionEvent) {
 		val ve = VerifiedEvent(e)
         val project = ve.project
-        val basePath = ve.basePath
+        val projectPath = ve.projectPath
 
-        val configFolder = PathTools.getHomePath(basePath)
+        val configFolder = PathTools.getHomePath(projectPath)
 
 		if (!loadCredentials(configFolder, project)) {
 			return
