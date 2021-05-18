@@ -89,6 +89,19 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 					operation.vendorExtensions["mustBuildFilterClass"] = true
 					filterClasses.add(filterClassName)
 				}
+
+				val filterClassParams = filterQueries.map { it["filter"] }
+				operation.allParams.removeIf { it.baseName in filterClassParams }
+				val filterParameter = CodegenParameter().apply {
+					baseName = "filter"
+					dataType = filterClassName
+					vendorExtensions["isFilterParam"] = true
+					hasMore = false
+				}
+				if(operation.allParams.isNotEmpty()) {
+					operation.allParams.last().hasMore = true
+				}
+				operation.allParams.add(filterParameter)
 			}
 		}
 	}

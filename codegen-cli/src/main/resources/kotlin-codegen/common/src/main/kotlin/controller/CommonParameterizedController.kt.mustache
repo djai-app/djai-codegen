@@ -15,11 +15,11 @@ interface CommonParameterizedController<E : BaseResource> {
     fun deleteAll(parentId: String, ids: List<String>): List<E>
     fun getAll(parentId: String, search: String?, pageable : Pageable): ResponseEntity<Page<E>>
 
-	fun getById(parentId: String, id: String, filter: Map<String, Any?>): ResponseEntity<E>
-    fun delete(parentId: String, id: String, filter: Map<String, Any?>): ResponseEntity<E>
-    fun update(parentId: String, id: String, domain: E, filter: Map<String, Any?>): ResponseEntity<E>
-    fun modify(parentId: String, id: String, domain: E, filter: Map<String, Any?>): ResponseEntity<E>
-    fun saveAll(parentId: String, domains: List<E>, filter: Map<String, Any?>): List<E>
-    fun deleteAll(parentId: String, ids: List<String>, filter: Map<String, Any?>): List<E>
-    fun getAll(parentId: String, search: String?, pageable : Pageable, filter: Map<String, Any?>): ResponseEntity<Page<E>>
+	fun getById(parentId: String, id: String, filter: CommonFilter<E>): ResponseEntity<E>
+    fun delete(parentId: String, id: String, filter: CommonFilter<E>): ResponseEntity<E>
+    fun update(parentId: String, id: String, domain: E, filter: CommonFilter<E>): ResponseEntity<E>
+    fun modify(parentId: String, id: String, domain: E, filter: CommonFilter<E>): ResponseEntity<E>
+    fun saveAll(parentId: String, domains: List<E>, filter: CommonFilter<E>): List<E>
+    fun deleteAll(parentId: String, ids: List<String>, filter: CommonFilter<E>): List<E>
+    fun getAll(parentId: String, search: String?, pageable : Pageable, filter: CommonFilter<E>): ResponseEntity<Page<E>>
 }
