@@ -365,12 +365,8 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				assignEmbeddedModel(prop, prop.vendorExtensions["embeddedComponent"] as CodegenModel, false)
 			}
 		}
-		if (isAttributeOverrides) {
-			property.vendorExtensions["isAttributeOverrides"] = true
-		}
-		if (isAssociationOverrides) {
-			property.vendorExtensions["isAssociationOverrides"] = true
-		}
+		property.vendorExtensions["isAttributeOverrides"] = isAttributeOverrides
+		property.vendorExtensions["isAssociationOverrides"] = isAssociationOverrides
 	}
 
 
