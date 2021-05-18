@@ -55,6 +55,7 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 		ops: MutableList<CodegenOperation>,
 		allModels: List<Any>
 	) {
+		val filterClasses = HashSet<String>()
 		val models = allModels.map { it as HashMap<String, Any> }.map { it["model"] as CodegenModel }
 		for (operation in ops) {
 			val filterQueries = models.find { it.name == operation.returnType }?.let { model ->
@@ -69,14 +70,25 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 					.map {
 						val map = HashMap<String, Any>()
 						map["filter"] = it.baseName
+						map["Filter"] = it.baseName.capitalize()
+						map["dataType"] = it.dataType
 						map["hasNext"] = true
 						map
 					}
 			}
 			if (filterQueries != null && filterQueries.isNotEmpty()) {
+				filterQueries.first()["isFirst"] = true
 				filterQueries.last()["hasNext"] = false
 				operation.vendorExtensions["hasFilterQuery"] = true
 				operation.vendorExtensions["filterQueries"] = filterQueries
+
+				val filterClassName =
+					"${operation.returnType}FilterOn${filterQueries.map { it["Filter"] }.joinToString("")}"
+				operation.vendorExtensions["filterClassName"] = filterClassName
+				if (!filterClasses.contains(filterClassName)) {
+					operation.vendorExtensions["mustBuildFilterClass"] = true
+					filterClasses.add(filterClassName)
+				}
 			}
 		}
 	}
