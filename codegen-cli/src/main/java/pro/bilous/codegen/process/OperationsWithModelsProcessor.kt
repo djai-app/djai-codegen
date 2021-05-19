@@ -47,61 +47,63 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 			}
 		}
 		OperationAddon(codegen).populate(objs)
-		populateOperationsWithFilterOnHeaderParams(ops, allModels)
+		populateOperationsWithFilterOnHeaderParams(objs, ops, allModels)
 		return objs
 	}
 
 	private fun populateOperationsWithFilterOnHeaderParams(
+		objs: MutableMap<String, Any>,
 		ops: MutableList<CodegenOperation>,
 		allModels: List<Any>
 	) {
-		val filterClasses = HashSet<String>()
-		val models = allModels.map { it as HashMap<String, Any> }.map { it["model"] as CodegenModel }
-		for (operation in ops) {
-			val filterQueries = models.find { it.name == operation.returnType }?.let { model ->
-				operation.allParams
-					.filter { it.isHeaderParam }
-					.filter { param ->
-						model.vars.any {
-							it.name == param.baseName &&
-									it.datatypeWithEnum.removeSuffix("?") == param.dataType.removeSuffix("?")
-						}
-					}
-					.map {
-						val map = HashMap<String, Any>()
-						map["filter"] = it.baseName
-						map["Filter"] = it.baseName.capitalize()
-						map["dataType"] = it.dataType
-						map["hasNext"] = true
-						map
-					}
-			}
-			if (filterQueries != null && filterQueries.isNotEmpty()) {
-				filterQueries.first()["isFirst"] = true
-				filterQueries.last()["hasNext"] = false
-				operation.vendorExtensions["hasFilterQuery"] = true
-				operation.vendorExtensions["filterQueries"] = filterQueries
+		val returnType = objs["returnModelType"]
+		val model = allModels.map { (it as HashMap<String, Any>)["model"] as CodegenModel }
+			.find { it.name == returnType } ?: return
 
-				val filterClassName =
-					"${operation.returnType}FilterOn${filterQueries.map { it["Filter"] }.joinToString("")}"
+		val filterClasses = HashSet<String>()
+		for (operation in ops) {
+			val filters = operation.allParams
+				.filter { param ->
+					param.isHeaderParam && model.vars.any {
+						it.name == param.baseName &&
+								it.datatypeWithEnum.removeSuffix("?") == param.dataType.removeSuffix("?")
+					}
+				}
+				.map {
+					val filter = HashMap<String, Any>()
+					filter["filter"] = it.baseName
+					filter["Filter"] = it.baseName.capitalize()
+					filter["dataType"] = it.dataType
+					filter["hasNext"] = true
+					filter
+				}
+			if (filters.isNotEmpty()) {
+				filters.first()["isFirst"] = true
+				filters.last()["hasNext"] = false
+				operation.vendorExtensions["hasFilterQuery"] = true
+				operation.vendorExtensions["filterQueries"] = filters
+
+				val filterParamNames = filters.map { it["Filter"] as String }.sorted()
+				val filterClassName = "${returnType}FilterOn${filterParamNames.joinToString("")}"
 				operation.vendorExtensions["filterClassName"] = filterClassName
 				if (!filterClasses.contains(filterClassName)) {
 					operation.vendorExtensions["mustBuildFilterClass"] = true
 					filterClasses.add(filterClassName)
 				}
 
-				val filterClassParams = filterQueries.map { it["filter"] }
-				operation.allParams.removeIf { it.baseName in filterClassParams }
-				val filterParameter = CodegenParameter().apply {
+				val filterParams = filters.map { it["filter"] as String }
+				operation.allParams.removeIf { it.baseName in filterParams }
+
+				val operationFilter = CodegenParameter().apply {
 					baseName = "filter"
 					dataType = filterClassName
 					vendorExtensions["isFilterParam"] = true
 					hasMore = false
 				}
-				if(operation.allParams.isNotEmpty()) {
+				if (operation.allParams.isNotEmpty()) {
 					operation.allParams.last().hasMore = true
 				}
-				operation.allParams.add(filterParameter)
+				operation.allParams.add(operationFilter)
 			}
 		}
 	}

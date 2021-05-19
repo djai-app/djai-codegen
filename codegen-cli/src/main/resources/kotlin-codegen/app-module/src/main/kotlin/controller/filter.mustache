@@ -20,13 +20,14 @@ class {{vendorExtensions.filterClassName}} (
 		return {{#vendorExtensions.filterQueries}}{{^isFirst}}.and({{/isFirst}}by{{Filter}}(){{^isFirst}}){{/isFirst}}{{/vendorExtensions.filterQueries}}
 	}
 	{{#vendorExtensions.filterQueries}}
+
 	private fun by{{Filter}}(): Specification<{{returnEntityType}}> {
 		return Specification { root: Root<{{returnEntityType}}>, _: CriteriaQuery<*>, builder: CriteriaBuilder ->
 			{{filter}}?.let { builder.equal(root.get({{returnEntityType}}_.{{filter}}), it) }
 		}
 	}
-
 	{{/vendorExtensions.filterQueries}}
+
 	override fun getQuery(): String {
 		{{#vendorExtensions.filterQueries}}
 		val {{filter}}Query = if ({{filter}} != null) "{{filter}}==${{filter}}{{#hasNext}};{{/hasNext}}" else ""
