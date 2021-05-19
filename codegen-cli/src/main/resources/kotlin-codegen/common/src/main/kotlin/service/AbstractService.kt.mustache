@@ -90,4 +90,11 @@ abstract class AbstractService<E: BaseResource, R: CommonRepository<E>>(protecte
 		val spec = baseSpec.and(filter.toSpecification())
 		return repository.findAll(spec, pageable)
 	}
+
+	override fun getById(id: String, filter: CommonFilter<E>): E? {
+		val rootNode: Node = RsqlParserFactory.instance().parse("id==$id;entity.state=isNull=true,entity.state!=deleted")
+		val baseSpec: Specification<E> = rootNode.accept(JpaRsqlVisitor())
+		val spec = baseSpec.and(filter.toSpecification())
+		return repository.findOne(spec).orElse(null)
+	}
 }

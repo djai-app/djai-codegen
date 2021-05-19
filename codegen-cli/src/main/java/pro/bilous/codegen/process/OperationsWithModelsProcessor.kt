@@ -80,11 +80,11 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 			if (filters.isNotEmpty()) {
 				filters.first()["isFirst"] = true
 				filters.last()["hasNext"] = false
-				operation.vendorExtensions["hasFilterQuery"] = true
-				operation.vendorExtensions["filterQueries"] = filters
+				operation.vendorExtensions["hasFilters"] = true
+				operation.vendorExtensions["filters"] = filters
 
-				val filterParamNames = filters.map { it["Filter"] as String }.sorted()
-				val filterClassName = "${returnType}FilterOn${filterParamNames.joinToString("")}"
+				val filterNames = filters.map { it["Filter"] as String }.sorted()
+				val filterClassName = "${returnType}FilterOn${filterNames.joinToString("")}"
 				operation.vendorExtensions["filterClassName"] = filterClassName
 				if (!filterClasses.contains(filterClassName)) {
 					operation.vendorExtensions["mustBuildFilterClass"] = true
@@ -94,7 +94,7 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 				val filterParams = filters.map { it["filter"] as String }
 				operation.allParams.removeIf { it.baseName in filterParams }
 
-				val operationFilter = CodegenParameter().apply {
+				val operationFilterParam = CodegenParameter().apply {
 					baseName = "filter"
 					dataType = filterClassName
 					vendorExtensions["isFilterParam"] = true
@@ -103,7 +103,7 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 				if (operation.allParams.isNotEmpty()) {
 					operation.allParams.last().hasMore = true
 				}
-				operation.allParams.add(operationFilter)
+				operation.allParams.add(operationFilterParam)
 			}
 		}
 	}

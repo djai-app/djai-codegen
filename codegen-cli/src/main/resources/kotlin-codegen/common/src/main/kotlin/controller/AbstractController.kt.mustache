@@ -37,8 +37,8 @@ abstract class AbstractController<E: BaseResource, S: CommonService<E>>(val  ser
 	}
 
 	override fun getById(id: String,  filter: CommonFilter<E>): ResponseEntity<E> {
-		// TO DO: add filtering
-		return getById(id)
+		val entity = service.getById(id, filter)?: throw ResourceNotFoundException()
+		return ResponseEntity(entity, HttpStatus.OK)
 	}
 
 	override fun getAll(search: String?, pageable : Pageable): ResponseEntity<Page<E>> {
@@ -111,8 +111,14 @@ abstract class AbstractController<E: BaseResource, S: CommonService<E>>(val  ser
 	}
 
 	override fun getById(parentId: String, id: String,  filter: CommonFilter<E>): ResponseEntity<E> {
-		// TO DO: add filtering
-		return getById(parentId, id)
+		val domain = service.getById(id, filter) ?: throw ResourceNotFoundException()
+		{{#hasEntityBlocks}}
+		Assert.isTrue(parentId == domain.entity.parent?.id, "parent $parentId is not valid")
+		{{/hasEntityBlocks}}
+		{{^hasEntityBlocks}}
+		//TODO: should assert parent id here
+		{{/hasEntityBlocks}}
+		return ResponseEntity(domain, HttpStatus.OK)
 	}
 
 	override fun delete(parentId: String, id: String): ResponseEntity<E> {

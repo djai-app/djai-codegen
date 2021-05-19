@@ -12,27 +12,27 @@ import javax.persistence.criteria.Root
 	{{#operation}}
 	{{#vendorExtensions.mustBuildFilterClass}}
 class {{vendorExtensions.filterClassName}} (
-	{{#vendorExtensions.filterQueries}}
+	{{#vendorExtensions.filters}}
 	val {{filter}}:{{dataType}}{{#hasNext}},{{/hasNext}}
-	{{/vendorExtensions.filterQueries}}
+	{{/vendorExtensions.filters}}
 ) : CommonFilter<{{returnEntityType}}> {
 	override fun toSpecification(): Specification<{{returnEntityType}}> {
-		return {{#vendorExtensions.filterQueries}}{{^isFirst}}.and({{/isFirst}}by{{Filter}}(){{^isFirst}}){{/isFirst}}{{/vendorExtensions.filterQueries}}
+		return {{#vendorExtensions.filters}}{{^isFirst}}.and({{/isFirst}}by{{Filter}}(){{^isFirst}}){{/isFirst}}{{/vendorExtensions.filters}}
 	}
-	{{#vendorExtensions.filterQueries}}
+	{{#vendorExtensions.filters}}
 
 	private fun by{{Filter}}(): Specification<{{returnEntityType}}> {
 		return Specification { root: Root<{{returnEntityType}}>, _: CriteriaQuery<*>, builder: CriteriaBuilder ->
 			{{filter}}?.let { builder.equal(root.get({{returnEntityType}}_.{{filter}}), it) }
 		}
 	}
-	{{/vendorExtensions.filterQueries}}
+	{{/vendorExtensions.filters}}
 
 	override fun getQuery(): String {
-		{{#vendorExtensions.filterQueries}}
+		{{#vendorExtensions.filters}}
 		val {{filter}}Query = if ({{filter}} != null) "{{filter}}==${{filter}}{{#hasNext}};{{/hasNext}}" else ""
-		{{/vendorExtensions.filterQueries}}
-		return {{#vendorExtensions.filterQueries}}{{filter}}Query{{#hasNext}} + {{/hasNext}}{{/vendorExtensions.filterQueries}}
+		{{/vendorExtensions.filters}}
+		return {{#vendorExtensions.filters}}{{filter}}Query{{#hasNext}} + {{/hasNext}}{{/vendorExtensions.filters}}
 	}
 }
 	{{/vendorExtensions.mustBuildFilterClass}}
