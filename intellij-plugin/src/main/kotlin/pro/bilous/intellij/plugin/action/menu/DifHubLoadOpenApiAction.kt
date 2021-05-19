@@ -45,13 +45,13 @@ class DifHubLoadOpenApiAction : AnAction() {
 		}
 		val configTree = Yaml.mapper().readTree(configFile.inputStream)
 		val name = configTree.get("system").asText()
-		val statusName = configTree.get("datasetStatus")?.asText() ?: "APPROVED"
-		var status : DatasetStatus
-		try {
-			status = DatasetStatus.valueOf(statusName.toUpperCase())
+		// we use DRAFT datasets if status wasn't specified
+		val statusName = configTree.get("datasetStatus")?.asText() ?: "DRAFT"
+		val status : DatasetStatus = try {
+			DatasetStatus.valueOf(statusName.toUpperCase())
 		} catch(e: IllegalArgumentException) {
-			log.warn("Illegal status of system: `$statusName`. Status is set to `Approved`")
-			status = DatasetStatus.APPROVED
+			log.warn("Illegal status of system: `$statusName`. Status is set to `Draft`")
+			DatasetStatus.DRAFT
 		}
 		return SystemSettings(name, status)
 	}
