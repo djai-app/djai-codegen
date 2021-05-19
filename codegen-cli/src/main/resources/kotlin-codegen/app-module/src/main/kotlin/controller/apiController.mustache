@@ -28,8 +28,8 @@ class {{controllerClassname}}(service: {{serviceClassname}})
 
 {{#operation}}
 
-    override fun {{vendorExtensions.operationMethodName}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>pageParams}}{{>filterParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}): {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {
-        {{>apiControllerMethodBody}}
+    override fun {{vendorExtensions.operationMethodName}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>pageParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}): {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {
+{{>apiControllerMethodBody}}
     }
 {{/operation}}
 
