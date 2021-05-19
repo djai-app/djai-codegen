@@ -26,7 +26,7 @@ class ProjectCreationRequest {
     var addBindingEntity = true
     var authorizationEnabled = false
 	var defaultStringSize: String = "255"
-	var datasetStatus: DatasetStatus = DatasetStatus.APPROVED
+	var datasetStatus: DatasetStatus = DatasetStatus.DRAFT
 
     fun getMetadata(): Any? {
         return null
