@@ -3,6 +3,8 @@ package pro.bilous.difhub.convert
 import io.swagger.v3.oas.models.media.ComposedSchema
 import io.swagger.v3.oas.models.media.ObjectSchema
 import org.junit.jupiter.api.Test
+import pro.bilous.difhub.config.DatasetStatus
+import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.model.FieldsItem
 import pro.bilous.difhub.model.Identity
 import pro.bilous.difhub.model.Model
@@ -30,7 +32,7 @@ internal class DefinitionReferenceConverterTest {
 			structure = Structure(fields = listOf(field))
 		)
 
-		val result = DefinitionConverter(model).convert()
+		val result = DefinitionConverter(model, SystemSettings("system", DatasetStatus.APPROVED)).convert()
 
 		val schema = result[model.identity.name] as ObjectSchema
 		val property = schema.properties["owner"]

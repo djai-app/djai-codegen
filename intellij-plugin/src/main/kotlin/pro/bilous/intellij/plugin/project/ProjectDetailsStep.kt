@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager.getApplication
 import com.intellij.openapi.ui.Messages.showErrorDialog
 import com.intellij.ui.ScrollPaneFactory.createScrollPane
 import com.intellij.ui.components.JBLoadingPanel
+import pro.bilous.difhub.config.DatasetStatus
 import java.awt.BorderLayout
 import java.lang.Exception
 import javax.swing.JComponent
@@ -62,6 +63,7 @@ class ProjectDetailsStep(
 	override fun updateDataModel() {
 		detailsForm?.apply {
 			request.defaultStringSize = defaultDatabaseStringLengthTextBox.text
+			request.datasetStatus = DatasetStatus.valueOf((datasetStatusComboBox.selectedItem as String).toUpperCase())
 		}
 	}
 
