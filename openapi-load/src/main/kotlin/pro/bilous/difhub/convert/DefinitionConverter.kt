@@ -7,12 +7,13 @@ import io.swagger.v3.oas.models.media.ComposedSchema
 import io.swagger.v3.oas.models.media.ObjectSchema
 import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.media.StringSchema
+import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.load.DefLoader
 import pro.bilous.difhub.load.ModelLoader
 import pro.bilous.difhub.model.FieldsItem
 import pro.bilous.difhub.model.Model
 
-class DefinitionConverter(private val source: Model) {
+class DefinitionConverter(private val source: Model, private val systemSettings: SystemSettings) {
 	private val definitions = mutableMapOf<String, Schema<*>>()
 
 	fun convert(): Map<String, Schema<*>> {
@@ -159,7 +160,7 @@ class DefinitionConverter(private val source: Model) {
 
 		property.description = item.identity.description
 		if (!definitions.containsKey(refDataset) && !modelLoadingInProgress.contains(refDataset)) {
-			val source = ModelLoader(DefLoader()).loadModel(item.reference)
+			val source = ModelLoader(DefLoader()).loadModel(item.reference, systemSettings)
 			modelLoadingInProgress.add(refDataset)
 			if (source != null) {
 				val schema = createModelImpl(source)
@@ -191,7 +192,7 @@ class DefinitionConverter(private val source: Model) {
 		if (item.type == "Enum") {
 			var source: Model? = null
 			try {
-				source = ModelLoader(DefLoader()).loadModel(item.reference)
+				source = ModelLoader(DefLoader()).loadModel(item.reference, systemSettings)
 			} catch (e: MismatchedInputException) {
 				println("Failed to load Enum ${item.reference}")
 				println(e)
