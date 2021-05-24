@@ -1,19 +1,13 @@
-package pro.bilous.codegen.process.strateges
+package pro.bilous.codegen.process.strategy
 
-object MySqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
+object PostgreSqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
 
 	private val DATA_TYPES = mapOf(
-		"TINYBLOB" to "tinyblob",
+		"VARCHAR" to "varchar",
 		"TEXT" to "text",
-		"TINYTEXT" to "tinytext",
-		"BLOB" to "blob",
-		"MEDIUMBLOB" to "mediumblob",
-		"MEDIUMTEXT" to "mediumtext",
-		"LONGBLOB" to "longblob",
-		"LONGTEXT" to "longtext"
 	)
 
-	private const val MAX_SIZE_FOR_VARCHAR = 21844
+	private const val MAX_SIZE_FOR_VARCHAR = 10485760
 
 	override fun resolveStringTypeWithSize(size: Int): ColumnTypePare {
 		return if (size <= MAX_SIZE_FOR_VARCHAR) {

@@ -5,9 +5,9 @@ import org.openapitools.codegen.CodeCodegen
 import org.openapitools.codegen.CodegenModel
 import org.openapitools.codegen.CodegenProperty
 import pro.bilous.codegen.configurator.Database
-import pro.bilous.codegen.process.strateges.MySqlTypeResolvingStrategy
-import pro.bilous.codegen.process.strateges.PostgreSqlTypeResolvingStrategy
-import pro.bilous.codegen.process.strateges.DefaultTypeResolvingStrategy
+import pro.bilous.codegen.process.strategy.MySqlTypeResolvingStrategy
+import pro.bilous.codegen.process.strategy.PostgreSqlTypeResolvingStrategy
+import pro.bilous.codegen.process.strategy.DefaultTypeResolvingStrategy
 import pro.bilous.codegen.utils.CamelCaseConverter
 import pro.bilous.codegen.utils.SqlNamingUtils
 
