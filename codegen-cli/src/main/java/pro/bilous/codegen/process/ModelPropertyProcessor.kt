@@ -332,8 +332,15 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	) {
 		property.vendorExtensions["embeddedComponent"] = innerModel
 		property.vendorExtensions["isEmbedded"] = true
+		var isAttributeOverrides = false
+		var isAssociationOverrides = false
 		// add embedded column names since we are in embedded mode.
 		innerModel.vars.forEach { prop ->
+			if (prop.vendorExtensions["isOneToOne"] != null) {
+				isAssociationOverrides = true
+			} else {
+				isAttributeOverrides = true
+			}
 			val originalColumnName = prop.vendorExtensions["columnName"]
 			val originalVarName = prop.name
 			val parentColumnName = if (property.vendorExtensions.containsKey("embeddedColumnName")) {
@@ -358,6 +365,8 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				assignEmbeddedModel(prop, prop.vendorExtensions["embeddedComponent"] as CodegenModel, false)
 			}
 		}
+		property.vendorExtensions["isAttributeOverrides"] = isAttributeOverrides
+		property.vendorExtensions["isAssociationOverrides"] = isAssociationOverrides
 	}
 
 
