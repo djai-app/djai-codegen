@@ -37,7 +37,7 @@ class DifHubToSwaggerConverter(val systemSettings: SystemSettings) {
 		return result
 	}
 
-	fun convert(application: String): OpenAPI {
+	private fun convert(application: String): OpenAPI {
 		val openApi = OpenAPI()
 
 		val appModel = appLoader.loadOne(systemSettings, application)
