@@ -8,9 +8,7 @@ import org.openapitools.codegen.CodegenProperty
 import org.slf4j.LoggerFactory
 import pro.bilous.codegen.configurator.Database
 import pro.bilous.codegen.process.FromPropertyProcessor
-import pro.bilous.codegen.process.strateges.DefaultTypeResolvingStrategy
-import pro.bilous.codegen.process.strateges.MySqlTypeResolvingStrategy
-import pro.bilous.codegen.process.strateges.PostgreSqlTypeResolvingStrategy
+import pro.bilous.codegen.process.strategy.DefaultTypeResolvingStrategy
 import pro.bilous.codegen.utils.SqlNamingUtils
 import pro.bilous.codegen.utils.SuperclassRegistry
 
