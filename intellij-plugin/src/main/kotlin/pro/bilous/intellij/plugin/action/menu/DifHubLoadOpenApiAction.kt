@@ -1,5 +1,6 @@
 package pro.bilous.intellij.plugin.action.menu
 
+import com.fasterxml.jackson.databind.node.ObjectNode
 import pro.bilous.intellij.plugin.PathTools
 import pro.bilous.intellij.plugin.project.ProjectFileManager
 import com.intellij.openapi.actionSystem.AnAction
@@ -12,6 +13,7 @@ import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.config.DatasetStatus
 import pro.bilous.difhub.convert.DifHubToSwaggerConverter
 import pro.bilous.difhub.write.YamlWriter
+import java.io.File
 
 class DifHubLoadOpenApiAction : AnAction() {
 	private val log = LoggerFactory.getLogger(DifHubToSwaggerConverter::class.java)
@@ -36,14 +38,14 @@ class DifHubLoadOpenApiAction : AnAction() {
     }
 
 	private fun loadSystem(configFolder: String, project: Project): SystemSettings? {
-		val configFilePath = "file://$configFolder/settings.yaml"
+		val configFilePath = "$configFolder/settings.yaml"
 
-		val configFile = VirtualFileManager.getInstance().findFileByUrl(configFilePath)
-		if (configFile == null) {
+		val file = File(configFilePath)
+		if (!file.exists()) {
 			fileManager.createAndOpenProjectSettings(configFolder, project)
 			return null
 		}
-		val configTree = Yaml.mapper().readTree(configFile.inputStream)
+		val configTree = file.inputStream().use { Yaml.mapper().readTree(it) as? ObjectNode } ?: return null
 
 		System.setProperty("DIFHUB_ORG_NAME", configTree.get("organization").asText())
 

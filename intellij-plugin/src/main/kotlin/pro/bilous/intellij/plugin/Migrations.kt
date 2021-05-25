@@ -1,4 +1,4 @@
-package pro.bilous.difhub
+package pro.bilous.intellij.plugin
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import io.swagger.util.Yaml
@@ -7,10 +7,10 @@ import java.io.File
 import java.io.IOException
 
 object Migrations {
-	const val ANSI_GREEN = "\u001B[32m"
+	private const val ANSI_GREEN = "\u001B[32m"
 
 	fun movePropertyOrganizationFromCredentialsToSettings(projectPath: String) {
-		val homePath = "$projectPath/.difhub-codegen"
+		val homePath = PathTools.getHomePath(projectPath)
 		val credentialsPath = "$homePath/.credentials.yaml"
 		val credentials = getPropertiesFromYamlFile(credentialsPath) ?: return
 		val organization = credentials["organization"]?.asText() ?: return

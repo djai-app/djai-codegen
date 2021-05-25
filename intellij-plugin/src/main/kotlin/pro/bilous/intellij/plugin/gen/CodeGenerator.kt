@@ -4,7 +4,6 @@ import pro.bilous.intellij.plugin.PathTools
 import com.intellij.openapi.vfs.VirtualFileManager
 import io.airlift.airline.*
 import org.openapitools.codegen.cmd.*
-import pro.bilous.difhub.Migrations
 import java.util.*
 
 class CodeGenerator {

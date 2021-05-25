@@ -2,7 +2,7 @@ package pro.bilous.intellij.plugin.action.menu
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
-import pro.bilous.difhub.Migrations
+import pro.bilous.intellij.plugin.Migrations
 import java.lang.IllegalArgumentException
 
 class VerifiedEvent(val e: AnActionEvent) {
