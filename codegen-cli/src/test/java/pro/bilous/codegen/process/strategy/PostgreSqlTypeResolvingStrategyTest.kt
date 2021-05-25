@@ -1,4 +1,4 @@
-package pro.bilous.codegen.process.strateges
+package pro.bilous.codegen.process.strategy
 
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
