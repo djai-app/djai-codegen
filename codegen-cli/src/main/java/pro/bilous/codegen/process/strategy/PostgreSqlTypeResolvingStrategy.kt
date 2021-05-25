@@ -1,4 +1,4 @@
-package pro.bilous.codegen.process.strateges
+package pro.bilous.codegen.process.strategy
 
 object PostgreSqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
 
