@@ -211,7 +211,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				if (propertyTableColumnName == modelTableName) "ref_$propertyTableColumnName" else propertyTableColumnName
 
 			property.getVendorExtensions()["modelTableName"] = SqlNamingUtils.escapeTableNameIfNeeded(modelTableName)
-			property.getVendorExtensions()["propertyTableName"] = realPropertyTableName
+			property.getVendorExtensions()["propertyTableName"] = SqlNamingUtils.escapeColumnNameIfNeeded(realPropertyTableName)
 			property.vendorExtensions["hasPropertyTable"] = openApiWrapper.isOpenApiContainsType(complexType)
 			property.getVendorExtensions()["joinTableName"] = joinTableName
 			property.getVendorExtensions()["joinColumnName"] = "${modelTableName}_id"
