@@ -45,6 +45,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			convertToMetadataProperty(property, model)
 		}
 		addGuidAnnotation(property, model)
+		addImportOfDateIfPropertyHasTypeDate(property, model)
 	}
 
 	private fun processIfGuidOrObjectWithXDataTypesOrInteger(property: CodegenProperty) {
@@ -161,8 +162,8 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun populateTableExtension(model: CodegenModel, property: CodegenProperty) {
-		applyColumnNames(model, property)
-		applyEmbeddedComponentOrOneToOne(model, property)
+		applyColumnNames(property)
+		applyEmbeddedComponentOrOneToOne(property)
 
 		if (entityMode && property.isListContainer) {
 			val modelTableName = CamelCaseConverter.convert(model.name).toLowerCase()
@@ -202,7 +203,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				if (propertyTableColumnName == modelTableName) "ref_$propertyTableColumnName" else propertyTableColumnName
 
 			property.getVendorExtensions()["modelTableName"] = SqlNamingUtils.escapeTableNameIfNeeded(modelTableName)
-			property.getVendorExtensions()["propertyTableName"] = realPropertyTableName
+			property.getVendorExtensions()["propertyTableName"] = SqlNamingUtils.escapeColumnNameIfNeeded(realPropertyTableName)
 			property.vendorExtensions["hasPropertyTable"] = openApiWrapper.isOpenApiContainsType(complexType)
 			property.getVendorExtensions()["joinTableName"] = joinTableName
 			property.getVendorExtensions()["joinColumnName"] = "${modelTableName}_id"
@@ -279,15 +280,14 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		)
 	}
 
-	fun applyColumnNames(model: CodegenModel, property: CodegenProperty) {
+	private fun applyColumnNames(property: CodegenProperty) {
 		val columnName = CamelCaseConverter.convert(property.name).toLowerCase()
 		property.getVendorExtensions()["columnName"] = columnName
 		property.getVendorExtensions()["escapedColumnName"] = SqlNamingUtils.escapeColumnNameIfNeeded(columnName)
 		property.getVendorExtensions()["columnName"] = property.getVendorExtensions()["escapedColumnName"]
-
 	}
 
-	fun applyEmbeddedComponentOrOneToOne(model: CodegenModel, property: CodegenProperty) {
+	fun applyEmbeddedComponentOrOneToOne(property: CodegenProperty) {
 		if (!isInnerModel(property)) {
 			return
 		}
@@ -375,5 +375,12 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	fun joinTableName(first: String, second: String, sort: Boolean = true): String {
 		return (if (sort) arrayOf(first, second).sortedArray() else arrayOf(first, second))
 			.joinToString(separator = "_to_")
+	}
+
+	private fun addImportOfDateIfPropertyHasTypeDate(property: CodegenProperty, model: CodegenModel) {
+		val imports = model.imports
+		if(!imports.contains("Date") && property.datatypeWithEnum.removeSuffix("?") == "Date") {
+			imports.add("Date")
+		}
 	}
 }

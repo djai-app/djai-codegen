@@ -56,7 +56,8 @@ class InterfaceToPathConverter(private val source: Model, private val openApi: O
 					else -> throw IllegalStateException()
 				}
 			}
-			if (param != null) {
+			val supportedParam = !identityName.startsWith("_") && location != "Header"
+			if (param != null && supportedParam) {
 				parameters[param.name] = param
 			}
 		}
@@ -177,7 +178,14 @@ class InterfaceToPathConverter(private val source: Model, private val openApi: O
 		val param = createParameter(paramSource)
 
 		val sourceParam = findParameter(paramSource.name) ?: return
-
+		if (sourceParam.location == "Header") {
+			// Header parameters not supported
+			return
+		}
+		if (sourceParam.name.startsWith("_")) {
+			// Underscore hides parameter from code generation
+			return
+		}
 		if (sourceParam.location == "Body") {
 			op.requestBody(RequestBody().`$ref`(paramSource.name))
 			return
