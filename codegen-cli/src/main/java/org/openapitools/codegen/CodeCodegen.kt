@@ -348,8 +348,14 @@ open class CodeCodegen : AbstractJavaCodegen() {
 		return (this.outputFolder + File.separator + modelFolder).replace('/', File.separatorChar)
 	}
 
+	/** Add trailing dashes to allow tests overwrite by codegen
+	 * see why **[DefaultGenerator.generateApis]** block code where __generateApiTests__ used
+	 **/
 	override fun apiTestFilename(templateName: String, tag: String): String {
-		val suffix = apiTestTemplateFiles()[templateName]
+		val suffix = apiTestTemplateFiles()[templateName] +
+			if (additionalProperties.getOrDefault("overwriteTests", false) as Boolean) {
+				"__"
+			} else ""
 		val fileFolder = if (templateName.startsWith("resources/integration-test")) {
 			apiIntegrationTestFolder()
 		} else apiTestFileFolder()

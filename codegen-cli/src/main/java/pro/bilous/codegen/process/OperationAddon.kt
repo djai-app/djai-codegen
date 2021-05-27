@@ -266,7 +266,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 					!it.defaultValue.isNullOrEmpty() && it.defaultValue != "null" && it.defaultValue != "listOf()" -> {
 						it.defaultValue
 					}
-					it.vendorExtensions["x-data-type"] == "Guid" -> UUID.randomUUID().toString()
+					it.vendorExtensions["x-data-type"] == "Guid" -> "aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff"
 					it.isString -> {
 						val maxLength = it.maxLength
 						if (it.maxLength != null && it.maxLength > 0 && it.maxLength <= 16) {
