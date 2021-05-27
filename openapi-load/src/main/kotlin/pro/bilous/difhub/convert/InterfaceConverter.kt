@@ -60,7 +60,10 @@ class InterfaceConverter(private val source: Model) {
 				"Query" -> createQueryParameter(item)
 				else -> throw IllegalStateException("Location '$location' of interface parameter is invalid")
 			}
-			parameters[param.name] = param
+			val supportedParam = !identityName.startsWith("_") && location != "Header"
+			if (supportedParam) {
+				parameters[param.name] = param
+			}
 		}
 	}
 
@@ -173,7 +176,14 @@ class InterfaceConverter(private val source: Model) {
 		val param = createParameter(paramSource)
 
 		val sourceParam = findParameter(paramSource.name) ?: return
-
+		if (sourceParam.location == "Header") {
+			// Header parameters not supported
+			return
+		}
+		if (sourceParam.name.startsWith("_")) {
+			// Underscore hides parameter from code generation
+			return
+		}
 		if (sourceParam.location == "Body") {
 			op.requestBody(RequestBody().`$ref`(paramSource.name))
 			return
