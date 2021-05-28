@@ -2,11 +2,7 @@ package pro.bilous.codegen.process
 
 import io.swagger.v3.oas.models.media.Schema
 import org.apache.commons.lang3.StringUtils
-import org.openapitools.codegen.CodeCodegen
-import org.openapitools.codegen.CodegenModel
-import org.openapitools.codegen.CodegenOperation
-import org.openapitools.codegen.CodegenParameter
-import java.util.*
+import org.openapitools.codegen.*
 
 class OperationAddon(val codegen: CodeCodegen) {
 
@@ -160,15 +156,15 @@ class OperationAddon(val codegen: CodeCodegen) {
 		// add page parameter
 		if (operation.httpMethod.toLowerCase() == "get" && operation.isListContainer) {
 			val pageParameter = CodegenParameter()
-					.apply {
-						dataType = "Pageable"
-						baseType = "Pageable"
-						paramName = "page"
-						baseName = "page"
-						isPrimitiveType = false
-						isInteger = false
-						vendorExtensions["isPageParam"] = true
-					}
+				.apply {
+					dataType = "Pageable"
+					baseType = "Pageable"
+					paramName = "page"
+					baseName = "page"
+					isPrimitiveType = false
+					isInteger = false
+					vendorExtensions["isPageParam"] = true
+				}
 			operation.allParams.add(pageParameter)
 		}
 
@@ -176,17 +172,20 @@ class OperationAddon(val codegen: CodeCodegen) {
 		//operation.queryParams.forEach { it.isQueryParam = true}
 
 
-
 		operation.allParams.forEach { it.hasMore = true }
 		operation.allParams.last().hasMore = false
 
 	}
 
-	private fun populateClassnames(objs: MutableMap<String, Any>, operations: MutableMap<String, Any>, ops: MutableList<CodegenOperation>) {
+	private fun populateClassnames(
+		objs: MutableMap<String, Any>,
+		operations: MutableMap<String, Any>,
+		ops: MutableList<CodegenOperation>
+	) {
 		val returnType = resolveClassname(objs, ops).removeSuffix("Model")
 		objs["returnEntityType"] = returnType
 		val classPrefix = operations["classname"]
-				.toString().removeSuffix("Api").removeSuffix("Repository")
+			.toString().removeSuffix("Api").removeSuffix("Repository")
 
 		objs["controllerClassname"] = classPrefix + "Controller"
 		objs["serviceClassname"] = classPrefix + "Service"
@@ -215,18 +214,22 @@ class OperationAddon(val codegen: CodeCodegen) {
 		objs["testImports"] = importList
 	}
 
-	private fun addImportElements(testModel: CodegenModel,
-								  mappingSet: MutableSet<String>,
-								  importList: MutableList<Map<String, String>>,) {
+	private fun addImportElements(
+		testModel: CodegenModel,
+		mappingSet: MutableSet<String>,
+		importList: MutableList<Map<String, String>>,
+	) {
 		testModel.vars.forEach {
 			if (it.vendorExtensions.containsKey("testModel")) {
 				val inner = it.vendorExtensions["testModel"] as CodegenModel
 				if (!mappingSet.contains(inner.classname)) {
 					mappingSet.add(inner.classname)
-					importList.add(mapOf(
-						"import" to codegen.toModelImport(inner.classname),
-						"classname" to inner.classname
-					))
+					importList.add(
+						mapOf(
+							"import" to codegen.toModelImport(inner.classname),
+							"classname" to inner.classname
+						)
+					)
 					addImportElements(inner, mappingSet, importList)
 				}
 			}
@@ -256,7 +259,11 @@ class OperationAddon(val codegen: CodeCodegen) {
 				applyTestVars(embeddedModel)
 				it.vendorExtensions["testModel"] = embeddedModel
 				it.vendorExtensions["hasTestModel"] = true
-			} else if (it.isListContainer && !it.complexType.isNullOrEmpty() && !arrayOf("List<String>", "List<String>?").contains(it.datatypeWithEnum)) {
+			} else if (it.isListContainer && !it.complexType.isNullOrEmpty() && !arrayOf(
+					"List<String>",
+					"List<String>?"
+				).contains(it.datatypeWithEnum)
+			) {
 				val embeddedInListModel = readModelByType(it.complexType)
 				applyTestVars(embeddedInListModel)
 				it.vendorExtensions["testModel"] = embeddedInListModel
@@ -294,6 +301,13 @@ class OperationAddon(val codegen: CodeCodegen) {
 					else -> "null"
 				}
 			}
+			postProcessOfTestProperty(it)
+		}
+	}
+
+	private fun postProcessOfTestProperty(property: CodegenProperty) {
+		if(property.dataType == "BigDecimal") {
+			property.vendorExtensions["isBigDecimal"] = true
 		}
 	}
 
