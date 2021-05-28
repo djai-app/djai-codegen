@@ -306,7 +306,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	private fun postProcessOfTestProperty(property: CodegenProperty) {
-		if(property.dataType == "BigDecimal") {
+		if (property.dataType == "BigDecimal") {
 			property.vendorExtensions["isBigDecimal"] = true
 		}
 	}
