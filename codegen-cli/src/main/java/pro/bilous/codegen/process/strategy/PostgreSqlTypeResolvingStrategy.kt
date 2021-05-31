@@ -4,7 +4,7 @@ object PostgreSqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
 
 	private val DATA_TYPES = mapOf(
 		"VARCHAR" to ColumnTypePare("\${VARCHAR_OBJECT}", "varchar"),
-		"TEXT" to ColumnTypePare("\${TEXT_OBJECT}", "text"),
+		"TEXT" to ColumnTypePare("\${TEXT_TYPE}", "text"),
 	)
 
 	private const val MAX_SIZE_FOR_VARCHAR = 10485760

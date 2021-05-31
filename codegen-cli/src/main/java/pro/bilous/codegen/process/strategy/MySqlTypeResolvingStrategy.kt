@@ -4,7 +4,7 @@ object MySqlTypeResolvingStrategy : DefaultTypeResolvingStrategy() {
 
 	private val DATA_TYPES = mapOf(
 		"TINYBLOB" to ColumnTypePare("\${TINYBLOB_OBJECT}", "tinyblob"),
-		"TEXT" to ColumnTypePare("\${TEXT_OBJECT}", "text"),
+		"TEXT" to ColumnTypePare("\${TEXT_TYPE}", "text"),
 		"TINYTEXT" to ColumnTypePare("\${TINYTEXT_OBJECT}", "tinytext"),
 		"BLOB" to ColumnTypePare("\${BLOB_OBJECT}", "blob"),
 		"MEDIUMBLOB" to ColumnTypePare("\${MEDIUMBLOB_OBJECT}", "mediumblob"),

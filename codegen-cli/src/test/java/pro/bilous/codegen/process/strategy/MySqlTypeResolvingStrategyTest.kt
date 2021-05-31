@@ -28,7 +28,7 @@ class MySqlTypeResolvingStrategyTest {
 	}
 
 	@Test
-	@DisplayName("Should assign TEXT if property.maxLength is greter then MAX_SIZE_FOR_VARCHAR")
+	@DisplayName("Should assign TEXT if property.maxLength is greater then MAX_SIZE_FOR_VARCHAR")
 	fun `should assign TEXT if property maxLength is greater then MAX_SIZE_FOR_VARCHAR`() {
 		val property = getProperty()
 		property.maxLength = MAX_SIZE_FOR_VARCHAR * 2
@@ -36,7 +36,7 @@ class MySqlTypeResolvingStrategyTest {
 		MySqlTypeResolvingStrategy.resolve(DBASE_NAME, property, DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("\${TEXT_OBJECT}", ve["columnType"])
+		kotlin.test.assertEquals("\${TEXT_TYPE}", ve["columnType"])
 		kotlin.test.assertEquals("java.lang.String", ve["hibernateType"])
 	}
 
@@ -66,7 +66,7 @@ class MySqlTypeResolvingStrategyTest {
 		MySqlTypeResolvingStrategy.resolve(DBASE_NAME, property, MAX_SIZE_FOR_VARCHAR * 2)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("\${TEXT_OBJECT}", ve["columnType"])
+		kotlin.test.assertEquals("\${TEXT_TYPE}", ve["columnType"])
 		kotlin.test.assertEquals("java.lang.String", ve["hibernateType"])
 	}
 
@@ -98,7 +98,7 @@ class MySqlTypeResolvingStrategyTest {
 
 		MySqlTypeResolvingStrategy.resolve(DBASE_NAME, property, null)
 
-		kotlin.test.assertEquals("\${TEXT_OBJECT}", ve["columnType"])
+		kotlin.test.assertEquals("\${TEXT_TYPE}", ve["columnType"])
 		kotlin.test.assertEquals("java.lang.String", ve["hibernateType"])
 	}
 

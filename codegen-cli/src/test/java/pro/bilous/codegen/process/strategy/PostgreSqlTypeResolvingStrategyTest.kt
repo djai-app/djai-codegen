@@ -35,7 +35,7 @@ class PostgreSqlTypeResolvingStrategyTest {
 		PostgreSqlTypeResolvingStrategy.resolve(DBASE_NAME, property, DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("\${TEXT_OBJECT}", ve["columnType"])
+		kotlin.test.assertEquals("\${TEXT_TYPE}", ve["columnType"])
 		kotlin.test.assertEquals("java.lang.String", ve["hibernateType"])
 	}
 
@@ -82,7 +82,7 @@ class PostgreSqlTypeResolvingStrategyTest {
 
 		PostgreSqlTypeResolvingStrategy.resolve(DBASE_NAME, property, null)
 
-		kotlin.test.assertEquals("\${TEXT_OBJECT}", ve["columnType"])
+		kotlin.test.assertEquals("\${TEXT_TYPE}", ve["columnType"])
 		kotlin.test.assertEquals("java.lang.String", ve["hibernateType"])
 	}
 
