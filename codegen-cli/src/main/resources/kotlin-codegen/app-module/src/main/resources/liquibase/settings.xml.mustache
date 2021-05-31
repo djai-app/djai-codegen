@@ -34,4 +34,6 @@
 	<property name="TEXT_OBJECT" value="text" dbms="postgresql"/>
 	<property name="TEXT_OBJECT" value="${TEST_VARCHAR}" dbms="h2"/>
 	{{/isPostgreSQL}}
+	<property name="TEXT_TYPE" value="text" dbms="{{database.name}}"/>
+	<property name="TEXT_TYPE" value="longvarchar" dbms="h2"/>
 </databaseChangeLog>

@@ -27,6 +27,13 @@ open class DefaultTypeResolvingStrategy {
 	}
 
 	protected fun resolvePropertyType(property: CodegenProperty, defaultStringSize: Int?) {
+		if (property.vendorExtensions.getOrDefault("x-data-type", "undefined") == "Text") {
+			property.vendorExtensions["columnType"] = "\${TEXT_TYPE}"
+			property.vendorExtensions["hibernateType"] = "java.lang.String"
+			property.vendorExtensions["columnDefinition"] = "text"
+			return
+		}
+
 		val resolvedDefaultStringSize =
 			if (defaultStringSize != null && defaultStringSize > 0) {
 				defaultStringSize
