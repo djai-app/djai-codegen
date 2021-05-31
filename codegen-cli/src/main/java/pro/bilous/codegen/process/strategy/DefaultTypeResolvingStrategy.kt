@@ -14,7 +14,7 @@ open class DefaultTypeResolvingStrategy {
 
 	fun resolvePropertyType(property: CodegenProperty, defaultStringSize: Int? = null) {
 		if (property.vendorExtensions.getOrDefault("x-data-type", "undefined") == "Text") {
-			property.vendorExtensions["columnType"] = "text"
+			property.vendorExtensions["columnType"] = "\${TEXT_TYPE}"
 			property.vendorExtensions["hibernateType"] = "java.lang.String"
 			property.vendorExtensions["columnDefinition"] = "text"
 			return

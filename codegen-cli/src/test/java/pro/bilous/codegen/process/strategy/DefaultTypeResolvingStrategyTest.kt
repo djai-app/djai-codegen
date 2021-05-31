@@ -230,7 +230,7 @@ class DefaultTypeResolvingStrategyTest {
 
 		DefaultTypeResolvingStrategy().resolvePropertyType(property)
 
-		assertEquals("text", property.vendorExtensions["columnType"])
+		assertEquals("\${TEXT_TYPE}", property.vendorExtensions["columnType"])
 		assertEquals("java.lang.String", property.vendorExtensions["hibernateType"])
 		assertEquals("text", property.vendorExtensions["columnDefinition"])
 	}
