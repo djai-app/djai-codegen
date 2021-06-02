@@ -163,4 +163,20 @@ internal class OperationAddonTest {
 		addon.applyTestVars(model)
 		assertEquals("test string value", embeddedModel.vars[0].defaultValue)
 	}
+
+	@Test
+	fun `should set defaultValue and isBigDecimal for BigDecimal property`() {
+		val addon = OperationAddon(mock())
+		val property = CodegenProperty().apply {
+			name = "name1"
+			dataType = "BigDecimal"
+			defaultValue = null
+		}
+		val model = CodegenModel().apply {
+			vars = listOf(property)
+		}
+		addon.applyTestVars(model)
+		assertEquals(true, property.vendorExtensions["isBigDecimal"])
+		assertEquals("777.77.toBigDecimal()", property.defaultValue)
+	}
 }
