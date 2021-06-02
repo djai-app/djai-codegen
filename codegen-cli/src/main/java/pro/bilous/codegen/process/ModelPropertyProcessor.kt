@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.media.Schema
 import org.openapitools.codegen.CodeCodegen
 import org.openapitools.codegen.CodegenModel
 import org.openapitools.codegen.CodegenProperty
+import org.slf4j.LoggerFactory
 import pro.bilous.codegen.configurator.Database
 import pro.bilous.codegen.process.strategy.MySqlTypeResolvingStrategy
 import pro.bilous.codegen.process.strategy.PostgreSqlTypeResolvingStrategy
@@ -12,6 +13,9 @@ import pro.bilous.codegen.utils.CamelCaseConverter
 import pro.bilous.codegen.utils.SqlNamingUtils
 
 open class ModelPropertyProcessor(val codegen: CodeCodegen) {
+	companion object {
+		private val log = LoggerFactory.getLogger(ModelPropertyProcessor::class.java)
+	}
 
 	private val additionalProperties = codegen.additionalProperties()
 	private val entityMode = codegen.entityMode
@@ -302,6 +306,10 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		}
 		val realType = property.complexType.removeSuffix("Model")
 		val innerModelSchema = openApiWrapper.findSchema(realType)
+		if (innerModelSchema == null) {
+			log.error("type '$realType' is not found")
+			return
+		}
 		val innerModel = codegen.fromModel(realType, innerModelSchema)
 		if (innerModel.vendorExtensions["isEmbeddable"] == true) {
 			assignEmbeddedModel(property, innerModel, true)
