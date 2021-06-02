@@ -13,7 +13,6 @@ class SystemsLoaderTest {
 
 	@Test
 	fun `test systems load`() {
-		val loader = SystemsLoader()
 		val modelLoaderMock = mock<IModelLoader> {
 			on { loadModels(any()) } doReturn
 					listOf(
@@ -21,7 +20,7 @@ class SystemsLoaderTest {
 						Model(identity = Identity(name = "system2"))
 					)
 		}
-		loader.modelLoader = modelLoaderMock
+		val loader = SystemsLoader(modelLoaderMock)
 		val systems = loader.loadSystems()
 
 		assertTrue { systems.isNotEmpty() }
@@ -31,18 +30,16 @@ class SystemsLoaderTest {
 
 	@Test
 	fun `test systems load when missing entries`() {
-		val loader = SystemsLoader()
 		val modelLoaderMock = mock<IModelLoader> {
 			on { loadModels(any()) } doReturn listOf()
 		}
-		loader.modelLoader = modelLoaderMock
+		val loader = SystemsLoader(modelLoaderMock)
 		val systems = loader.loadSystems()
 		assertTrue { systems.isEmpty() }
 	}
 
 	@Test
 	fun `test systems load when identity name is empty`() {
-		val loader = SystemsLoader()
 		val modelLoaderMock = mock<IModelLoader> {
 			on { loadModels(any()) } doReturn
 					listOf(
@@ -50,7 +47,7 @@ class SystemsLoaderTest {
 						Model(identity = Identity(name = "system2"))
 					)
 		}
-		loader.modelLoader = modelLoaderMock
+		val loader = SystemsLoader(modelLoaderMock)
 		val systems = loader.loadSystems()
 		assertTrue { systems.isNotEmpty() }
 		assertEquals("system2", systems[0])	}

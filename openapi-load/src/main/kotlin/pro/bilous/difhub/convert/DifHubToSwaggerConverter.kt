@@ -11,12 +11,12 @@ import pro.bilous.difhub.load.*
 import pro.bilous.difhub.model.Model
 import java.lang.IllegalStateException
 
-class DifHubToSwaggerConverter(val systemSettings: SystemSettings) {
+class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val systemSettings: SystemSettings) {
 	private val log = LoggerFactory.getLogger(DifHubToSwaggerConverter::class.java)
 
-	var appLoader = ApplicationsLoader()
-	var datasetsLoader: IDatasetsLoader = DatasetsLoader()
-	var interfacesLoader: IInterfacesLoader = InterfacesLoader()
+	var appLoader = ApplicationsLoader(modelLoader)
+	var datasetsLoader: IDatasetsLoader = DatasetsLoader(modelLoader)
+	var interfacesLoader: IInterfacesLoader = InterfacesLoader(modelLoader)
 
 	fun convertAll(): List<OpenApiData> {
 		ModelLoader.globalModelCache.clear()
@@ -100,7 +100,7 @@ class DifHubToSwaggerConverter(val systemSettings: SystemSettings) {
 			}
 
 		modelsToLoad.forEach {
-			val model = ModelLoader(DefLoader()).loadModel(it.value, systemSettings)
+			val model = modelLoader.loadModel(it.value, systemSettings)
 			if (model != null) {
 				addDefRecursively(model, openApi)
 			} else {
@@ -132,7 +132,7 @@ class DifHubToSwaggerConverter(val systemSettings: SystemSettings) {
 		}
 
 		definition.add(targetName)
-		val defConverter = DefinitionConverter(source, systemSettings)
+		val defConverter = DefinitionConverter(modelLoader, source, systemSettings)
 		defConverter.convert()
 				.forEach {
 					openApi.schema(it.key, it.value)

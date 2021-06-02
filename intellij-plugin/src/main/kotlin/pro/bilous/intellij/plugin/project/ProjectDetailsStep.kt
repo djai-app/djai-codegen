@@ -28,6 +28,9 @@ class ProjectDetailsStep(
 		if (request.getMetadata() != null) {
 			return
 		}
+		if (moduleBuilder.modelLoader == null) {
+			return
+		}
 		// load systems and applications
 		loadingPanel.contentPanel.removeAll()
 		loadingPanel.startLoading()
@@ -35,7 +38,7 @@ class ProjectDetailsStep(
 
 		getApplication().executeOnPooledThread {
 			try {
-				val difHubData = difHubDataLoader.loadAllSystemsAndApps()
+				val difHubData = difHubDataLoader.loadAllSystemsAndApps(moduleBuilder.modelLoader!!)
 				request.difHubData = difHubData
 				invokeLater {
 					detailsForm = ProjectDetails(moduleBuilder, wizardContext).apply {

@@ -7,9 +7,9 @@ import okhttp3.Response
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
-class DefLoader {
+class DefLoader(val username: String, val password: String) {
 	companion object {
-		var authHeader = "missing"
+		val authHeaders = mutableMapOf<String, String>()
 		private val client = OkHttpClient.Builder()
 				.retryOnConnectionFailure(true)
 				.readTimeout(7, TimeUnit.SECONDS)
@@ -23,7 +23,7 @@ class DefLoader {
 		val url = "${difhub.api}/$path"
 		val request = Request.Builder()
 				.url(url)
-				.addHeader("Authorization", authHeader)
+				.addHeader("Authorization", getAuthHeader())
 				.build()
 
 
@@ -41,7 +41,7 @@ class DefLoader {
 		}
 		val result = response.body?.string()
 		if (result != null && isUnauthorized(response, result)) {
-			authHeader = TokenReader.readAuth()
+			getAuthHeader()
 			//File("/difhub.auth").writeText(authHeader) //TODO  Exception in thread "main" java.lang.IllegalArgumentException: URI is not hierarchical
 			return load(path)
 		} else if (result != null && isNotFound(response, result)) {
@@ -57,5 +57,13 @@ class DefLoader {
 
 	private fun isNotFound(response: Response, body: String): Boolean {
 		return response.code == 404 || body.contains("\"status\": 404")
+	}
+
+	private fun getAuthHeader() : String {
+		return authHeaders[username] ?: let {
+			val authHeader = TokenReader.readAuth(username, password)
+			authHeaders[username] = authHeader
+			authHeader
+		}
 	}
  }

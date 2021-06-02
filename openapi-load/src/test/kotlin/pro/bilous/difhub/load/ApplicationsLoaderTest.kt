@@ -18,7 +18,6 @@ class ApplicationsLoaderTest {
 
 	@Test
 	fun `test applications load`() {
-		val loader = ApplicationsLoader()
 		val config = Config(DifHub("test", "test"))
 
 		val modelLoaderMock = mock<IModelLoader> {
@@ -33,7 +32,7 @@ class ApplicationsLoaderTest {
 							`object` = Object(usage = "Service")
 						),					)
 		}
-		loader.modelLoader = modelLoaderMock
+		val loader = ApplicationsLoader(modelLoaderMock)
 		loader.config = config
 		val apps = loader.loadAppBySystem("system")
 
@@ -44,7 +43,6 @@ class ApplicationsLoaderTest {
 
 	@Test
 	fun `test applications load Service only`() {
-		val loader = ApplicationsLoader()
 		val config = Config(DifHub("test", "test"))
 
 		val modelLoaderMock = mock<IModelLoader> {
@@ -59,7 +57,7 @@ class ApplicationsLoaderTest {
 							`object` = Object(usage = "Service")
 						),					)
 		}
-		loader.modelLoader = modelLoaderMock
+		val loader = ApplicationsLoader(modelLoaderMock)
 		loader.config = config
 		val apps = loader.loadAppBySystem("system")
 
@@ -69,7 +67,6 @@ class ApplicationsLoaderTest {
 
 	@Test
 	fun `load all application models`() {
-		val loader = ApplicationsLoader()
 		val config = Config(DifHub("test", "test"))
 
 		val modelLoaderMock = mock<IModelLoader> {
@@ -78,7 +75,7 @@ class ApplicationsLoaderTest {
 						Model(identity = Identity(name = "application1")),
 						Model(identity = Identity(name = "application2")),					)
 		}
-		loader.modelLoader = modelLoaderMock
+		val loader = ApplicationsLoader(modelLoaderMock)
 		loader.config = config
 		val apps = loader.loadAll("system") ?: throw IllegalArgumentException("should not return null")
 
@@ -89,14 +86,13 @@ class ApplicationsLoaderTest {
 
 	@Test
 	fun `load one application model`() {
-		val loader = ApplicationsLoader()
 		val config = Config(DifHub("test", "test"))
 
 		val modelLoaderMock = mock<IModelLoader> {
 			on { loadModel(config.difhub.getApplicationUrl("system", "app"), SystemSettings("system", DatasetStatus.APPROVED)) } doReturn
 						Model(identity = Identity(name = "application1"))
 		}
-		loader.modelLoader = modelLoaderMock
+		val loader = ApplicationsLoader(modelLoaderMock)
 		loader.config = config
 		val app = loader.loadOne(SystemSettings("system", DatasetStatus.APPROVED), "app") ?: throw IllegalArgumentException("should not return null")
 
@@ -106,14 +102,13 @@ class ApplicationsLoaderTest {
 
 	@Test
 	fun `load one application settings`() {
-		val loader = ApplicationsLoader()
 		val config = Config(DifHub("test", "test"))
 
 		val modelLoaderMock = mock<IModelLoader> {
 			on { loadModel(config.difhub.getApplicationSettingsUrl("system", "app"), SystemSettings("system", DatasetStatus.APPROVED)) } doReturn
 					Model(identity = Identity(name = "settings1"))
 		}
-		loader.modelLoader = modelLoaderMock
+		val loader = ApplicationsLoader(modelLoaderMock)
 		loader.config = config
 		val settings = loader.loadAppSettings(SystemSettings("system", DatasetStatus.APPROVED), "app") ?: throw IllegalArgumentException("should not return null")
 

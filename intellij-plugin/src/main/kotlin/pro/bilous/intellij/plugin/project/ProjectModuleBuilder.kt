@@ -10,9 +10,11 @@ import com.intellij.openapi.module.ModifiableModuleModel
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider
+import pro.bilous.difhub.load.IModelLoader
 
 class ProjectModuleBuilder: ModuleBuilder() {
 
+	var modelLoader: IModelLoader? = null
     var request = ProjectCreationRequest()
     val projectFilesCreator = ProjectFilesCreator()
 
@@ -45,9 +47,12 @@ class ProjectModuleBuilder: ModuleBuilder() {
     }
 
     override fun createModule(moduleModel: ModifiableModuleModel): Module {
+		if (modelLoader == null) {
+			throw IllegalArgumentException("Module can't be created - model loader is absent")
+		}
         val module = super.createModule(moduleModel)
 
-        projectFilesCreator.createFiles(module, request)
+        projectFilesCreator.createFiles(modelLoader!!, module, request)
 
         return module
     }

@@ -4,9 +4,8 @@ import pro.bilous.difhub.config.ConfigReader
 import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.model.Model
 
-class ApplicationsLoader {
+class ApplicationsLoader(val modelLoader: IModelLoader) {
 
-	var modelLoader: IModelLoader = ModelLoader(DefLoader())
 	var config = ConfigReader.loadConfig()
 
 	fun loadAppBySystem(system: String): List<String> {
