@@ -125,35 +125,36 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	fun fixOperationParams(operation: CodegenOperation) {
-		// remove bearer token header param if exist.
+		removeUnnecessaryParams(operation)
+		removeSearchParamFromNoReturnListOperation(operation)
+		resolveParamsDataTypes(operation)
+		addPageParamForGetListOperation(operation)
+		setAllParamsHasMoreFlag(operation)
+	}
+
+	private fun removeUnnecessaryParams(operation: CodegenOperation) {
 		operation.allParams.removeIf { it.isHeaderParam && it.paramName == "bearer" }
 		operation.allParams.removeIf {
 			it.isQueryParam &&
 					arrayOf("options", "startTime", "endTime").contains(it.paramName)
 		}
+	}
 
-		operation.allParams.forEach {
-			if (!it.required && it.isPrimitiveType) {
-				it.dataType = "${it.dataType}?"
-			}
-		}
-
-		// add all query params
-		val searchParam = operation.queryParams.find { it.paramName == "search" }
-		if (searchParam == null) {
-			operation.allParams.forEach { it.hasMore = true }
-			operation.allParams.last().hasMore = false
-		}
-
+	private fun removeSearchParamFromNoReturnListOperation(operation: CodegenOperation) {
 		if (operation.returnContainer != "List") {
-			val removed = operation.queryParams.removeIf { it.paramName == "search" }
+			operation.queryParams.removeIf { it.paramName == "search" }
 			operation.allParams.removeIf { it.paramName == "search" }
-			if (removed && operation.allParams.isNotEmpty()) {
-				operation.allParams.last().hasMore = false
-			}
-			return
 		}
-		// add page parameter
+	}
+
+	private fun resolveParamsDataTypes(operation: CodegenOperation) {
+		operation.allParams.forEach {
+			resolveParamDataType(it)
+			setDataTypeNullableForNotRequiredParam(it)
+		}
+	}
+
+	private fun addPageParamForGetListOperation(operation: CodegenOperation) {
 		if (operation.httpMethod.toLowerCase() == "get" && operation.isListContainer) {
 			val pageParameter = CodegenParameter()
 				.apply {
@@ -167,14 +168,24 @@ class OperationAddon(val codegen: CodeCodegen) {
 				}
 			operation.allParams.add(pageParameter)
 		}
+	}
 
-		//operation.queryParams.add(pageParameter)
-		//operation.queryParams.forEach { it.isQueryParam = true}
-
-
+	private fun setAllParamsHasMoreFlag(operation: CodegenOperation) {
 		operation.allParams.forEach { it.hasMore = true }
 		operation.allParams.last().hasMore = false
+	}
 
+	private fun resolveParamDataType(param: CodegenParameter) {
+		param.dataType = when(param.dataType) {
+			"Integer" -> "Int"
+			else -> param.dataType
+		}
+	}
+
+	private fun setDataTypeNullableForNotRequiredParam(param: CodegenParameter) {
+		if (!param.required && param.isPrimitiveType) {
+			param.dataType = "${param.dataType}?"
+		}
 	}
 
 	private fun populateClassnames(
