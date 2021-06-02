@@ -10,7 +10,7 @@ interface IOpenApiWrapper {
 
 open class OpenApiWrapper(val codegen: CodeCodegen) : IOpenApiWrapper {
 	override fun isOpenApiContainsType(complexType: String?): Boolean {
-		return codegen.getOpenApi().components.schemas.containsKey(complexType)
+		return codegen.getOpenApi()?.components?.schemas?.containsKey(complexType) ?: false
 	}
 
 	override fun findSchema(complexType: String?): Schema<*> {
