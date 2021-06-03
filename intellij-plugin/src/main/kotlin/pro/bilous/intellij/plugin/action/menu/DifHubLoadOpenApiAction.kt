@@ -8,6 +8,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import io.swagger.util.Yaml
 import org.slf4j.LoggerFactory
+import pro.bilous.difhub.config.Config
+import pro.bilous.difhub.config.ConfigReader
 import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.config.DatasetStatus
 import pro.bilous.difhub.convert.DifHubToSwaggerConverter
@@ -28,10 +30,12 @@ class DifHubLoadOpenApiAction : AnAction() {
 
 		val configFolder = PathTools.getHomePath(basePath)
 
-		val modelLoader = getModelLoader(configFolder, project) ?: return
+		val (username, password, organization) = getCredentialsAndOrganization(configFolder, project) ?: return
 		val systemSettings = loadSystemSettings(configFolder, project) ?: return
+		val config = ConfigReader.loadConfig(organization)
+		val modelLoader = ModelLoader(DefLoader(username, password, config))
 
-		createOpenApiFiles(modelLoader, systemSettings, configFolder)
+		createOpenApiFiles(modelLoader, config, systemSettings, configFolder)
 
 		VirtualFileManager.getInstance().syncRefresh()
 	}
@@ -57,7 +61,7 @@ class DifHubLoadOpenApiAction : AnAction() {
 		return SystemSettings(name, status)
 	}
 
-	private fun getModelLoader(configFolder: String, project: Project): IModelLoader? {
+	private fun getCredentialsAndOrganization(configFolder: String, project: Project): Triple<String, String, String>? {
 		val configFilePath = "file://$configFolder/.credentials.yaml"
 		val configFile = VirtualFileManager.getInstance().findFileByUrl(configFilePath)
 		if (configFile == null) {
@@ -66,15 +70,14 @@ class DifHubLoadOpenApiAction : AnAction() {
 		}
 		val fileTree = Yaml.mapper().readTree(configFile.inputStream)
 
-		System.setProperty("DIFHUB_ORG_NAME", fileTree.get("organization").asText())
-
 		val username = fileTree.get("username").asText()
 		val password = fileTree.get("password").asText()
-		return ModelLoader(DefLoader(username, password))
+		val organization = fileTree.get("organization").asText()
+		return Triple(username, password, organization)
 	}
 
-	private fun createOpenApiFiles(modelLoader: IModelLoader, systemSettings: SystemSettings, configFolder: String) {
-		DifHubToSwaggerConverter(modelLoader, systemSettings).convertAll().forEach {
+	private fun createOpenApiFiles(modelLoader: IModelLoader, config: Config, systemSettings: SystemSettings, configFolder: String) {
+		DifHubToSwaggerConverter(modelLoader, config, systemSettings).convertAll().forEach {
 			YamlWriter(systemSettings.name).writeFile(it.openApi, configFolder, "${it.appName.toLowerCase()}-api")
 		}
 	}

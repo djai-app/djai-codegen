@@ -32,8 +32,7 @@ class ApplicationsLoaderTest {
 							`object` = Object(usage = "Service")
 						),					)
 		}
-		val loader = ApplicationsLoader(modelLoaderMock)
-		loader.config = config
+		val loader = ApplicationsLoader(modelLoaderMock, config)
 		val apps = loader.loadAppBySystem("system")
 
 		assertTrue { apps.isNotEmpty() }
@@ -57,8 +56,7 @@ class ApplicationsLoaderTest {
 							`object` = Object(usage = "Service")
 						),					)
 		}
-		val loader = ApplicationsLoader(modelLoaderMock)
-		loader.config = config
+		val loader = ApplicationsLoader(modelLoaderMock, config)
 		val apps = loader.loadAppBySystem("system")
 
 		assertTrue { apps.isNotEmpty() }
@@ -75,8 +73,7 @@ class ApplicationsLoaderTest {
 						Model(identity = Identity(name = "application1")),
 						Model(identity = Identity(name = "application2")),					)
 		}
-		val loader = ApplicationsLoader(modelLoaderMock)
-		loader.config = config
+		val loader = ApplicationsLoader(modelLoaderMock, config)
 		val apps = loader.loadAll("system") ?: throw IllegalArgumentException("should not return null")
 
 		assertTrue { apps.isNotEmpty() }
@@ -92,8 +89,7 @@ class ApplicationsLoaderTest {
 			on { loadModel(config.difhub.getApplicationUrl("system", "app"), SystemSettings("system", DatasetStatus.APPROVED)) } doReturn
 						Model(identity = Identity(name = "application1"))
 		}
-		val loader = ApplicationsLoader(modelLoaderMock)
-		loader.config = config
+		val loader = ApplicationsLoader(modelLoaderMock, config)
 		val app = loader.loadOne(SystemSettings("system", DatasetStatus.APPROVED), "app") ?: throw IllegalArgumentException("should not return null")
 
 		assertNotNull(app)
@@ -108,8 +104,7 @@ class ApplicationsLoaderTest {
 			on { loadModel(config.difhub.getApplicationSettingsUrl("system", "app"), SystemSettings("system", DatasetStatus.APPROVED)) } doReturn
 					Model(identity = Identity(name = "settings1"))
 		}
-		val loader = ApplicationsLoader(modelLoaderMock)
-		loader.config = config
+		val loader = ApplicationsLoader(modelLoaderMock, config)
 		val settings = loader.loadAppSettings(SystemSettings("system", DatasetStatus.APPROVED), "app") ?: throw IllegalArgumentException("should not return null")
 
 		assertNotNull(settings)

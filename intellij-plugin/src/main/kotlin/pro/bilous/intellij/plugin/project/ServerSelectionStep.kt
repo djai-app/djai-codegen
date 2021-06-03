@@ -30,7 +30,10 @@ class ServerSelectionStep(private val moduleBuilder: ProjectModuleBuilder) : Mod
 
 		val username = moduleBuilder.request.username ?: return
 		val password = moduleBuilder.request.password ?: return
-		moduleBuilder.modelLoader = ModelLoader(DefLoader(username, password))
+		val organization = moduleBuilder.request.organization
+		val config = ConfigReader.loadConfig(organization)
+		moduleBuilder.config = config
+		moduleBuilder.modelLoader = ModelLoader(DefLoader(username, password, config))
     }
 
     override fun getComponent(): JComponent {

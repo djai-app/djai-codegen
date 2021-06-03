@@ -1,13 +1,12 @@
 package pro.bilous.difhub.load
 
-import pro.bilous.difhub.config.ConfigReader
+import pro.bilous.difhub.config.Config
 
-class SystemsLoader(private val modelLoader: IModelLoader) {
+class SystemsLoader(private val modelLoader: IModelLoader, config: Config) {
 
-	var config = ConfigReader.loadConfig()
+	var difhub = config.difhub
 
 	fun loadSystems(): List<String> {
-		val difhub = config.difhub
 
 		val models = modelLoader.loadModels(difhub.getSystemsUrl())
 		val systems = mutableListOf<String>()

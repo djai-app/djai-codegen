@@ -1,11 +1,14 @@
 package pro.bilous.difhub.console
 
+import pro.bilous.difhub.config.Config
+import pro.bilous.difhub.config.ConfigReader
 import pro.bilous.difhub.config.DatasetStatus
 import pro.bilous.difhub.load.*
 import java.lang.IllegalArgumentException
 
 class Console {
 	val modelLoader = getModelLoaderFromSystemProperties()
+	val config = getConfigFromSystemProperties()
 	var system: String? = null
 	var application: String? = null
 	var status: DatasetStatus? = null
@@ -16,12 +19,12 @@ class Console {
 	}
 
 	private fun selectSystem() {
-		val systems = SystemsLoader(modelLoader).loadSystems()
+		val systems = SystemsLoader(modelLoader, config).loadSystems()
 		system = selectFromList(systems, "System")
 	}
 
 	private fun selectApplication() {
-		val applications = ApplicationsLoader(modelLoader).loadAppBySystem(system!!)
+		val applications = ApplicationsLoader(modelLoader, config).loadAppBySystem(system!!)
 		application = selectFromList(applications, "Application")
 	}
 
@@ -72,6 +75,10 @@ class Console {
 		if (password.isNullOrEmpty()) {
 			password = System.getenv("DIFHUB_PASSWORD") ?: throw IllegalArgumentException("Password not found")
 		}
-		return ModelLoader(DefLoader(username, password))
+		return ModelLoader(DefLoader(username, password, config))
+	}
+
+	private fun getConfigFromSystemProperties() : Config {
+		return ConfigReader.loadConfig()
 	}
 }

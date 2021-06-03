@@ -9,7 +9,7 @@ fun main() {
 	val console = Console()
 	console.select()
 	val systemSettings = SystemSettings(console.system!!, console.status!!)
-	DifHubToSwaggerConverter(console.modelLoader, systemSettings).convertAll().forEach {
+	DifHubToSwaggerConverter(console.modelLoader, console.config, systemSettings).convertAll().forEach {
 		YamlWriter(it.appName).write(it.openApi)
 	}
 }

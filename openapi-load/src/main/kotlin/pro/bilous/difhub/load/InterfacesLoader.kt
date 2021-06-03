@@ -1,10 +1,11 @@
 package pro.bilous.difhub.load
 
+import pro.bilous.difhub.config.Config
 import pro.bilous.difhub.config.ConfigReader
 import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.model.Model
 
-class InterfacesLoader(val modelLoader: IModelLoader) : IInterfacesLoader {
+class InterfacesLoader(val modelLoader: IModelLoader, val config: Config) : IInterfacesLoader {
 	override fun load(systemSettings: SystemSettings, app: String): List<Model>? {
 		val difhub = ConfigReader.loadConfig().difhub
 

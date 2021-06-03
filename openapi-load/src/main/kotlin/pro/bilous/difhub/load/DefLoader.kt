@@ -1,54 +1,72 @@
 package pro.bilous.difhub.load
 
-import pro.bilous.difhub.config.ConfigReader
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import pro.bilous.difhub.config.Config
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
-class DefLoader(val username: String, val password: String) {
+class DefLoader(val username: String, val password: String, val config: Config) {
 	companion object {
 		val authHeaders = mutableMapOf<String, String>()
+
 		private val client = OkHttpClient.Builder()
 				.retryOnConnectionFailure(true)
 				.readTimeout(7, TimeUnit.SECONDS)
 				.build()
+
+		private const val MAX_LOAD_ATTEMPTS = 5
 	}
 
-	var loadAttempts = 0
 	fun load(path: String): String? {
-		val difhub = ConfigReader.loadConfig().difhub
+		val url = getUrl(path)
 
-		val url = "${difhub.api}/$path"
 		val request = Request.Builder()
-				.url(url)
-				.addHeader("Authorization", getAuthHeader())
-				.build()
+			.url(url)
+			.addHeader("Authorization", authHeaders.getOrPut(username){ getAuthHeader() })
+			.build()
 
-
-		val response = try {
-			client.newCall(request).execute()
-		} catch (e: SocketTimeoutException) {
-			if (loadAttempts < 5) {
-				Thread.sleep(3000)
-				println("Failed attempt to load: retry in 3 second.")
-				loadAttempts += 1
-				return load(path)
-			}
-			println("Max retry attempt to load reached: Load Failed.")
+		val response = call(request)
+		if (response == null) {
+			println("Max retry attempt to load is reached. Url is not loaded: $url")
 			return null
 		}
+
 		val result = response.body?.string()
-		if (result != null && isUnauthorized(response, result)) {
-			getAuthHeader()
-			//File("/difhub.auth").writeText(authHeader) //TODO  Exception in thread "main" java.lang.IllegalArgumentException: URI is not hierarchical
-			return load(path)
-		} else if (result != null && isNotFound(response, result)) {
-			return null
+		if(result != null) {
+			if (isUnauthorized(response, result)) {
+				println("User is unauthorized. Trying to authorize and load again url: $url")
+				authHeaders[username] = getAuthHeader()
+				//File("/difhub.auth").writeText(authHeader) //TODO  Exception in thread "main" java.lang.IllegalArgumentException: URI is not hierarchical
+				return load(path)
+			} else if (isNotFound(response, result)) {
+				println("Url is not found: $url")
+				return null
+			}
+			println("Url is loaded: $url")
+		} else {
+			println("Url is not loaded: $url")
 		}
-		println("url loaded: $url")
 		return result
+	}
+
+	private fun getUrl(path: String) : String {
+		val api = config.difhub.api
+		return "$api/$path"
+	}
+
+	private fun call(request: Request) : Response? {
+		var loadAttempts = 0
+		while(loadAttempts++ < MAX_LOAD_ATTEMPTS) {
+			try {
+				return client.newCall(request).execute()
+			} catch (e: SocketTimeoutException) {
+				Thread.sleep(3000)
+				println("Failed $loadAttempts attempt to load: retry in 3 second.")
+			}
+		}
+		return null
 	}
 
 	private fun isUnauthorized(response: Response, body: String): Boolean {
@@ -60,10 +78,6 @@ class DefLoader(val username: String, val password: String) {
 	}
 
 	private fun getAuthHeader() : String {
-		return authHeaders[username] ?: let {
-			val authHeader = TokenReader.readAuth(username, password)
-			authHeaders[username] = authHeader
-			authHeader
-		}
+		return TokenReader.readAuth(username, password)
 	}
  }

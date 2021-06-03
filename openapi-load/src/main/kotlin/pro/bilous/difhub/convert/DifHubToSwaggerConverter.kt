@@ -6,17 +6,18 @@ import io.swagger.v3.oas.models.parameters.Parameter
 import io.swagger.v3.oas.models.servers.Server
 import io.swagger.v3.oas.models.tags.Tag
 import org.slf4j.LoggerFactory
+import pro.bilous.difhub.config.Config
 import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.load.*
 import pro.bilous.difhub.model.Model
 import java.lang.IllegalStateException
 
-class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val systemSettings: SystemSettings) {
+class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config, val systemSettings: SystemSettings) {
 	private val log = LoggerFactory.getLogger(DifHubToSwaggerConverter::class.java)
 
-	var appLoader = ApplicationsLoader(modelLoader)
-	var datasetsLoader: IDatasetsLoader = DatasetsLoader(modelLoader)
-	var interfacesLoader: IInterfacesLoader = InterfacesLoader(modelLoader)
+	var appLoader = ApplicationsLoader(modelLoader, config)
+	var datasetsLoader: IDatasetsLoader = DatasetsLoader(modelLoader, config)
+	var interfacesLoader: IInterfacesLoader = InterfacesLoader(modelLoader, config)
 
 	fun convertAll(): List<OpenApiData> {
 		ModelLoader.globalModelCache.clear()
