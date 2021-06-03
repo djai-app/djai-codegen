@@ -49,16 +49,14 @@ class ProjectModuleBuilder: ModuleBuilder() {
     }
 
     override fun createModule(moduleModel: ModifiableModuleModel): Module {
-		if (modelLoader == null) {
-			throw IllegalArgumentException("Module can't be created - model loader is absent")
-		}
-		if (config == null) {
-			throw IllegalArgumentException("Module can't be created - config is absent")
+		val loader = modelLoader ?: throw IllegalArgumentException("Module can't be created - model loader is absent")
+		val cfg = config ?: throw IllegalArgumentException("Module can't be created - config is absent")
+		cfg.apply {
+			system = request.system
+			datasetStatus = request.datasetStatus
 		}
         val module = super.createModule(moduleModel)
-
-        projectFilesCreator.createFiles(modelLoader!!, config!!, module, request)
-
+        projectFilesCreator.createFiles(loader, cfg, module, request)
         return module
     }
 }

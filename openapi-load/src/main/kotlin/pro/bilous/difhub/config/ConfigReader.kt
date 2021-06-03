@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 
 object ConfigReader {
 
-	private const val DEFAULT_ORGANIZATION_NAME = "Demo org"
+	private const val DEFAULT_ORGANIZATION = "Demo org"
 	private const val DEFAULT_API_URL = "https://metaserviceprod.azurewebsites.net/api"
 
 	private val mapper = createMapper()
@@ -14,15 +14,15 @@ object ConfigReader {
 		return ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 	}
 
-	fun loadConfig(orgName: String? = null): Config {
-		val resolvedOrgName = orgName ?: let {
-			var orgNameFromSystem = System.getProperty("DIFHUB_ORG_NAME")
-			if (orgNameFromSystem.isNullOrEmpty()) {
-				orgNameFromSystem = System.getenv("DIFHUB_ORG_NAME") ?: DEFAULT_ORGANIZATION_NAME
+	fun loadConfig(organization: String? = null): Config {
+		val resolvedOrg = organization ?: let {
+			var orgFromSystem = System.getProperty("DIFHUB_ORG_NAME")
+			if (orgFromSystem.isNullOrEmpty()) {
+				orgFromSystem = System.getenv("DIFHUB_ORG_NAME") ?: DEFAULT_ORGANIZATION
 			}
-			orgNameFromSystem
+			orgFromSystem
 		}
-		return Config(DifHub(DEFAULT_API_URL, "/$resolvedOrgName"))
+		return Config(DifHub(DEFAULT_API_URL, "/$resolvedOrg"))
 //		val configUrl = ConfigReader::class.java.getResource("/config.yaml")
 //		val path = Paths.get(configUrl.toURI())
 //		return loadFromFile(path)

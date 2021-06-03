@@ -26,7 +26,6 @@ class ServerSelectionStep(private val moduleBuilder: ProjectModuleBuilder) : Mod
 		moduleBuilder.request.username = userField.text
 		moduleBuilder.request.password = passwordField.text
 		moduleBuilder.request.organization = organization.text
-		writeCredentialsToProps()
 
 		val username = moduleBuilder.request.username ?: return
 		val password = moduleBuilder.request.password ?: return
@@ -37,7 +36,6 @@ class ServerSelectionStep(private val moduleBuilder: ProjectModuleBuilder) : Mod
     }
 
     override fun getComponent(): JComponent {
-		loadCredentials()
         return panel {
             titledRow("DifHub Credentials") {
                 row {
@@ -83,18 +81,6 @@ class ServerSelectionStep(private val moduleBuilder: ProjectModuleBuilder) : Mod
         } catch (e: URISyntaxException) {
             throw ConfigurationException("Server URL must be a valid url")
         }
-    }
-
-	private fun loadCredentials() {
-		organization.text = System.getProperty("DIFHUB_ORG_NAME", "")
-		userField.text = System.setProperty("DIFHUB_USERNAME", "")
-		passwordField.text = System.setProperty("DIFHUB_PASSWORD", "")
-	}
-
-    private fun writeCredentialsToProps() {
-        System.setProperty("DIFHUB_ORG_NAME", organization.text)
-        System.setProperty("DIFHUB_USERNAME", userField.text)
-        System.setProperty("DIFHUB_PASSWORD", passwordField.text)
     }
 
 }
