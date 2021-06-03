@@ -7,12 +7,11 @@ import io.swagger.v3.oas.models.servers.Server
 import io.swagger.v3.oas.models.tags.Tag
 import org.slf4j.LoggerFactory
 import pro.bilous.difhub.config.Config
-import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.load.*
 import pro.bilous.difhub.model.Model
 import java.lang.IllegalStateException
 
-class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config, val systemSettings: SystemSettings) {
+class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config) {
 	private val log = LoggerFactory.getLogger(DifHubToSwaggerConverter::class.java)
 
 	var appLoader = ApplicationsLoader(modelLoader, config)
@@ -22,13 +21,13 @@ class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config
 	fun convertAll(): List<OpenApiData> {
 		ModelLoader.globalModelCache.clear()
 
-		val appModels = appLoader.loadAll(systemSettings.name)
+		val appModels = appLoader.loadAll()
 
 		val result = mutableListOf<OpenApiData>()
 		appModels?.forEach {
 			if (it.`object`!!.usage == "Service") {
 				val appName = it.identity.name
-				result.add(OpenApiData(convert(appName), appName, systemSettings.name))
+				result.add(OpenApiData(convert(appName), appName, config.system))
 			} else {
 				log.warn("Ignoring application with name ${it.identity.name}. Usage =`Service` required to enable code generation.")
 			}
@@ -39,11 +38,11 @@ class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config
 	fun convert(application: String): OpenAPI {
 		val openApi = OpenAPI()
 
-		val appModel = appLoader.loadOne(systemSettings, application)
+		val appModel = appLoader.loadOne(application)
 		if (appModel!!.`object`!!.usage != "Service") {
 			throw IllegalStateException("Only Service application open for Generation. Please change Usage on Difhub!")
 		}
-		val appSettings = appLoader.loadAppSettings(systemSettings, application)
+		val appSettings = appLoader.loadAppSettings(application)
 		openApi.info = readInfo(appModel)
 		openApi.servers = buildServers(appSettings)
 
@@ -56,7 +55,7 @@ class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config
 	}
 
 	private fun convertInterfacesToPaths(application: String, openApi: OpenAPI) {
-		val interfaces = interfacesLoader.load(systemSettings, application)
+		val interfaces = interfacesLoader.load(application)
 
 		val modelsToLoad = mutableMapOf<String, String>()
 		val parameters = mutableMapOf<String, Parameter>()
@@ -64,31 +63,31 @@ class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config
 		val tags = mutableListOf<Tag>()
 
 		interfaces
-				?.sortedBy { it.identity.name }
-				?.filter {
-					it.identity.name != "Entities"
+			.sortedBy { it.identity.name }
+			.filter {
+				it.identity.name != "Entities"
+			}
+			.forEach {
+				val converter = InterfaceToPathConverter(it, openApi)
+				converter.convert().forEach { (key, path) ->
+					if (path.readOperations().isEmpty()) {
+						System.err.println("Missing operations for the PATH: $key, ignoring path...")
+					} else {
+						openApi.path(key, path)
+					}
 				}
-				?.forEach {
-			val converter = InterfaceToPathConverter(it, openApi)
-			converter.convert().forEach { (key, path) ->
-				if (path.readOperations().isEmpty()) {
-					System.err.println("Missing operations for the PATH: $key, ignoring path...")
+				val tag = if (it.`object`?.tags.isNullOrEmpty()) {
+					it.identity
 				} else {
-					openApi.path(key, path)
+					it.`object`!!.tags!!.first()
 				}
-			}
-			val tag = if (it.`object`?.tags.isNullOrEmpty()) {
-				it.identity
-			} else {
-				it.`object`!!.tags!!.first()
-			}
-			tags.add(Tag().name(tag.name).description(
+				tags.add(Tag().name(tag.name).description(
 					tag.description ?: it.identity.description
-			))
+				))
 
-			modelsToLoad.putAll(converter.pathModelsToLoad)
-			parameters.putAll(converter.parameters)
-		}
+				modelsToLoad.putAll(converter.pathModelsToLoad)
+				parameters.putAll(converter.parameters)
+			}
 
 		tags
 			.forEach {
@@ -101,7 +100,7 @@ class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config
 			}
 
 		modelsToLoad.forEach {
-			val model = modelLoader.loadModel(it.value, systemSettings)
+			val model = modelLoader.loadModel(it.value, config.datasetStatus)
 			if (model != null) {
 				addDefRecursively(model, openApi)
 			} else {
@@ -114,7 +113,7 @@ class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config
 	}
 
 	private fun convertModelsToDefinitions(application: String, openApi: OpenAPI) {
-		val datasets = datasetsLoader.load(systemSettings, application, type = "Resource")
+		val datasets = datasetsLoader.load(application, type = "Resource")
 
 		datasets?.forEach {
 			addDefRecursively(it, openApi)
@@ -133,7 +132,7 @@ class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config
 		}
 
 		definition.add(targetName)
-		val defConverter = DefinitionConverter(modelLoader, source, systemSettings)
+		val defConverter = DefinitionConverter(modelLoader, source, config.datasetStatus)
 		defConverter.convert()
 				.forEach {
 					openApi.schema(it.key, it.value)

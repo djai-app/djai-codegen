@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.swagger.util.Json
-import pro.bilous.difhub.config.SystemSettings
+import pro.bilous.difhub.config.DatasetStatus
 
 class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 
@@ -18,13 +18,13 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 		Json.mapper().registerKotlinModule()
 	}
 
-	override fun loadModel(reference: String, systemSettings: SystemSettings): Model? {
+	override fun loadModel(reference: String, datasetStatus: DatasetStatus): Model? {
 		// remove the version suffix to always get the latest one.
 		var fixedRef = reference
 		if (fixedRef.contains("/versions/")) {
 			fixedRef = reference.split("/").dropLast(2).joinToString("/")
 		}
-		val text = loadString(fixedRef, systemSettings)
+		val text = loadString(fixedRef, datasetStatus)
 		return if (text.isNullOrEmpty()) null else try {
 			Json.mapper().readValue<Model>(text)
 		} catch (e: MismatchedInputException) {
@@ -42,7 +42,7 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 	private inline fun <reified T> ObjectMapper.readValue(json: String): T =
 		readValue(json, object : TypeReference<T>() {})
 
-	private fun loadString(reference: String, systemSettings: SystemSettings?): String? {
+	private fun loadString(reference: String, datasetStatus: DatasetStatus?): String? {
 		var fixedReference = reference.trim()
 		while (fixedReference.contains("//")) {
 			fixedReference = fixedReference.replace("//", "/")
@@ -53,7 +53,7 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 			return globalModelCache[fixedReference]
 		}
 
-		val url = resolveReference(fixedReference, systemSettings)
+		val url = resolveReference(fixedReference, datasetStatus)
 
 		val sourceText = defLoader.load(url)
 		if (sourceText == null || sourceText.contains("EntityForbiddenException")) {
@@ -63,11 +63,11 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 		return sourceText
 	}
 
-	private fun resolveReference(reference: String, systemSettings: SystemSettings?): String {
+	private fun resolveReference(reference: String, datasetStatus: DatasetStatus?): String {
 
 		var resolvedReference = reference
 
-		val datasetStatusParam = systemSettings?.datasetStatus?.pathParam
+		val datasetStatusParam = datasetStatus?.pathParam
 		if (!datasetStatusParam.isNullOrEmpty()) {
 			resolvedReference = if (reference.contains("?")) {
 				"$reference&status=${datasetStatusParam}"

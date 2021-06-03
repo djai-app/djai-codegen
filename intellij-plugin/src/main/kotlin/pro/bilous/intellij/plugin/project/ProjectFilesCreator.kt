@@ -6,7 +6,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFileManager
 import org.slf4j.LoggerFactory
 import pro.bilous.difhub.config.Config
-import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.convert.DifHubToSwaggerConverter
 import pro.bilous.difhub.load.IModelLoader
 import pro.bilous.difhub.write.YamlWriter
@@ -39,8 +38,7 @@ class ProjectFilesCreator {
     }
 
     private fun createOpenApiFiles(modelLoader: IModelLoader, config: Config, request: ProjectCreationRequest, configFolder: String) {
-		val systemSettings = SystemSettings(request.system, request.datasetStatus)
-        DifHubToSwaggerConverter(modelLoader, config, systemSettings).convertAll().forEach {
+        DifHubToSwaggerConverter(modelLoader, config).convertAll().forEach {
             try {
                 YamlWriter(request.system).writeFile(it.openApi, configFolder, "${it.appName.toLowerCase()}-api")
             } catch (error: Exception) {

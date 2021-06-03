@@ -10,7 +10,6 @@ import io.swagger.util.Yaml
 import org.slf4j.LoggerFactory
 import pro.bilous.difhub.config.Config
 import pro.bilous.difhub.config.ConfigReader
-import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.config.DatasetStatus
 import pro.bilous.difhub.convert.DifHubToSwaggerConverter
 import pro.bilous.difhub.load.DefLoader
@@ -30,17 +29,21 @@ class DifHubLoadOpenApiAction : AnAction() {
 
 		val configFolder = PathTools.getHomePath(basePath)
 
-		val (username, password, organization) = getCredentialsAndOrganization(configFolder, project) ?: return
-		val systemSettings = loadSystemSettings(configFolder, project) ?: return
-		val config = ConfigReader.loadConfig(organization)
+		val (username, password, organization) = loadCredentialsAndOrganization(configFolder, project) ?: return
+		val (system, datasetStatus) = loadSystemSettings(configFolder, project) ?: return
+
+		val config = ConfigReader.loadConfig(organization).apply {
+			this.system = system
+			this.datasetStatus = datasetStatus
+		}
+
 		val modelLoader = ModelLoader(DefLoader(username, password, config))
 
-		createOpenApiFiles(modelLoader, config, systemSettings, configFolder)
-
+		createOpenApiFiles(modelLoader, config, configFolder)
 		VirtualFileManager.getInstance().syncRefresh()
 	}
 
-	private fun loadSystemSettings(configFolder: String, project: Project): SystemSettings? {
+	private fun loadSystemSettings(configFolder: String, project: Project): Pair<String, DatasetStatus>? {
 		val configFilePath = "file://$configFolder/settings.yaml"
 
 		val configFile = VirtualFileManager.getInstance().findFileByUrl(configFilePath)
@@ -49,19 +52,22 @@ class DifHubLoadOpenApiAction : AnAction() {
 			return null
 		}
 		val configTree = Yaml.mapper().readTree(configFile.inputStream)
-		val name = configTree.get("system").asText()
+		val system = configTree.get("system").asText()
 		// we use DRAFT datasets if status wasn't specified
 		val statusName = configTree.get("datasetStatus")?.asText() ?: "DRAFT"
-		val status: DatasetStatus = try {
+		val datasetStatus: DatasetStatus = try {
 			DatasetStatus.valueOf(statusName.toUpperCase())
 		} catch (e: IllegalArgumentException) {
 			log.warn("Illegal status of system: `$statusName`. Status is set to `Draft`")
 			DatasetStatus.DRAFT
 		}
-		return SystemSettings(name, status)
+		return Pair(system, datasetStatus)
 	}
 
-	private fun getCredentialsAndOrganization(configFolder: String, project: Project): Triple<String, String, String>? {
+	private fun loadCredentialsAndOrganization(
+		configFolder: String,
+		project: Project
+	): Triple<String, String, String>? {
 		val configFilePath = "file://$configFolder/.credentials.yaml"
 		val configFile = VirtualFileManager.getInstance().findFileByUrl(configFilePath)
 		if (configFile == null) {
@@ -76,11 +82,9 @@ class DifHubLoadOpenApiAction : AnAction() {
 		return Triple(username, password, organization)
 	}
 
-	private fun createOpenApiFiles(modelLoader: IModelLoader, config: Config, systemSettings: SystemSettings, configFolder: String) {
-		DifHubToSwaggerConverter(modelLoader, config, systemSettings).convertAll().forEach {
-			YamlWriter(systemSettings.name).writeFile(it.openApi, configFolder, "${it.appName.toLowerCase()}-api")
+	private fun createOpenApiFiles(modelLoader: IModelLoader, config: Config, configFolder: String) {
+		DifHubToSwaggerConverter(modelLoader, config).convertAll().forEach {
+			YamlWriter(config.system).writeFile(it.openApi, configFolder, "${it.appName.toLowerCase()}-api")
 		}
 	}
-
-
 }

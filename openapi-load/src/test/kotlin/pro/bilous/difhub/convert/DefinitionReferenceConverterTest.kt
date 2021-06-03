@@ -5,7 +5,6 @@ import io.swagger.v3.oas.models.media.ObjectSchema
 import org.junit.jupiter.api.Test
 import com.nhaarman.mockitokotlin2.mock
 import pro.bilous.difhub.config.DatasetStatus
-import pro.bilous.difhub.config.SystemSettings
 import pro.bilous.difhub.load.IModelLoader
 import pro.bilous.difhub.model.FieldsItem
 import pro.bilous.difhub.model.Identity
@@ -35,7 +34,7 @@ internal class DefinitionReferenceConverterTest {
 		)
 
 		val mockModelLoader: IModelLoader = mock()
-		val result = DefinitionConverter(mockModelLoader, model, SystemSettings("system", DatasetStatus.APPROVED)).convert()
+		val result = DefinitionConverter(mockModelLoader, model, DatasetStatus.APPROVED).convert()
 
 		val schema = result[model.identity.name] as ObjectSchema
 		val property = schema.properties["owner"]
