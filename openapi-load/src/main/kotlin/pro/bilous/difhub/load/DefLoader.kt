@@ -5,11 +5,12 @@ import okhttp3.Request
 import okhttp3.Response
 import pro.bilous.difhub.config.Config
 import java.net.SocketTimeoutException
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 class DefLoader(val username: String, val password: String, val config: Config) {
 	companion object {
-		val authHeaders = mutableMapOf<String, String>()
+		val authHeaders = ConcurrentHashMap<String, String>()
 
 		private val client = OkHttpClient.Builder()
 				.retryOnConnectionFailure(true)
