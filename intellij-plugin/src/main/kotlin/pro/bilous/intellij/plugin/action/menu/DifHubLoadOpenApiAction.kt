@@ -12,7 +12,7 @@ import pro.bilous.difhub.config.Config
 import pro.bilous.difhub.config.ConfigReader
 import pro.bilous.difhub.config.DatasetStatus
 import pro.bilous.difhub.convert.DifHubToSwaggerConverter
-import pro.bilous.difhub.load.DefLoader
+import pro.bilous.difhub.load.DifHubLoader
 import pro.bilous.difhub.load.IModelLoader
 import pro.bilous.difhub.load.ModelLoader
 import pro.bilous.difhub.write.YamlWriter
@@ -37,7 +37,7 @@ class DifHubLoadOpenApiAction : AnAction() {
 			this.datasetStatus = datasetStatus
 		}
 
-		val modelLoader = ModelLoader(DefLoader(username, password, config))
+		val modelLoader = ModelLoader(DifHubLoader(username, password, config))
 
 		createOpenApiFiles(modelLoader, config, configFolder)
 		VirtualFileManager.getInstance().syncRefresh()

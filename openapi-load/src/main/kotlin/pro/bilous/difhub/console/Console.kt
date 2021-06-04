@@ -75,7 +75,7 @@ class Console {
 		if (password.isNullOrEmpty()) {
 			password = System.getenv("DIFHUB_PASSWORD") ?: throw IllegalArgumentException("Password not found")
 		}
-		return ModelLoader(DefLoader(username, password, config))
+		return ModelLoader(DifHubLoader(username, password, config))
 	}
 
 	private fun getConfigFromSystemProperties() : Config {

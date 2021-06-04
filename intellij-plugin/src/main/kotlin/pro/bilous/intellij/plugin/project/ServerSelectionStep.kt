@@ -7,7 +7,7 @@ import com.intellij.ui.components.JBTextField
 import com.intellij.ui.layout.panel
 import org.apache.commons.lang3.StringUtils
 import pro.bilous.difhub.config.ConfigReader
-import pro.bilous.difhub.load.DefLoader
+import pro.bilous.difhub.load.DifHubLoader
 import pro.bilous.difhub.load.ModelLoader
 import java.net.URI
 import java.net.URISyntaxException
@@ -32,7 +32,7 @@ class ServerSelectionStep(private val moduleBuilder: ProjectModuleBuilder) : Mod
 		val organization = moduleBuilder.request.organization
 		val config = ConfigReader.loadConfig(organization)
 		moduleBuilder.config = config
-		moduleBuilder.modelLoader = ModelLoader(DefLoader(username, password, config))
+		moduleBuilder.modelLoader = ModelLoader(DifHubLoader(username, password, config))
     }
 
     override fun getComponent(): JComponent {
