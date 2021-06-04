@@ -159,9 +159,5 @@ class ModelLoaderTest {
 		assertNull(result)
 	}
 
-	@Test
-	fun loadModels() {
-	}
-
 	private fun jsonToModel(jsonText: String) =	jsonMapper.readValue(jsonText, Model::class.java)
 }
