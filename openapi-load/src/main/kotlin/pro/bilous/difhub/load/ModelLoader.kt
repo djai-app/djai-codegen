@@ -1,7 +1,9 @@
 package pro.bilous.difhub.load
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import pro.bilous.difhub.model.Model
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
@@ -11,7 +13,11 @@ import pro.bilous.difhub.config.DatasetStatus
 class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 
 	companion object {
-		val globalModelCache = mutableMapOf<String, String>()
+		private val globalModelCache = mutableMapOf<String, String>()
+
+		fun clearCache() {
+			globalModelCache.clear()
+		}
 	}
 
 	init {
@@ -27,7 +33,7 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 		val text = loadString(fixedRef, datasetStatus)
 		return if (text.isNullOrEmpty()) null else try {
 			Json.mapper().readValue<Model>(text)
-		} catch (e: MismatchedInputException) {
+		} catch (e: JsonProcessingException) {
 			System.err.println("Failed when model loading: $reference")
 			println(e)
 			null

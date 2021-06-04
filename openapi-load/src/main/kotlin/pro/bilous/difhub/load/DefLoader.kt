@@ -81,13 +81,9 @@ class DifHubLoader(username: String, password: String, val config: Config) : Def
 
 	val api = config.difhub.api
 
-	override fun getUrl(path: String): String {
-		return "$api/$path"
-	}
+	override fun getUrl(path: String) = "$api/$path"
 
-	override fun getAuthToken(): String {
-		return TokenReader.readAuth(username, password)
-	}
+	override fun getAuthToken() = TokenReader.readAuth(username, password)
 
 	override fun call(request: Request): Pair<Int, String?> {
 		val response = client.newCall(request).execute()

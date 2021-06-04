@@ -19,7 +19,7 @@ class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config
 	var interfacesLoader: IInterfacesLoader = InterfacesLoader(modelLoader, config)
 
 	fun convertAll(): List<OpenApiData> {
-		ModelLoader.globalModelCache.clear()
+		ModelLoader.clearCache()
 
 		val appModels = appLoader.loadAll()
 

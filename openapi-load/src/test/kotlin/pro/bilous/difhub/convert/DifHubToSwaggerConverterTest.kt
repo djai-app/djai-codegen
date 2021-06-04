@@ -10,7 +10,6 @@ import io.swagger.util.Json
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import pro.bilous.difhub.config.ConfigReader
-import pro.bilous.difhub.config.DatasetStatus
 import pro.bilous.difhub.load.ApplicationsLoader
 import pro.bilous.difhub.load.IModelLoader
 import pro.bilous.difhub.model.Model
