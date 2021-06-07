@@ -29,6 +29,9 @@ abstract class DefLoader(protected val username: String, protected val password:
 			} else if (isNotFound(code, result)) {
 				println("Url is not found: $url")
 				return null
+			} else if (isForbidden(code, result)) {
+				println("User is authorized but access is forbidden for: $url")
+				return null
 			}
 			println("Url is loaded: $url")
 		} else {
@@ -62,6 +65,10 @@ abstract class DefLoader(protected val username: String, protected val password:
 
 	private fun isNotFound(code: Int, body: String): Boolean {
 		return code == 404 || body.contains("\"status\": 404")
+	}
+
+	private fun isForbidden(code: Int, body: String): Boolean {
+		return code == 403 || body.contains("\"status\": 403")
 	}
 
 	protected abstract fun getUrl(path: String): String

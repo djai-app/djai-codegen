@@ -73,6 +73,27 @@ class DefLoaderTest {
 		assertNull(defLoader.load(""))
 	}
 
+	@Test
+	fun `should return null if access is forbidden (first case)`() {
+		DefLoader.dropAuthTokens()
+		val defLoader = object : DefLoader(USERNAME, PASSWORD) {
+			override fun getUrl(path: String) = URL
+			override fun getAuthToken() = TOKEN
+			override fun call(request: Request) = Pair(403, RESULT)
+		}
+		assertNull(defLoader.load(""))
+	}
+
+	@Test
+	fun `should return null if access is forbidden (second case)`() {
+		DefLoader.dropAuthTokens()
+		val defLoader = object : DefLoader(USERNAME, PASSWORD) {
+			override fun getUrl(path: String) = URL
+			override fun getAuthToken() = TOKEN
+			override fun call(request: Request) = Pair(200, "\"status\": 403")
+		}
+		assertNull(defLoader.load(""))
+	}
 
 	@Test
 	fun `should not load if content is null`() {
