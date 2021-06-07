@@ -1,5 +1,7 @@
 package pro.bilous.difhub.load
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.jupiter.api.Test
 import io.swagger.util.Json
@@ -40,6 +42,14 @@ class ModelLoaderTest {
   				}
 			}
 			""".trimIndent()
+
+		val LOADED_MODELS = """
+			[
+				$LOADED_MODEL,
+				$LOADED_MODEL,
+				$LOADED_MODEL
+			]
+		""".trimIndent()
 	}
 
 	val jsonMapper = Json.mapper()
@@ -159,5 +169,28 @@ class ModelLoaderTest {
 		assertNull(result)
 	}
 
-	private fun jsonToModel(jsonText: String) =	jsonMapper.readValue(jsonText, Model::class.java)
+	@Test
+	fun `should return the list of models`() {
+		ModelLoader.clearCache()
+		DefLoader.dropAuthTokens()
+
+		val defLoader = object : DefLoader("user", "pass") {
+			override fun getUrl(path: String) = "http://test/$path"
+			override fun getAuthToken() = "token"
+			override fun call(request: Request) = Pair(200, LOADED_MODELS)
+		}
+
+		val modelLoader = ModelLoader(defLoader)
+		val reference = "/models/versions/v1.2.0"
+
+		val test = jsonToModels(LOADED_MODELS)
+		val result = modelLoader.loadModels(reference)
+		assertEquals(test, result)
+	}
+
+	private fun jsonToModel(jsonText: String) =	jsonMapper.readValue<Model>(jsonText)
+	private fun jsonToModels(jsonText: String) = jsonMapper.readValue<List<Model>>(jsonText)
+
+	private inline fun <reified T> ObjectMapper.readValue(json: String): T =
+		readValue(json, object : TypeReference<T>() {})
 }
