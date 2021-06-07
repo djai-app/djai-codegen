@@ -64,11 +64,11 @@ abstract class DefLoader(protected val username: String, protected val password:
 		return code == 404 || body.contains("\"status\": 404")
 	}
 
-	abstract fun getUrl(path: String): String
+	protected abstract fun getUrl(path: String): String
 
-	abstract fun getAuthToken(): String
+	protected abstract fun getAuthToken(): String
 
-	abstract fun call(request: Request): Pair<Int, String?>
+	protected abstract fun call(request: Request): Pair<Int, String?>
 }
 
 class DifHubLoader(username: String, password: String, val config: Config) : DefLoader(username, password) {
