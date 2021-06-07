@@ -42,7 +42,13 @@ class ModelLoader(private val defLoader: DefLoader) : IModelLoader {
 
 	override fun loadModels(reference: String): List<Model>? {
 		val text = loadString(reference, null)
-		return if (text.isNullOrEmpty()) null else Json.mapper().readValue<List<Model>>(text)
+		return if (text.isNullOrEmpty()) null else try {
+			Json.mapper().readValue<List<Model>>(text)
+		} catch (e: JsonProcessingException) {
+			System.err.println("Failed when models loading: $reference")
+			println(e)
+			null
+		}
 	}
 
 	private inline fun <reified T> ObjectMapper.readValue(json: String): T =

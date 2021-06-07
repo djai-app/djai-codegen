@@ -188,6 +188,24 @@ class ModelLoaderTest {
 		assertEquals(test, result)
 	}
 
+	@Test
+	fun `should return null when models are not loaded`() {
+		ModelLoader.clearCache()
+		DefLoader.dropAuthTokens()
+
+		val defLoader = object : DefLoader("user", "pass") {
+			override fun getUrl(path: String) = "http://test/$path"
+			override fun getAuthToken() = "token"
+			override fun call(request: Request) = Pair(200, "not JSON")
+		}
+
+		val modelLoader = ModelLoader(defLoader)
+		val reference = "/models/versions/v1.2.0"
+
+		val result = modelLoader.loadModels(reference)
+		assertNull(result)
+	}
+
 	private fun jsonToModel(jsonText: String) =	jsonMapper.readValue<Model>(jsonText)
 	private fun jsonToModels(jsonText: String) = jsonMapper.readValue<List<Model>>(jsonText)
 
