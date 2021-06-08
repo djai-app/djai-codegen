@@ -249,6 +249,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 	private fun setupRawFiles() {
 		addSupportFile(source = "raw/_gitignore", target = ".gitignore")
 		addSupportFile(source = "raw/_editorconfig", target = ".editorconfig")
+		addSupportFile(source = "raw/_gradle_properties", target = "gradle.properties")
 	}
 
 	private fun setupIdeaFiles() {
