@@ -28,9 +28,12 @@ object PathTools {
 
 	private fun resolveHomePathForOldProjects(projectPath: String) {
 		val newHomeFolder = File("$projectPath/$HOME_PATH")
+		if (newHomeFolder.exists()) {
+			return
+		}
 		val oldHomePath = "$projectPath/.difhub-codegen"
 		val oldHomeFolder = File(oldHomePath)
-		if (oldHomeFolder.exists() && !newHomeFolder.exists()) {
+		if (oldHomeFolder.exists()) {
 			oldHomeFolder.renameTo(newHomeFolder)
 		}
 	}
