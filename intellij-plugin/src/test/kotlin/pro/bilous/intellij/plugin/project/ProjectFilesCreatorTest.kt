@@ -13,7 +13,7 @@ internal class ProjectFilesCreatorTest {
 		const val USERNAME = "test@username"
 		const val PASSWORD = "test password"
 		const val ORGANIZATION = "test organization"
-		const val SYSTEM: String = "test system"
+		const val SYSTEM = "test system"
 		val APPLICATION = mutableSetOf("first-app", "second-app", "third-app")
 		const val ARTIFACT_ID = "test_artifact_id"
 		const val GROUP_ID = "test_group_id"

@@ -23,11 +23,12 @@ import pro.bilous.difhub.model.ResponsesItem
 
 class InterfaceConverter(private val source: Model) {
 
-	val pathModels = mutableMapOf<String , String>()
+	val pathModels = mutableMapOf<String, String>()
 	val parameters = mutableMapOf<String, Parameter>()
 	val requestBodies = mutableMapOf<String, RequestBody>()
 	val paths = mutableMapOf<String, PathItem>()
 
+	private val pathRegisteredParams = mutableListOf<String>()
 	private val sourcePath = source.path.replace("\u200B", "")
 
 	fun convert() {
@@ -171,7 +172,6 @@ class InterfaceConverter(private val source: Model) {
 		path.operation(PathItem.HttpMethod.valueOf(item.action.toUpperCase()), op)
 	}
 
-	private val pathRegisteredParams = mutableListOf<String>()
 	private fun addParameter(paramSource: ParametersItem, op: Operation, path: PathItem) {
 		val param = createParameter(paramSource)
 
@@ -243,7 +243,6 @@ class InterfaceConverter(private val source: Model) {
 			type.createProperty()
 		}
 	}
-
 
 	private fun createQueryParameter(item: ParametersItem): Parameter {
 		val param = QueryParameter()
