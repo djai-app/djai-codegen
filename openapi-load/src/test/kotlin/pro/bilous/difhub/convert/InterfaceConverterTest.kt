@@ -18,8 +18,8 @@ import kotlin.test.assertEquals
 class InterfaceConverterTest {
 
 	companion object {
-		const val ref = "\$ref"
-		val INTERFACE_JSON = """
+		private const val ref = "\$ref"
+		val INTERFACE = """
 {
     "identity": {
         "id": "662a25e2-0a4e-4fe3-84da-2f8da3826eb5",
@@ -770,7 +770,8 @@ class InterfaceConverterTest {
 			}
 		""".trimIndent()
 
-		const val TEST_PRODUCT_MODEL = "/organizations/DJet/systems/Client/applications/Product/datasets/Product/versions/1.0.0"
+		const val TEST_PRODUCT_MODEL =
+			"/organizations/DJet/systems/Client/applications/Product/datasets/Product/versions/1.0.0"
 		const val TEST_ERROR_MODEL = "/organizations/Infort Technologies/datasets/Error/versions/1.1.0"
 
 		val PARAMETER_PRODUCT_ID = """
@@ -823,24 +824,7 @@ class InterfaceConverterTest {
 			}
 		""".trimIndent()
 
-		val TEST_JSON = """
-		{
-			"array": {
-		        "type": "array",
-		        "items": {
-		            "$ref": "#/components/schemas/Error"
-			    }
-		    },
-		   "schema": {
-		        "type": "array",
-		        "items": {
-		            "$ref": "#/components/schemas/Error"
-				}
-		   }
-		}
-		""".trimIndent()
-
-		val mapper = Json.mapper().apply {
+		val mapper: ObjectMapper = Json.mapper().apply {
 			registerKotlinModule()
 		}
 	}
@@ -850,7 +834,7 @@ class InterfaceConverterTest {
 
 	@Test
 	fun `should return paths`() {
-		val interfaceModel = mapper.readValue<Model>(INTERFACE_JSON)
+		val interfaceModel = mapper.readValue<Model>(INTERFACE)
 		val converter = InterfaceConverter(interfaceModel).apply {
 			convert()
 		}
@@ -859,7 +843,6 @@ class InterfaceConverterTest {
 			resolveArraySchemasForPath(this)
 		}
 		assertEquals(productPath, paths["/productlines/{productLineId}/products/{productId}"])
-		val test = mapper.readValue<MyTest>(TEST_JSON)
 	}
 
 	private fun resolveArraySchemasForPath(path: PathItem) {
@@ -893,7 +876,7 @@ class InterfaceConverterTest {
 
 	@Test
 	fun `should return pathModels`() {
-		val interfaceModel = mapper.readValue<Model>(INTERFACE_JSON)
+		val interfaceModel = mapper.readValue<Model>(INTERFACE)
 		val converter = InterfaceConverter(interfaceModel).apply {
 			convert()
 		}
@@ -904,7 +887,7 @@ class InterfaceConverterTest {
 
 	@Test
 	fun `should return parameters`() {
-		val interfaceModel = mapper.readValue<Model>(INTERFACE_JSON)
+		val interfaceModel = mapper.readValue<Model>(INTERFACE)
 		val converter = InterfaceConverter(interfaceModel).apply {
 			convert()
 		}
@@ -928,7 +911,7 @@ class InterfaceConverterTest {
 
 	private fun resolveSchemaForPathParameter(parameter: Parameter?) {
 		parameter?.schema?.run {
-			parameter.schema = when(type) {
+			parameter.schema = when (type) {
 				"string" -> StringSchema()
 				else -> ObjectSchema()
 			}
@@ -937,7 +920,7 @@ class InterfaceConverterTest {
 
 	@Test
 	fun `should return bodies`() {
-		val interfaceModel = mapper.readValue<Model>(INTERFACE_JSON)
+		val interfaceModel = mapper.readValue<Model>(INTERFACE)
 		val converter = InterfaceConverter(interfaceModel).apply {
 			convert()
 		}
@@ -946,9 +929,4 @@ class InterfaceConverterTest {
 		assertEquals(testBody, requestBodies["product"])
 	}
 
-}
-
-class MyTest {
-	var array: ArraySchema? = null
-	var schema: Schema<Any>? = null
 }
