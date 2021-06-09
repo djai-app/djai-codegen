@@ -6,6 +6,7 @@ import pro.bilous.difhub.write.YamlWriter
 import java.io.File
 import java.nio.file.Paths
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 
 class MigrationsTest {
@@ -45,4 +46,24 @@ class MigrationsTest {
 		assertNull(credentialsJson["organization"])
 		assertEquals(ORGANIZATION, settingsJson["organization"]?.asText())
     }
+
+	@Test
+	fun `should do nothing if any file is absent`() {
+		val projectPath = Paths.get("build/tmp").toAbsolutePath().toString()
+		val homePath = PathTools.getHomePath(projectPath)
+		val credentialsFile = File("$homePath/.credentials.yaml")
+		val settingsFile = File("$homePath/settings.yaml")
+
+		if (credentialsFile.exists())  {
+			credentialsFile.delete()
+		}
+		if (settingsFile.exists()) {
+			settingsFile.delete()
+		}
+
+		Migrations.movePropertyOrganizationFromCredentialsToSettings(projectPath)
+
+		assertFalse(credentialsFile.exists())
+		assertFalse(settingsFile.exists())
+	}
 }
