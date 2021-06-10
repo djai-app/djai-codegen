@@ -5,22 +5,23 @@ import pro.bilous.intellij.plugin.gen.CodeGenerator
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFileManager
 import org.slf4j.LoggerFactory
-import pro.bilous.difhub.config.SystemSettings
+import pro.bilous.difhub.config.Config
 import pro.bilous.difhub.convert.DifHubToSwaggerConverter
+import pro.bilous.difhub.load.IModelLoader
 import pro.bilous.difhub.write.YamlWriter
 import java.lang.Exception
 
 class ProjectFilesCreator {
     private val log = LoggerFactory.getLogger(ProjectFilesCreator::class.java)
 
-    fun createFiles(module: Module, request: ProjectCreationRequest) {
+    fun createFiles(modelLoader: IModelLoader, config: Config, module: Module, request: ProjectCreationRequest) {
         val project = module.project
         val basePath = project.basePath
 
         val configFolder = PathTools.getHomePath(basePath)
 
         createCredentialsFile(request, configFolder)
-        createOpenApiFiles(request, configFolder)
+        createOpenApiFiles(modelLoader, config, request, configFolder)
         createConfigFile(request, configFolder)
         executeCodeGenerator(basePath!!)
 
@@ -35,9 +36,8 @@ class ProjectFilesCreator {
         YamlWriter(request.system).writeFile(fileContent, configFolder, ".credentials")
     }
 
-    private fun createOpenApiFiles(request: ProjectCreationRequest, configFolder: String) {
-		val systemSettings = SystemSettings(request.system, request.datasetStatus)
-        DifHubToSwaggerConverter(systemSettings).convertAll().forEach {
+    private fun createOpenApiFiles(modelLoader: IModelLoader, config: Config, request: ProjectCreationRequest, configFolder: String) {
+        DifHubToSwaggerConverter(modelLoader, config).convertAll().forEach {
             try {
                 YamlWriter(request.system).writeFile(it.openApi, configFolder, "${it.appName.toLowerCase()}-api")
             } catch (error: Exception) {

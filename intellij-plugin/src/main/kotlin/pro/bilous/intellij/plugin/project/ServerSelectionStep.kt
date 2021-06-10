@@ -7,12 +7,14 @@ import com.intellij.ui.components.JBTextField
 import com.intellij.ui.layout.panel
 import org.apache.commons.lang3.StringUtils
 import pro.bilous.difhub.config.ConfigReader
+import pro.bilous.difhub.load.DifHubLoader
+import pro.bilous.difhub.load.ModelLoader
 import java.net.URI
 import java.net.URISyntaxException
 import java.net.URLEncoder
 import javax.swing.JComponent
 
-class ServerSelectionStep(val moduleBuilder: ProjectModuleBuilder) : ModuleWizardStep() {
+class ServerSelectionStep(private val moduleBuilder: ProjectModuleBuilder) : ModuleWizardStep() {
 
     private val userField = JBTextField()
     private val passwordField = JBTextField()
@@ -24,13 +26,16 @@ class ServerSelectionStep(val moduleBuilder: ProjectModuleBuilder) : ModuleWizar
 		moduleBuilder.request.username = userField.text
 		moduleBuilder.request.password = passwordField.text
 		moduleBuilder.request.organization = organizationField.text
-		writeCredentialsToProps()
-		writeSettingsToProps()
+
+		val username = moduleBuilder.request.username ?: return
+		val password = moduleBuilder.request.password ?: return
+		val organization = moduleBuilder.request.organization
+		val config = ConfigReader.loadConfig(organization)
+		moduleBuilder.config = config
+		moduleBuilder.modelLoader = ModelLoader(DifHubLoader(username, password, config))
     }
 
     override fun getComponent(): JComponent {
-		loadCredentials()
-		loadSettings()
         return panel {
             titledRow("DifHub Credentials") {
                 row {
@@ -46,7 +51,7 @@ class ServerSelectionStep(val moduleBuilder: ProjectModuleBuilder) : ModuleWizar
                     }
                 }.enabled = true
             }
-            titledRow("Configure DifHub organization") {
+            titledRow("Configure DifHub Organization") {
                 row {
                     cell {
                         label("Organization Name")
@@ -77,23 +82,5 @@ class ServerSelectionStep(val moduleBuilder: ProjectModuleBuilder) : ModuleWizar
             throw ConfigurationException("Server URL must be a valid url")
         }
     }
-
-	private fun loadCredentials() {
-		userField.text = System.setProperty("DIFHUB_USERNAME", "")
-		passwordField.text = System.setProperty("DIFHUB_PASSWORD", "")
-	}
-
-	private fun loadSettings() {
-		organizationField.text = System.getProperty("DIFHUB_ORG_NAME", "")
-	}
-
-    private fun writeCredentialsToProps() {
-        System.setProperty("DIFHUB_USERNAME", userField.text)
-        System.setProperty("DIFHUB_PASSWORD", passwordField.text)
-    }
-
-	private fun writeSettingsToProps() {
-		System.setProperty("DIFHUB_ORG_NAME", organizationField.text)
-	}
 
 }
