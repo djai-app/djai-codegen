@@ -14,7 +14,7 @@
 {{#vendorExtensions.isEmbeddable}}
 @Embeddable
 {{/vendorExtensions.isEmbeddable}}
-{{#vars}}data {{/vars}}class {{classname}}(
+{{#vendorExtensions.isDataClass}}data {{/vendorExtensions.isDataClass}}class {{classname}}(
 {{#vendorExtensions.addIdVar}}
 
 	var id: String,
