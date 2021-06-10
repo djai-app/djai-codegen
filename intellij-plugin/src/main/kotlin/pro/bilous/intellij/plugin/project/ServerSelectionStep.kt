@@ -18,14 +18,14 @@ class ServerSelectionStep(private val moduleBuilder: ProjectModuleBuilder) : Mod
 
     private val userField = JBTextField()
     private val passwordField = JBTextField()
-    private val organization = TextFieldWithHistory()
+    private val organizationField = TextFieldWithHistory()
 
     val difhub = ConfigReader.loadConfig().difhub
 
     override fun updateDataModel() {
 		moduleBuilder.request.username = userField.text
 		moduleBuilder.request.password = passwordField.text
-		moduleBuilder.request.organization = organization.text
+		moduleBuilder.request.organization = organizationField.text
 
 		val username = moduleBuilder.request.username ?: return
 		val password = moduleBuilder.request.password ?: return
@@ -55,7 +55,7 @@ class ServerSelectionStep(private val moduleBuilder: ProjectModuleBuilder) : Mod
                 row {
                     cell {
                         label("Organization Name")
-                        organization()
+                        organizationField()
                     }
                 }.enabled = true
             }
@@ -70,7 +70,7 @@ class ServerSelectionStep(private val moduleBuilder: ProjectModuleBuilder) : Mod
             throw ConfigurationException("Password must be set")
         }
 
-        val serverUrl = "${difhub.api}/${URLEncoder.encode(organization.text, "utf-8")}"
+        val serverUrl = "${difhub.api}/${URLEncoder.encode(organizationField.text, "utf-8")}"
 
         if (StringUtils.isEmpty(serverUrl)) {
             throw ConfigurationException("Organization Name must be set")

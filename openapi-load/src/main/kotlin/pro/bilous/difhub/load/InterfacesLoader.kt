@@ -12,12 +12,16 @@ class InterfacesLoader(val modelLoader: IModelLoader, val config: Config) : IInt
 	override fun load(app: String): List<Model> {
 		val interfaceList =  modelLoader.loadModels(difhub.getInterfacesUrl(system, app))
 
-		val intefaces = mutableListOf<Model>()
+		val interfaces = mutableListOf<Model>()
 
 		interfaceList?.forEach {
-			val `interface` = modelLoader.loadModel(difhub.getInterfaceUrl(system, app, it.identity.name), datasetStatus)!!
-			intefaces.add(`interface`)
+			val `interface` = modelLoader.loadModel(difhub.getInterfaceUrl(system, app, it.identity.name), datasetStatus)
+			if (`interface` != null) {
+				interfaces.add(`interface`)
+			} else {
+				println("Interface is not loaded: $it")
+			}
 		}
-		return intefaces
+		return interfaces
 	}
 }
