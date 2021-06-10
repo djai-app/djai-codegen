@@ -34,7 +34,8 @@ class YamlWriter(private val apiName: String) {
 		}
 		val targetFilePath = "$folderPath/$fileName.yaml"
 		File(targetFilePath).bufferedWriter().use {
-			out -> out.write(yamlText)
+			it.write(yamlText)
+			it.flush()
 		}
 		print("YAML file successfully written to $targetFilePath")
 	}

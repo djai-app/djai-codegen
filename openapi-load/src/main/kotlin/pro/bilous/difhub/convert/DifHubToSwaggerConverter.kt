@@ -1,8 +1,10 @@
 package pro.bilous.difhub.convert
 
 import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.PathItem
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.parameters.Parameter
+import io.swagger.v3.oas.models.parameters.RequestBody
 import io.swagger.v3.oas.models.servers.Server
 import io.swagger.v3.oas.models.tags.Tag
 import org.slf4j.LoggerFactory
@@ -49,17 +51,18 @@ class DifHubToSwaggerConverter(val systemSettings: SystemSettings) {
 		//addPathAndDefRecursively()
 		convertModelsToDefinitions(application, openApi)
 
-		convertInterfacesToPaths(application, openApi)
+		convertInterfaces(application, openApi)
 
 		return openApi
 	}
 
-	private fun convertInterfacesToPaths(application: String, openApi: OpenAPI) {
+	private fun convertInterfaces(application: String, openApi: OpenAPI) {
 		val interfaces = interfacesLoader.load(systemSettings, application)
 
+		val paths = mutableMapOf<String, PathItem>()
 		val modelsToLoad = mutableMapOf<String, String>()
 		val parameters = mutableMapOf<String, Parameter>()
-
+		val requestBodies = mutableMapOf<String, RequestBody>()
 		val tags = mutableListOf<Tag>()
 
 		interfaces
@@ -68,12 +71,14 @@ class DifHubToSwaggerConverter(val systemSettings: SystemSettings) {
 					it.identity.name != "Entities"
 				}
 				?.forEach {
-			val converter = InterfaceToPathConverter(it, openApi)
-			converter.convert().forEach { (key, path) ->
+			val converter = InterfaceConverter(it).apply {
+				convert()
+			}
+			converter.paths.forEach { (key, path) ->
 				if (path.readOperations().isEmpty()) {
 					System.err.println("Missing operations for the PATH: $key, ignoring path...")
 				} else {
-					openApi.path(key, path)
+					paths[key] = path
 				}
 			}
 			val tag = if (it.`object`?.tags.isNullOrEmpty()) {
@@ -84,21 +89,22 @@ class DifHubToSwaggerConverter(val systemSettings: SystemSettings) {
 			tags.add(Tag().name(tag.name).description(
 					tag.description ?: it.identity.description
 			))
-
-			modelsToLoad.putAll(converter.pathModelsToLoad)
+			modelsToLoad.putAll(converter.pathModels)
 			parameters.putAll(converter.parameters)
+			requestBodies.putAll(converter.requestBodies)
 		}
 
-		tags
-			.forEach {
-				if (openApi.tags == null) {
-					openApi.tags = mutableListOf()
-				}
-				if (!openApi.tags.any { tag -> tag.name == it.name }) {
-					openApi.addTagsItem(it)
-				}
+		paths.forEach{
+			openApi.path(it.key, it.value)
+		}
+		tags.forEach {
+			if (openApi.tags == null) {
+				openApi.tags = mutableListOf()
 			}
-
+			if (!openApi.tags.any { tag -> tag.name == it.name }) {
+				openApi.addTagsItem(it)
+			}
+		}
 		modelsToLoad.forEach {
 			val model = ModelLoader(DefLoader()).loadModel(it.value, systemSettings)
 			if (model != null) {
@@ -109,6 +115,9 @@ class DifHubToSwaggerConverter(val systemSettings: SystemSettings) {
 		}
 		parameters.forEach{
 			openApi.components.addParameters(it.key, it.value)
+		}
+		requestBodies.forEach{
+			openApi.components.addRequestBodies(it.key, it.value)
 		}
 	}
 

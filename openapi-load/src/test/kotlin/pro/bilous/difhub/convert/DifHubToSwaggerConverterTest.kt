@@ -69,7 +69,7 @@ internal class DifHubToSwaggerConverterTest {
 
 	private fun readValue(jsonText: String): Model {
 		Json.mapper().registerKotlinModule()
-		return Json.mapper().readValue(appJson)
+		return Json.mapper().readValue(jsonText)
 	}
 
 	private inline fun <reified T> ObjectMapper.readValue(json: String): T
