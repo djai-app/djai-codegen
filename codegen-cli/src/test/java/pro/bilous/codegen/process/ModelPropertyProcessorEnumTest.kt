@@ -30,7 +30,7 @@ class ModelPropertyProcessorEnumTest {
 	fun `should detect enum property in list`() {
 		val processor = ModelPropertyProcessor(mock())
 		val property = CodegenProperty().apply {
-			isListContainer = true
+			isArray = true
 			items = CodegenProperty().apply {
 				allowableValues = mapOf("values" to listOf("value", "value1"))
 			}
@@ -42,7 +42,7 @@ class ModelPropertyProcessorEnumTest {
 	fun `should not detect enum property in list`() {
 		val processor = ModelPropertyProcessor(mock())
 		val property = CodegenProperty().apply {
-			isListContainer = true
+			isArray = true
 			items = null
 		}
 		assertFalse(processor.isEnum(property))
@@ -64,7 +64,7 @@ class ModelPropertyProcessorEnumTest {
 	fun `should convert enum to list of string`() {
 		val processor = ModelPropertyProcessor(mock())
 		val property = CodegenProperty().apply {
-			isListContainer = true
+			isArray = true
 			required = true
 			complexType = "TestType"
 		}

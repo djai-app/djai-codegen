@@ -9,16 +9,14 @@ import io.swagger.v3.oas.models.responses.ApiResponses
 import io.swagger.v3.oas.models.servers.Server
 import org.openapitools.codegen.languages.AbstractJavaCodegen
 import org.openapitools.codegen.utils.ModelUtils
-import org.slf4j.LoggerFactory
-
-import java.io.File
-
 import org.openapitools.codegen.utils.StringUtils.camelize
+import org.slf4j.LoggerFactory
 import pro.bilous.codegen.process.*
 import pro.bilous.codegen.process.filename.ModelFileNameArgs
 import pro.bilous.codegen.process.filename.ModelFileNameResolver
 import pro.bilous.codegen.process.models.AllModelsProcessor
 import pro.bilous.codegen.process.models.CommonModelsProcessor
+import java.io.File
 
 open class CodeCodegen : AbstractJavaCodegen() {
 	companion object {
@@ -400,5 +398,13 @@ open class CodeCodegen : AbstractJavaCodegen() {
 			return processor.resolveImport(name)
 		}
 		return super.toModelImport(name)
+	}
+
+	override fun postProcess() {
+		println("################################################################################")
+		println("# Thanks for using DJet Codegen.                                               #")
+		println("# Please star this project https://github.com/DJetCloud/djet-codegen \uD83D\uDE4F        #")
+		println("# Project site https://djet.cloud                                              #")
+		println("################################################################################")
 	}
 }

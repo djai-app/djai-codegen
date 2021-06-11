@@ -156,7 +156,7 @@ class ModelPropertyProcessorTest {
 		val property = CodegenProperty()
 		property.name = "MyJsonProperty"
 		property.datatypeWithEnum = "OtherType"
-		property.isListContainer = true
+		property.isArray = true
 		property.example = "null"
 		val model = CodegenModel()
 		model.name = "Name"

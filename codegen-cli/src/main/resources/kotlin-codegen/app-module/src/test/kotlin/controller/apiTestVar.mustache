@@ -1,5 +1,5 @@
-{{name}} = {{^vendorExtensions.testModel}}{{#isListContainer}}listOf({{/isListContainer}}{{#isString}}"{{/isString}}{{{defaultValue}}}{{#isString}}"{{/isString}}{{#isListContainer}}){{/isListContainer}}{{/vendorExtensions.testModel}}{{#vendorExtensions.testModel}}{{#isListContainer}}listOf({{/isListContainer}}{{classname}}(
+{{name}} = {{^vendorExtensions.testModel}}{{#isArray}}listOf({{/isArray}}{{#isString}}"{{/isString}}{{{defaultValue}}}{{#isString}}"{{/isString}}{{#isArray}}){{/isArray}}{{/vendorExtensions.testModel}}{{#vendorExtensions.testModel}}{{#isArray}}listOf({{/isArray}}{{classname}}(
 				{{#vars}}
-					{{>app-module/src/test/kotlin/controller/apiTestVar}}{{#hasMore}},{{/hasMore}}
+					{{>app-module/src/test/kotlin/controller/apiTestVar}}{{^-last}},{{/-last}}
 				{{/vars}}
-				){{#isListContainer}}){{/isListContainer}}{{/vendorExtensions.testModel}}
+				){{#isArray}}){{/isArray}}{{/vendorExtensions.testModel}}
