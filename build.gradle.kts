@@ -12,7 +12,6 @@ allprojects {
 	repositories {
 		mavenLocal()
 		mavenCentral()
-		jcenter()
 	}
 	tasks.withType<JavaCompile> {
 		sourceCompatibility = "1.8"
