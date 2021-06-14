@@ -199,10 +199,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 		objs["converterClassname"] = classPrefix + "Converter"
 		objs["controllerPath"] = findControllerPath(ops)
 
-		val testModel = findTestCodegenModel(returnType)
-		objs["testModel"] = testModel
-		objs["hasTestModel"] = true
-		applyImportsForTest(objs, testModel)
+		addTestModel(objs, returnType)
 
 		objs["converterLinkMethodname"] = ops.find { operation ->
 			val idPathParam = operation.path.split("/").last().removePrefix("{").removeSuffix("}")
@@ -211,6 +208,13 @@ class OperationAddon(val codegen: CodeCodegen) {
 
 		objs["validationRuleClassname"] = classPrefix + "ValidationRule"
 		objs["returnModelType"] = returnType
+	}
+
+	fun addTestModel(objs: MutableMap<String, Any>, returnType: String) {
+		val testModel = findTestCodegenModel(returnType)
+		objs["testModel"] = testModel
+		objs["hasTestModel"] = true
+		applyImportsForTest(objs, testModel)
 	}
 
 	fun applyImportsForTest(objs: MutableMap<String, Any>, testModel: CodegenModel) {
@@ -249,7 +253,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	private fun readModelByType(type: String): CodegenModel {
-		val schema = codegen.getOpenApi().components.schemas[type] as Schema<*>
+		val schema = codegen.findOpenApi().components.schemas[type] as Schema<*>
 		return codegen.fromModel(type, schema)
 	}
 
