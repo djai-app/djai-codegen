@@ -18,7 +18,7 @@ internal class OperationAddonTest {
 		val op = CodegenOperation().apply {
 			allParams = mutableListOf(CodegenParameter())
 			httpMethod = "get"
-			isListContainer = true
+			isArray = true
 		}
 		addon.fixOperationParams(op)
 

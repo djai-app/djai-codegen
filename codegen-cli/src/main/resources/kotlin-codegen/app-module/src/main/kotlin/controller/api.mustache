@@ -21,12 +21,12 @@ import org.springframework.web.bind.annotation.*
 interface {{classname}} {
 {{#operation}}
 
-    @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}", tags={{#vendorExtensions.x-tags}}["{{tag}}"]{{#hasMore}},{{/hasMore}}{{/vendorExtensions.x-tags}})
+    @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}", tags={{#vendorExtensions.x-tags}}["{{tag}}"]{{^-last}}, {{/-last}}{{/vendorExtensions.x-tags}})
     @ApiResponses({{#responses}}
-        ApiResponse(code = {{{code}}}, message = "{{{message}}}"){{#hasMore}},{{/hasMore}}{{/responses}}
+        ApiResponse(code = {{{code}}}, message = "{{{message}}}"){{^-last}},{{/-last}}{{/responses}}
     )
     @{{httpMethod}}Mapping("{{{path}}}")
-    fun {{vendorExtensions.operationMethodName}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>pageParams}}{{#hasMore}},{{/hasMore}}{{^hasMore}}{{/hasMore}}{{/allParams}}): {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {
+    fun {{vendorExtensions.operationMethodName}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>pageParams}}{{^-last}},{{/-last}}{{/allParams}}): {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {
         return ResponseEntity(HttpStatus.NOT_IMPLEMENTED)
     }
 {{/operation}}

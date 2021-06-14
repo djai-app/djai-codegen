@@ -129,7 +129,6 @@ class OperationAddon(val codegen: CodeCodegen) {
 		removeSearchParamFromNoReturnListOperation(operation)
 		resolveParamsDataTypes(operation)
 		addPageParamForGetListOperation(operation)
-		setAllParamsHasMoreFlag(operation)
 	}
 
 	private fun removeUnnecessaryParams(operation: CodegenOperation) {
@@ -155,7 +154,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	private fun addPageParamForGetListOperation(operation: CodegenOperation) {
-		if (operation.httpMethod.toLowerCase() == "get" && operation.isListContainer) {
+		if (operation.httpMethod.toLowerCase() == "get" && operation.isArray) {
 			val pageParameter = CodegenParameter()
 				.apply {
 					dataType = "Pageable"
@@ -168,11 +167,6 @@ class OperationAddon(val codegen: CodeCodegen) {
 				}
 			operation.allParams.add(pageParameter)
 		}
-	}
-
-	private fun setAllParamsHasMoreFlag(operation: CodegenOperation) {
-		operation.allParams.forEach { it.hasMore = true }
-		operation.allParams.last().hasMore = false
 	}
 
 	private fun resolveParamDataType(param: CodegenParameter) {
@@ -270,7 +264,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 				applyTestVars(embeddedModel)
 				it.vendorExtensions["testModel"] = embeddedModel
 				it.vendorExtensions["hasTestModel"] = true
-			} else if (it.isListContainer && !it.complexType.isNullOrEmpty() && !arrayOf(
+			} else if (it.isArray && !it.complexType.isNullOrEmpty() && !arrayOf(
 					"List<String>",
 					"List<String>?"
 				).contains(it.datatypeWithEnum)
@@ -302,7 +296,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 						it.isString = true
 						"test_enum_value"
 					}
-					it.isListContainer && arrayOf("List<String>", "List<String>?").contains(it.datatypeWithEnum) -> {
+					it.isArray && arrayOf("List<String>", "List<String>?").contains(it.datatypeWithEnum) -> {
 						"\"test_list_string_value\""
 					}
 					it.isFreeFormObject && arrayOf("String", "String?").contains(it.datatypeWithEnum) -> {
