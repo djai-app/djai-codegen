@@ -201,6 +201,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 
 		val testModel = findTestCodegenModel(returnType)
 		objs["testModel"] = testModel
+		objs["hasTestModel"] = true
 		applyImportsForTest(objs, testModel)
 
 		objs["converterLinkMethodname"] = ops.find { operation ->
