@@ -400,6 +400,12 @@ open class CodeCodegen : AbstractJavaCodegen() {
 		return super.toModelImport(name)
 	}
 
+	fun addSupportFile(source: String, folder: String = "", target: String, condition: Boolean = true) {
+		if (condition) {
+			supportingFiles.add(SupportingFile(source, folder.replace(".", File.separator), target))
+		}
+	}
+
 	override fun postProcess() {
 		println("################################################################################")
 		println("# Thanks for using DJet Codegen.                                               #")

@@ -6,6 +6,7 @@ import org.openapitools.codegen.CodeCodegen
 import org.openapitools.codegen.SupportingFile
 import org.openapitools.codegen.templating.mustache.CaseFormatLambda
 import org.openapitools.codegen.templating.mustache.LowercaseLambda
+import pro.bilous.codegen.process.deployment.DeploymentPostProcessor
 import java.io.File
 import java.util.regex.Matcher
 
@@ -41,6 +42,8 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 	private fun getApiFolder(): String = codegen.apiFolder
 	private fun getServicesFolder(): String = codegen.servicesFolder
 	private fun getDatabaseFolder(): String = codegen.databaseFolder
+
+	private val deployment = DeploymentPostProcessor(codegen)
 
 	fun processOpts() {
 		// clear model and api doc template as this codegen
@@ -181,11 +184,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 			target = "gradle/wrapper/gradle-wrapper.jar"
 		)
 
-		addSupportFile(
-			source = ".gitlab-ci.yml.mustache",
-			target = ".gitlab-ci.yml",
-			condition = cicdEnabled()
-		)
+		deployment.addSystemFiles()
 	}
 
 	private fun addCommonModuleFiles() {
@@ -220,18 +219,6 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 			addSupportFile(source = "$inputSrc/security/urlmapper/UrlAccessMapper.kt.mustache", folder = "$destSrc/security/urlmapper", target = "UrlAccessMapper.kt")
 			addSupportFile(source = "$inputSrc/config/KeycloakConfig.kt.mustache", folder = "$destSrc/config", target = "KeycloakConfig.kt")
 		}
-
-		// add kubernetes ConfigMap manifest to the application
-		addSupportFile(
-			source = "kube/configmap.yml.mustache",
-			target = "kube/configmap.yml",
-			condition = cicdEnabled()
-		)
-		addSupportFile(
-			source = "kube/deploy.md.mustache",
-			target = "kube/deploy.md",
-			condition = cicdEnabled()
-		)
 	}
 
 	private fun setupModuleFiles() {
@@ -239,11 +226,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		val destinationRoot = "app-${artifactId.toLowerCase()}"
 		addSupportFile(source = "$inputRoot/build.gradle.kts.mustache",  target = "$destinationRoot/build.gradle.kts")
 		// add kubernetes manifests for the application
-		addSupportFile(
-			source = "kube/kube-app.yml.mustache",
-			target = "kube/kube-${artifactId.toLowerCase()}.yml",
-			condition = cicdEnabled()
-		)
+		deployment.addAppFiles(artifactId)
 	}
 
 	private fun setupRawFiles() {
@@ -261,8 +244,6 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 			supportingFiles.add(SupportingFile(source, folder.replace(".", File.separator), target))
 		}
 	}
-
-	private fun cicdEnabled() = additionalProperties.containsKey("cicd") && additionalProperties["cicd"] as Boolean
 
 	private fun isAuthorizationEnabled(): Boolean {
 		return true == additionalProperties.get(CodeCodegen.AUTHORIZATION_ENABLED) as Boolean?
