@@ -97,7 +97,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun processIfListOrIdentityComplexModelEndsWithId(model: CodegenModel, property: CodegenProperty) {
-		if (property.isListContainer && property.datatypeWithEnum.startsWith("List")) {
+		if (property.isArray && property.datatypeWithEnum.startsWith("List")) {
 //			property.datatypeWithEnum = "Set" + property.datatypeWithEnum.removePrefix("List")
 			property.defaultValue = if (property.required) "listOf()" else "null"
 			model.imports.remove("List")
@@ -140,7 +140,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		property.vendorExtensions["isMetadataAnnotation"] = true
 		property.vendorExtensions["metaGroupName"] =
 			CamelCaseConverter.convert(property.complexType.removeSuffix("Model"))
-		if (property.isListContainer) {
+		if (property.isArray) {
 			property.datatypeWithEnum = if (property.required) "List<String>" else "List<String>?"
 		} else {
 			property.datatypeWithEnum = if (property.required) "String" else "String?"
@@ -153,7 +153,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	}
 
 	fun isEnum(property: CodegenProperty): Boolean {
-		val prop = if (property.isListContainer && property.items != null) property.items else property
+		val prop = if (property.isArray && property.items != null) property.items else property
 		return hasEnumValues(prop)
 	}
 
@@ -169,7 +169,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		applyColumnNames(property)
 		applyEmbeddedComponentOrOneToOne(property)
 
-		if (entityMode && property.isListContainer) {
+		if (entityMode && property.isArray) {
 			val modelTableName = CamelCaseConverter.convert(model.name).toLowerCase()
 			val complexType = readComplexTypeFromProperty(property)
 
@@ -192,7 +192,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				// hardcode for the CodeableConcept as well, consider to implement a feature for this use case
 				arrayOf("Identity", "CodeableConcept").contains(complexType)
 						|| (complexType.isNotEmpty() && model.vars.any {
-					it.isListContainer && it.name != property.name && readComplexTypeFromProperty(it) == complexType
+					it.isArray && it.name != property.name && readComplexTypeFromProperty(it) == complexType
 				})
 
 			val (propertyTableName, propertyTableColumnName, realPropertyTableName) = if (hasOtherPropertyWithSameType) {
@@ -248,13 +248,13 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 
 	fun readSinglePropertyTableData(complexType: String, property: CodegenProperty): Triple<String, String, String> {
 		return when {
-			property.isListContainer && openApiWrapper.isOpenApiContainsType(complexType) -> {
+			property.isArray && openApiWrapper.isOpenApiContainsType(complexType) -> {
 				createTriple(complexType, complexType, complexType)
 			}
 			openApiWrapper.isOpenApiContainsType(complexType) -> {
 				createTriple(complexType, complexType, complexType)
 			}
-			complexType.isNotEmpty() && property.isListContainer -> {
+			complexType.isNotEmpty() && property.isArray -> {
 				createTriple(complexType, complexType, complexType)
 			}
 			else -> createTriple(property.name, property.name, property.name)
@@ -263,13 +263,13 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 
 	fun readManyPropertyTableData(complexType: String, property: CodegenProperty): Triple<String, String, String> {
 		return when {
-			property.isListContainer && openApiWrapper.isOpenApiContainsType(complexType) -> {
+			property.isArray && openApiWrapper.isOpenApiContainsType(complexType) -> {
 				createTriple(property.name, complexType, complexType)
 			}
 			openApiWrapper.isOpenApiContainsType(complexType) -> {
 				createTriple(complexType, complexType, complexType)
 			}
-			complexType.isNotEmpty() && property.isListContainer -> {
+			complexType.isNotEmpty() && property.isArray -> {
 				createTriple(property.name, complexType, complexType)
 			}
 			else -> createTriple(property.name, property.name, property.name)

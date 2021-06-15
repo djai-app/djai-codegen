@@ -3,6 +3,7 @@ package pro.bilous.codegen.process.filename
 import org.slf4j.LoggerFactory
 import java.io.File
 import org.openapitools.codegen.CodeCodegen
+import pro.bilous.codegen.process.deployment.DeploymentFileResolver
 
 class FilePathResolver {
 

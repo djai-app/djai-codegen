@@ -129,7 +129,6 @@ class OperationAddon(val codegen: CodeCodegen) {
 		removeSearchParamFromNoReturnListOperation(operation)
 		resolveParamsDataTypes(operation)
 		addPageParamForGetListOperation(operation)
-		setAllParamsHasMoreFlag(operation)
 	}
 
 	private fun removeUnnecessaryParams(operation: CodegenOperation) {
@@ -155,7 +154,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	private fun addPageParamForGetListOperation(operation: CodegenOperation) {
-		if (operation.httpMethod.toLowerCase() == "get" && operation.isListContainer) {
+		if (operation.httpMethod.toLowerCase() == "get" && operation.isArray) {
 			val pageParameter = CodegenParameter()
 				.apply {
 					dataType = "Pageable"
@@ -168,11 +167,6 @@ class OperationAddon(val codegen: CodeCodegen) {
 				}
 			operation.allParams.add(pageParameter)
 		}
-	}
-
-	private fun setAllParamsHasMoreFlag(operation: CodegenOperation) {
-		operation.allParams.forEach { it.hasMore = true }
-		operation.allParams.last().hasMore = false
 	}
 
 	private fun resolveParamDataType(param: CodegenParameter) {
@@ -205,9 +199,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 		objs["converterClassname"] = classPrefix + "Converter"
 		objs["controllerPath"] = findControllerPath(ops)
 
-		val testModel = findTestCodegenModel(returnType)
-		objs["testModel"] = testModel
-		applyImportsForTest(objs, testModel)
+		addTestModel(objs, returnType)
 
 		objs["converterLinkMethodname"] = ops.find { operation ->
 			val idPathParam = operation.path.split("/").last().removePrefix("{").removeSuffix("}")
@@ -216,6 +208,13 @@ class OperationAddon(val codegen: CodeCodegen) {
 
 		objs["validationRuleClassname"] = classPrefix + "ValidationRule"
 		objs["returnModelType"] = returnType
+	}
+
+	fun addTestModel(objs: MutableMap<String, Any>, returnType: String) {
+		val testModel = findTestCodegenModel(returnType)
+		objs["testModel"] = testModel
+		objs["hasTestModel"] = true
+		applyImportsForTest(objs, testModel)
 	}
 
 	fun applyImportsForTest(objs: MutableMap<String, Any>, testModel: CodegenModel) {
@@ -254,7 +253,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	private fun readModelByType(type: String): CodegenModel {
-		val schema = codegen.getOpenApi().components.schemas[type] as Schema<*>
+		val schema = codegen.findOpenApi().components.schemas[type] as Schema<*>
 		return codegen.fromModel(type, schema)
 	}
 
@@ -270,7 +269,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 				applyTestVars(embeddedModel)
 				it.vendorExtensions["testModel"] = embeddedModel
 				it.vendorExtensions["hasTestModel"] = true
-			} else if (it.isListContainer && !it.complexType.isNullOrEmpty() && !arrayOf(
+			} else if (it.isArray && !it.complexType.isNullOrEmpty() && !arrayOf(
 					"List<String>",
 					"List<String>?"
 				).contains(it.datatypeWithEnum)
@@ -302,7 +301,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 						it.isString = true
 						"test_enum_value"
 					}
-					it.isListContainer && arrayOf("List<String>", "List<String>?").contains(it.datatypeWithEnum) -> {
+					it.isArray && arrayOf("List<String>", "List<String>?").contains(it.datatypeWithEnum) -> {
 						"\"test_list_string_value\""
 					}
 					it.isFreeFormObject && arrayOf("String", "String?").contains(it.datatypeWithEnum) -> {

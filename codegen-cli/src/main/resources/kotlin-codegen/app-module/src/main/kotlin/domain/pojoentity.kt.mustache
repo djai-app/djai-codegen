@@ -5,7 +5,7 @@
 {{/vars}}
 */
 {{>generatedDatasetAnnotation}}
-@JsonPropertyOrder({{#allVars}}"{{name}}"{{#hasMore}}, {{/hasMore}}{{/allVars}})
+@JsonPropertyOrder({{#allVars}}"{{name}}"{{^-last}}, {{/-last}}{{/allVars}})
 
 {{^vendorExtensions.isEmbeddable}}
 @Entity
@@ -76,7 +76,7 @@
 	@Column(name = "{{vendorExtensions.columnName}}", columnDefinition = "json")
 	{{/vendorExtensions.hasJsonType}}
 	{{^vendorExtensions.hasJsonType}}
-	{{#isListContainer}}
+	{{#isArray}}
 	{{#vendorExtensions.isReferenceElement}}
 	@ElementCollection
 	@LazyCollection(LazyCollectionOption.FALSE)
@@ -95,8 +95,8 @@
 			inverseJoinColumns = [JoinColumn(name = "{{vendorExtensions.inverseJoinColumnName}}", referencedColumnName = "id")]
 	)
 	{{/vendorExtensions.isReferenceElement}}
-	{{/isListContainer}}
-	{{^isListContainer}}
+	{{/isArray}}
+	{{^isArray}}
 	{{#vendorExtensions.isOneToOne}}
 	@OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.EAGER{{#required}}, optional = false{{/required}})
 	@JoinColumn(name = "{{{vendorExtensions.escapedColumnName}}}", referencedColumnName = "id")
@@ -104,14 +104,14 @@
 	{{^vendorExtensions.isOneToOne}}
 	@Column(name = "{{{vendorExtensions.escapedColumnName}}}"{{>app-module/src/main/kotlin/domain/columnDefinition}})
 	{{/vendorExtensions.isOneToOne}}
-	{{/isListContainer}}
+	{{/isArray}}
 	{{/vendorExtensions.hasJsonType}}
 	{{/vendorExtensions.isEmbedded}}
 	{{#isContainer}}
-	var {{name}}: {{{datatypeWithEnum}}}{{#hasMore}},{{/hasMore}}
+	var {{name}}: {{{datatypeWithEnum}}}{{^-last}},{{/-last}}
 	{{/isContainer}}
 	{{^isContainer}}
-	var {{name}}: {{{datatypeWithEnum}}}{{#hasMore}},{{/hasMore}}
+	var {{name}}: {{{datatypeWithEnum}}}{{^-last}},{{/-last}}
 	{{/isContainer}}
 
 {{/vars}}
