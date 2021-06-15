@@ -7,6 +7,7 @@ import org.openapitools.codegen.templating.CommonTemplateContentLocator
 import org.openapitools.codegen.templating.MustacheEngineAdapter
 import org.openapitools.codegen.templating.TemplateManagerOptions
 import org.slf4j.LoggerFactory
+import pro.bilous.codegen.process.deployment.DeploymentFileResolver
 import pro.bilous.codegen.process.filename.FilePathResolver
 import java.io.File
 import java.io.IOException
@@ -18,6 +19,7 @@ open class InCodeGenerator : DefaultGenerator() {
 	}
 
 	var codegen: CodeCodegen? = null
+	private val deployment = DeploymentFileResolver()
 
 	/**
 	 * This is the final point to override things right before the processing templates and writing file to filesystem.
@@ -34,6 +36,22 @@ open class InCodeGenerator : DefaultGenerator() {
 									   shouldGenerate: Boolean,
 									   skippedByOption: String): File? {
 		log.debug("processTemplateToFile, templateName: $templateName, outputFilename: $outputFilename")
+
+		var lastFile: File? = null
+		if (templateName == "kube/\$env/configmap.yml.mustache") {
+			val list = deployment.resolveDeployment(templateData, templateName, outputFilename)
+			list.forEach { deploymentItem ->
+				lastFile = super.processTemplateToFile(
+					deploymentItem.templateData,
+					templateName,
+					deploymentItem.filePath,
+					shouldGenerate,
+					skippedByOption
+				)
+			}
+			return lastFile
+		}
+
 		val target = FilePathResolver().resolve(templateData, templateName, outputFilename)
 		return if (target.shouldWriteFile) {
 			super.processTemplateToFile(templateData, templateName, target.targetPath, shouldGenerate, skippedByOption)

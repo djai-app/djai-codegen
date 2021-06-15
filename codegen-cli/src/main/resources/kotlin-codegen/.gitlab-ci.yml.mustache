@@ -46,7 +46,11 @@ build-docker:
 {{/appsLower}}
       - .gradle
 
-deploy-kube:
+{{#deployment}}
+deploy-{{name}}:
+  {{#manual}}
+  when: manual
+  {{/manual}}
   image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: [ "/bin/sh", "-c" ]
@@ -60,10 +64,15 @@ deploy-kube:
     - kubectl config set-context local-ctx --cluster=local --namespace=default --user=gitlab-ci
     - kubectl config use-context local-ctx
     - kubectl config view
-    - kubectl apply -f ./kube
+    - kubectl apply -f ./kube/{{name}}
+    {{#appsLower}}
+    - kubectl apply -f ./kube/kube-{{.}}.yml
+    {{/appsLower}}
     - kubectl get pods --namespace=default
   environment:
-    name: integration
+    name: {{name}}
     url: $AUTO_DEVOPS_DOMAIN
   only:
     - master
+
+{{/deployment}}
