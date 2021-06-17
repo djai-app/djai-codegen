@@ -11,7 +11,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
 	api("io.springfox:springfox-boot-starter:3.0.0")
-	api("com.vladmihalcea:hibernate-types-52:2.9.13")
+	api("com.vladmihalcea:hibernate-types-52:2.11.1")
 	api("com.fasterxml.jackson.module:jackson-module-kotlin")
 
 	implementation("io.springfox:springfox-swagger-ui:3.0.0")
@@ -21,10 +21,10 @@ dependencies {
 	implementation("org.springframework.data:spring-data-commons")
 	implementation("org.liquibase:liquibase-core")
 	implementation("{{database.dependency}}")
-	implementation("com.github.ichanzhar:rsql-hibernate-jpa:0.7")
+	implementation("com.github.ichanzhar:rsql-hibernate-jpa:0.11")
 	{{#authorizationEnabled}}
-	implementation("org.keycloak:keycloak-spring-boot-starter:11.0.2")
-	implementation("org.keycloak:keycloak-admin-client:11.0.2")
+	implementation("org.keycloak:keycloak-spring-boot-starter:13.0.1")
+	implementation("org.keycloak:keycloak-admin-client:13.0.1")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.security:spring-security-test")
 	{{/authorizationEnabled}}
