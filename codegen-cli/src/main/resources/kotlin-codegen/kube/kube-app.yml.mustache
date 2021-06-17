@@ -51,7 +51,7 @@ spec:
     - port: 8080
   selector:
     app: {{systemLower}}-{{appNameLower}}
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
