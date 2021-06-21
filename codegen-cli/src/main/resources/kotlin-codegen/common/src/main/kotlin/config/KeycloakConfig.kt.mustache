@@ -14,17 +14,17 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.session.SessionRegistryImpl
+import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
 import javax.annotation.PostConstruct
 
 
 @KeycloakConfiguration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true,
-                        securedEnabled = true,
-		jsr250Enabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 class KeycloakConfig : KeycloakWebSecurityConfigurerAdapter() {
 
 	@Bean
@@ -53,10 +53,30 @@ class KeycloakConfig : KeycloakWebSecurityConfigurerAdapter() {
     }
 
     override fun configure(http: HttpSecurity) {
-        super.configure(http)
-        val registry = http.cors().and().csrf().disable().authorizeRequests()
-		urlMappers().forEach { it.applyUrlMappings(registry) }
-		registry.anyRequest().authenticated()
+		http
+			.cors()
+			.and()
+			.csrf().requireCsrfProtectionMatcher(keycloakCsrfRequestMatcher())
+			.and()
+			.sessionManagement()
+			.sessionAuthenticationStrategy(sessionAuthenticationStrategy())
+			.and()
+			.addFilterBefore(keycloakPreAuthActionsFilter(), LogoutFilter::class.java)
+			.addFilterBefore(keycloakAuthenticationProcessingFilter(), LogoutFilter::class.java)
+			.addFilterAfter(keycloakSecurityContextRequestFilter(), SecurityContextHolderAwareRequestFilter::class.java)
+			.addFilterAfter(
+				keycloakAuthenticatedActionsRequestFilter(),
+				SecurityContextHolderAwareRequestFilter::class.java
+			)
+			.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
+			.and()
+			.logout()
+			.addLogoutHandler(keycloakLogoutHandler())
+			.logoutUrl("/sso/logout").permitAll()
+			.logoutSuccessUrl("/")
+			.and()
+			.authorizeRequests().apply { urlMappers().forEach { it.applyUrlMappings(this) } }
+			.anyRequest().authenticated()
     }
 
 	private fun urlMappers(): Set<UrlAccessMapper> {

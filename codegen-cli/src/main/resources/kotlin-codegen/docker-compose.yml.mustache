@@ -13,21 +13,9 @@ services:
       - 3307:{{database.port}}
     volumes:
       - db_data:/var/lib/mysql
-{{#appsMap}}
-  app-{{name}}:
-    image: app-{{name}}:0.0.1
-    restart: on-failure
-    environment:
-      DB_HOST: db
-      DB_PORT: {{database.port}}
-    ports:
-      - {{port}}:8080
-    depends_on:
-      - db
-{{/appsMap}}
 {{#authorizationEnabled}}
   keycloak:
-    image: jboss/keycloak:11.0.2
+    image: jboss/keycloak:14.0.0
     restart: on-failure
     command:
       - "-b"
@@ -49,9 +37,24 @@ services:
       - DB_PORT=3306
       - DB_DATABASE=keycloakdb
     ports:
-      - "8099:8099"
+      - 8099:8099
     depends_on:
       - db
 {{/authorizationEnabled}}
+{{#appsMap}}
+  app-{{name}}:
+    image: app-{{name}}:0.0.1
+    restart: on-failure
+    environment:
+      DB_HOST: db
+      DB_PORT: {{database.port}}
+    ports:
+      - {{port}}:8080
+    depends_on:
+      - db
+{{#authorizationEnabled}}
+      - keycloak
+{{/authorizationEnabled}}
+{{/appsMap}}
 volumes:
   db_data:

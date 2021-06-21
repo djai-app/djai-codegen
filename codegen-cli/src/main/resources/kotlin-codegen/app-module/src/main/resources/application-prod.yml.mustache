@@ -6,3 +6,16 @@ spring:
     url: jdbc:{{database.name}}://${DB_HOST:localhost}:${DB_PORT:{{database.port}}}/{{systemLower}}_{{appNameLower}}?autoReconnect=true&useSSL=false&rewriteBatchedStatements=true&serverTimezone=UTC&createDatabaseIfNotExist=true
     username: ${DB_USER:root}
     password: ${DB_PASS:Qw123456}
+
+authorization:
+  token-url: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8099}/auth/realms/{{systemLower}}/protocol/openid-connect/token
+swagger-ui:
+  keycloak-url: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8099}/auth
+keycloak:
+  auth-server-url: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8099}/auth
+  resource: {{systemLower}}
+  realm: {{systemLower}}
+  use-resource-role-mappings: true
+  principal-attribute: preferred_username
+  credentials.secret: secret
+  ssl-required: external

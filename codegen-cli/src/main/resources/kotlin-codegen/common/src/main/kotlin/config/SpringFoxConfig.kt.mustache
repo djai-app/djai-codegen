@@ -2,6 +2,8 @@ package {{basePackage}}.config
 
 import org.springframework.beans.factory.annotation.Value
 import io.swagger.annotations.ApiModelProperty
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.domain.Pageable
@@ -21,6 +23,10 @@ import springfox.documentation.swagger.web.SecurityConfigurationBuilder
 {{/authorizationEnabled}}
 
 @Configuration
+{{#authorizationEnabled}}
+@EnableConfigurationProperties
+@ConfigurationProperties
+{{/authorizationEnabled}}
 class SpringFoxConfig {
 	{{#authorizationEnabled}}
 	@Value("\${swagger-ui.keycloak-url}")
