@@ -56,8 +56,9 @@ class KeycloakConfig : KeycloakWebSecurityConfigurerAdapter() {
 		http
 			.cors()
 			.and()
-			.csrf().requireCsrfProtectionMatcher(keycloakCsrfRequestMatcher())
-			.and()
+			.csrf().disable()
+//			.csrf().requireCsrfProtectionMatcher(keycloakCsrfRequestMatcher())
+//			.and()
 			.sessionManagement()
 			.sessionAuthenticationStrategy(sessionAuthenticationStrategy())
 			.and()

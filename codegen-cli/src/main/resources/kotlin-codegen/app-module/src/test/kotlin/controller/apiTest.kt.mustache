@@ -9,7 +9,12 @@ package {{appPackage}}.controller
 import {{basePackage}}.domain.Identity
 	{{/testModel.vendorExtensions.hasIdentity}}
 {{/hasPathParent}}
+{{#authorizationEnabled}}
+import {{appPackage}}.{{appRealName}}ApplicationTest
+{{/authorizationEnabled}}
+{{^authorizationEnabled}}
 import {{appPackage}}.{{appRealName}}Application
+{{/authorizationEnabled}}
 import {{appPackage}}.repository.{{repositoryClassname}}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -23,8 +28,14 @@ import java.util.*
 import kotlin.test.*
 
 @ExtendWith(SpringExtension::class)
+{{#authorizationEnabled}}
+@SpringBootTest(classes = [{{appRealName}}ApplicationTest::class])
+@AutoConfigureMockMvc(addFilters = false)
+{{/authorizationEnabled}}
+{{^authorizationEnabled}}
 @SpringBootTest(classes = [{{appRealName}}Application::class])
 @AutoConfigureMockMvc
+{{/authorizationEnabled}}
 class {{classname}}IT : AbstractIntegrationTest<{{returnEntityType}}>() {
 
 	private val url = "{{^hasPathParent}}{{controllerPath}}{{/hasPathParent}}{{#hasPathParent}}{{testParentControllerPath}}{{/hasPathParent}}"

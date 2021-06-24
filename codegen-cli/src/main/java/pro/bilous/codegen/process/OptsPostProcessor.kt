@@ -119,11 +119,14 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 
 		additionalProperties["javaVersion"] = "1.8"
 
-		val inputTest = "common/src/test/kotlin/"
+		val inputTest = "common/src/test/kotlin"
 		val destTest = "$appRoot/src/test/kotlin/$appPackage"
 
 		addSupportFile(source = "$inputTest/controller/AbstractIntegrationTest.kt.mustache", folder = "$destTest/controller", target = "AbstractIntegrationTest.kt")
 		addSupportFile(source = "$inputTest/controller/CommonIntegrationTest.kt.mustache", folder = "$destTest/controller", target = "CommonIntegrationTest.kt")
+		if (isAuthorizationEnabled()) {
+			addSupportFile("$inputTest/controller/springBootApplicationTest.mustache", folder = "$destTest", target = "${appName}ApplicationTest.kt")
+		}
 
 		val inputResTest = "app-module/src/test/resources/"
 		val destResTest = "$appRoot/src/test/resources/"
@@ -246,7 +249,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun isAuthorizationEnabled(): Boolean {
-		return true == additionalProperties.get(CodeCodegen.AUTHORIZATION_ENABLED) as Boolean?
+		return additionalProperties[CodeCodegen.AUTHORIZATION_ENABLED] as? Boolean ?: false
 	}
 
 }
