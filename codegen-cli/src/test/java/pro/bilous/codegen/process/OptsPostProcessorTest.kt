@@ -76,7 +76,7 @@ internal class OptsPostProcessorTest {
 		val destTest = "$appRoot/src/test/kotlin/$appPackage"
 		val shouldBeGenerated = SupportingFile(
 			"$inputTest/controller/springBootApplicationTest.mustache",
-			"$destTest",
+			destTest,
 			"${appName}ApplicationTest.kt"
 		)
 

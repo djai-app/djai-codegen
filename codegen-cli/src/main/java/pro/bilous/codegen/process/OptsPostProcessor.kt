@@ -125,7 +125,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		addSupportFile(source = "$inputTest/controller/AbstractIntegrationTest.kt.mustache", folder = "$destTest/controller", target = "AbstractIntegrationTest.kt")
 		addSupportFile(source = "$inputTest/controller/CommonIntegrationTest.kt.mustache", folder = "$destTest/controller", target = "CommonIntegrationTest.kt")
 		if (isAuthorizationEnabled()) {
-			addSupportFile("$inputTest/controller/springBootApplicationTest.mustache", folder = "$destTest", target = "${appName}ApplicationTest.kt")
+			addSupportFile("$inputTest/controller/springBootApplicationTest.mustache", folder = destTest, target = "${appName}ApplicationTest.kt")
 		}
 
 		val inputResTest = "app-module/src/test/resources/"
