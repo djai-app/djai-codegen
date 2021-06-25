@@ -57,33 +57,5 @@ internal class OptsPostProcessorTest {
 		val codegenSupportingFiles = codegen.supportingFiles()
 		assertNotNull(codegenSupportingFiles?.find { it.equals(shouldBeGenerated) })
 	}
-
-	@Test
-	fun `check if ApplicationTest is added to the files to be generated when authorization is enabled`() {
-		val artifactId = "artifactId"
-		val appRoot = "app-${artifactId.toLowerCase()}"
-		val appPackage = "appPackage"
-		val appName = "appRealName"
-		val codegen = CodeCodegen().apply {
-			this.artifactId = artifactId
-			val additionalProperties = additionalProperties()
-			additionalProperties["authorizationEnabled"] = true
-			additionalProperties["appPackage"] = appPackage
-			additionalProperties["appRealName"]	= appName
-		}
-
-		val inputTest = "common/src/test/kotlin"
-		val destTest = "$appRoot/src/test/kotlin/$appPackage"
-		val shouldBeGenerated = SupportingFile(
-			"$inputTest/controller/springBootApplicationTest.mustache",
-			destTest,
-			"${appName}ApplicationTest.kt"
-		)
-
-		val processor = OptsPostProcessor(codegen)
-		processor.processOpts()
-		val codegenSupportingFiles = codegen.supportingFiles()
-		assertNotNull(codegenSupportingFiles?.find { it.equals(shouldBeGenerated) })
-	}
 }
 

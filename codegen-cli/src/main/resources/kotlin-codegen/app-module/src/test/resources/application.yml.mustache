@@ -26,6 +26,7 @@ server:
   port: 1{{serverPort}}
   address: localhost
 
+{{#authorizationEnabled}}
 swagger-ui:
   keycloak-url: http://localhost:8099/auth
 keycloak:
@@ -33,3 +34,5 @@ keycloak:
   realm: client
   credentials:
     secret: secret
+  enabled: false
+{{/authorizationEnabled}}
