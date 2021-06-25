@@ -57,5 +57,42 @@ internal class OptsPostProcessorTest {
 		val codegenSupportingFiles = codegen.supportingFiles()
 		assertNotNull(codegenSupportingFiles?.find { it.equals(shouldBeGenerated) })
 	}
+
+	@Test
+	fun `check if common test files are added to the files to be generated`() {
+		val artifactId = "artifactId"
+		val appRoot = "app-${artifactId.toLowerCase()}"
+		val appPackage = "appPackage"
+		val appName = "appRealName"
+		val codegen = CodeCodegen().apply {
+			this.artifactId = artifactId
+			val additionalProperties = additionalProperties()
+			additionalProperties["authorizationEnabled"] = true
+			additionalProperties["appPackage"] = appPackage
+			additionalProperties["appRealName"]	= appName
+		}
+
+		val inputTest = "common/src/test/kotlin"
+		val destTest = "$appRoot/src/test/kotlin/$appPackage"
+		val shouldBeGenerated = listOf(
+			SupportingFile(
+			"$inputTest/controller/AbstractIntegrationTest.kt.mustache",
+			"$destTest/controller",
+			"AbstractIntegrationTest.kt"
+			),
+			SupportingFile(
+			"$inputTest/controller/CommonIntegrationTest.kt.mustache",
+			"$destTest/controller",
+			"CommonIntegrationTest.kt"
+			)
+		)
+
+		val processor = OptsPostProcessor(codegen)
+		processor.processOpts()
+		val codegenSupportingFiles = codegen.supportingFiles()
+		shouldBeGenerated.forEach {
+			shouldBe -> assertNotNull(codegenSupportingFiles?.find { it.equals(shouldBe) })
+		}
+	}
 }
 
