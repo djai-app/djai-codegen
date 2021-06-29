@@ -29,7 +29,7 @@ class InterfaceConverter(private val source: Model) {
 	val paths = mutableMapOf<String, PathItem>()
 
 	private val pathRegisteredParams = mutableListOf<String>()
-	private val sourcePath = source.path.replace("\u200B", "")
+	private val sourcePath = source.path.replace("\u200B", "").trim()
 
 	fun convert() {
 		val path = PathItem()
