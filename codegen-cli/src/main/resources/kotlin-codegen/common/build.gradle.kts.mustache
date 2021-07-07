@@ -34,8 +34,8 @@ dependencies {
 	implementation("{{database.dependency}}")
 	implementation("com.github.ichanzhar:rsql-hibernate-jpa:0.11")
 	{{#keycloak}}
-	implementation("org.springframework.boot:spring-boot-starter-security")
-	implementation("org.keycloak:keycloak-spring-boot-starter:14.0.0")
+	api("org.springframework.boot:spring-boot-starter-security")
+	api("org.keycloak:keycloak-spring-boot-starter:14.0.0")
 	{{/keycloak}}
 }
 

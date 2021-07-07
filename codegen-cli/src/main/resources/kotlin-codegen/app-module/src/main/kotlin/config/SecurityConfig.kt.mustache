@@ -1,5 +1,6 @@
 package {{appPackage}}.config
 
+import {{basePackage}}.config.FixedKeycloakConfigurerAdapter
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -15,12 +16,9 @@ class {{appRealName}}SecurityConfig : FixedKeycloakConfigurerAdapter() {
 		http
 			.authorizeRequests()
 			.antMatchers(
-				"/clubs",
-				"/clubs/*",
-				"/clubs/*/members",
-				"/clubs/*/members/*",
-				"/parties/*/libraries",
-				"/parties/*/libraries/*"
+{{#pathAntMatchers}}
+				"{{.}}"{{^-last}},{{/-last}}
+{{/pathAntMatchers}}
 			).authenticated()
 			.anyRequest().permitAll()
 	}

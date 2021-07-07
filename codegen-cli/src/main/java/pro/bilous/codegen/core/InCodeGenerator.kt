@@ -36,7 +36,6 @@ open class InCodeGenerator : DefaultGenerator() {
 									   shouldGenerate: Boolean,
 									   skippedByOption: String): File? {
 		log.debug("processTemplateToFile, templateName: $templateName, outputFilename: $outputFilename")
-
 		var lastFile: File? = null
 		if (templateName == "kube/\$env/configmap.yml.mustache") {
 			val list = deployment.resolveDeployment(templateData, templateName, outputFilename)

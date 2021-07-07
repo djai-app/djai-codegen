@@ -233,7 +233,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 			return
 		}
 		addSupportFile(
-			source = "$inputSrcRoot/config/SecurityConfig.mustache",
+			source = "$inputSrcRoot/config/SecurityConfig.kt.mustache",
 			folder = "$baseResourceSrcFolder.$appPackage.config",
 			target = "${appName}SecurityConfig.kt"
 		)
