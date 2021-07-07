@@ -4,3 +4,4 @@ metadata:
   name: {{systemLower}}-configmap
 data:
   DB_HOST: {{deployment.dbHost}}
+  SPRINGDOC_ENABLED: {{#deployment.springdocEnabled}}true{{/deployment.springdocEnabled}}{{^deployment.springdocEnabled}}false{{/deployment.springdocEnabled}}

@@ -1,0 +1,57 @@
+package {{basePackage}}.config
+
+import org.keycloak.adapters.KeycloakConfigResolver
+import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver
+import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.core.session.SessionRegistryImpl
+import org.springframework.security.web.authentication.logout.LogoutFilter
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
+
+abstract class FixedKeycloakConfigurerAdapter : KeycloakWebSecurityConfigurerAdapter() {
+
+	@Autowired
+	open fun configureGlobal(auth: AuthenticationManagerBuilder) {
+		auth.authenticationProvider(keycloakAuthenticationProvider())
+	}
+
+	@Bean
+	open fun keycloakConfigResolver(): KeycloakConfigResolver {
+		return KeycloakSpringBootConfigResolver()
+	}
+
+	override fun sessionAuthenticationStrategy(): SessionAuthenticationStrategy {
+		return RegisterSessionAuthenticationStrategy(SessionRegistryImpl())
+	}
+
+	override fun configure(http: HttpSecurity) {
+		http
+			.csrf().requireCsrfProtectionMatcher(keycloakCsrfRequestMatcher())
+			.and()
+			.sessionManagement()
+			.sessionAuthenticationStrategy(sessionAuthenticationStrategy())
+			.and()
+			.addFilterBefore(keycloakPreAuthActionsFilter(), LogoutFilter::class.java)
+			.addFilterBefore(keycloakAuthenticationProcessingFilter(), LogoutFilter::class.java)
+			.addFilterAfter(keycloakSecurityContextRequestFilter(), SecurityContextHolderAwareRequestFilter::class.java)
+			.addFilterAfter(
+				keycloakAuthenticatedActionsRequestFilter(),
+				SecurityContextHolderAwareRequestFilter::class.java
+			)
+			.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
+			.and()
+			.logout()
+			.addLogoutHandler(keycloakLogoutHandler())
+			.logoutUrl("/sso/logout").permitAll()
+			.logoutSuccessUrl("/")
+
+		http
+			.cors()
+			.and().csrf().disable()
+	}
+}

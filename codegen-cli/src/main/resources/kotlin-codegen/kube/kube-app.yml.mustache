@@ -31,9 +31,14 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
           resources:
             limits:
-              cpu: 350m
               memory: 450Mi
             requests:
               cpu: 250m

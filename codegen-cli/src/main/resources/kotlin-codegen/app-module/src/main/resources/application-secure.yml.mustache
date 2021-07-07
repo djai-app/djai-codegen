@@ -1,0 +1,26 @@
+keycloak:
+  enabled: true
+  auth-server-url: ${KEYCLOAK_FRONTEND_URL:{{keycloak.authServerUrl}}}
+  realm: {{keycloak.realm}}
+  resource: {{keycloak.client}}
+  ssl-required: external
+  principal-attribute: preferred_username
+  credentials.secret: ${KEYCLOAK_SECRET:{{keycloak.secret}}}
+  use-resource-role-mappings: true
+  bearer-only: true
+
+{{#springdoc}}
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_ENABLED:true}
+  swagger-ui:
+    enabled: ${SPRINGDOC_ENABLED:true}
+    oauth:
+      client-id: ${keycloak.resource}
+      client-secret: ${keycloak.credentials.secret}
+      realm: ${keycloak.realm}
+      app-name: {{appRealName}} Application
+      use-pkce-with-authorization-code-grant: true
+      additional-query-string-params:
+        nonce: 123456
+{{/springdoc}}
