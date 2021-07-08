@@ -205,19 +205,14 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun applyCommonOpenApiFiles(inputSrc: String, destSrc: String) {
-		if (additionalProperties.containsKey("springdoc") && additionalProperties["springdoc"] as Boolean) {
-			addSupportFile(
-				source = "$inputSrc/config/SpringFoxConfig.kt.mustache",
-				folder = "$destSrc/config",
-				target = "SpringFoxConfig.kt"
-			)
+		val isSpringdoc = additionalProperties.getOrDefault("springdoc", false) as Boolean
+		val (sourceFile, targetFile) = if (isSpringdoc) {
+			Pair("$inputSrc/config/OpenApiConfig.kt.mustache", "OpenApiConfig.kt")
 		} else {
-			addSupportFile(
-				source = "$inputSrc/config/OpenApiConfig.kt.mustache",
-				folder = "$destSrc/config",
-				target = "OpenApiConfig.kt"
-			)
+			Pair("$inputSrc/config/SpringFoxConfig.kt.mustache", "SpringFoxConfig.kt")
 		}
+		addSupportFile(source = sourceFile, folder = "$destSrc/config", target = targetFile)
+
 	}
 
 	private fun applyAppKeycloakResFiles(inputResRoot: String, baseResourceResFolder: String) {

@@ -2,23 +2,25 @@ package {{basePackage}}.config
 
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
-{{#keycloak.enabled}}
+{{#keycloak}}
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.security.*
-{{/keycloak.enabled}}
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.EnvironmentAware
+import org.springframework.core.env.Environment
+{{/keycloak}}
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class OpenApiConfig {
+class OpenApiConfig{{#keycloak}} : EnvironmentAware{{/keycloak}} {
+{{#keycloak}}
 
-{{#keycloak.enabled}}
-	@Value("\${keycloak.auth-server-url}")
-	var authServer: String? = null
-	@Value("\${keycloak.realm}")
-	var realm: String? = null
-{{/keycloak.enabled}}
+	private lateinit var env: Environment
+
+	override fun setEnvironment(environment: Environment) {
+		env = environment
+	}
+{{/keycloak}}
 
 	@Bean
 	fun springOpenAPI(): OpenAPI? {
@@ -28,14 +30,19 @@ class OpenApiConfig {
 					.description("Spring Boot application")
 					.version("{{imageVersion}}")
 			)
-{{#keycloak.enabled}}
+{{#keycloak}}
 		addSecurity(openAPI)
-{{/keycloak.enabled}}
+{{/keycloak}}
 		return openAPI
 	}
-{{#keycloak.enabled}}
+{{#keycloak}}
 
 	private fun addSecurity(openAPI: OpenAPI) {
+		if (!env.activeProfiles.contains("secure")) {
+			return
+		}
+		val authServer = env.getProperty("keycloak.auth-server-url")
+		val realm = env.getProperty("keycloak.realm")
 		val authUrl = "${authServer}/realms/${realm}/protocol/openid-connect"
 
 		openAPI.components(Components()
@@ -51,5 +58,5 @@ class OpenApiConfig {
 						)))
 		).security(arrayListOf(SecurityRequirement().addList("spring_oauth")))
 	}
-{{/keycloak.enabled}}
+{{/keycloak}}
 }
