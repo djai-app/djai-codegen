@@ -28,7 +28,7 @@ dependencies {
 
 jib {
 	container {
-		jvmFlags = listOf("-Dspring.profiles.active=prod")
+		jvmFlags = listOf("-Dspring.profiles.active=prod{{#keycloak}},secure{{/keycloak}}")
 		creationTime = "USE_CURRENT_TIMESTAMP"
 	}
 }
