@@ -12,7 +12,7 @@ internal class OptsPostProcessorTest {
 			"raw/_gitignore",
 			".gitignore"
 		)
-		val codegen = CodeCodegen()
+		val codegen = mockCodegen()
 		val processor = OptsPostProcessor(codegen)
 		processor.processOpts()
 		val codegenSupportingFiles = codegen.supportingFiles()
@@ -25,7 +25,7 @@ internal class OptsPostProcessorTest {
 			"raw/_editorconfig",
 			".editorconfig"
 		)
-		val codegen = CodeCodegen()
+		val codegen = mockCodegen()
 		val processor = OptsPostProcessor(codegen)
 		processor.processOpts()
 		val codegenSupportingFiles = codegen.supportingFiles()
@@ -38,7 +38,7 @@ internal class OptsPostProcessorTest {
 			"raw/_gradle_properties",
 			"gradle.properties"
 		)
-		val codegen = CodeCodegen()
+		val codegen = mockCodegen()
 		val processor = OptsPostProcessor(codegen)
 		processor.processOpts()
 		val codegenSupportingFiles = codegen.supportingFiles()
@@ -51,11 +51,17 @@ internal class OptsPostProcessorTest {
 			"idea/runConfiguration.mustache",
 			".idea/runConfigurations/Application.xml"
 		)
-		val codegen = CodeCodegen()
+		val codegen = mockCodegen()
 		val processor = OptsPostProcessor(codegen)
 		processor.processOpts()
 		val codegenSupportingFiles = codegen.supportingFiles()
 		assertNotNull(codegenSupportingFiles?.find { it.equals(shouldBeGenerated) })
 	}
+
+	private fun mockCodegen() = CodeCodegen().apply {
+		additionalProperties()["appPackage"] = "test"
+		additionalProperties()["appRealName"] = "test"
+	}
+
 }
 
