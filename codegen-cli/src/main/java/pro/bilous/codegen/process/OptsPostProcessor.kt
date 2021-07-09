@@ -100,8 +100,8 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		val baseResourceIntegrationTestFolder = "$appRoot.src.integration-test.resources"
 
 		val inputAppRoot = "app-module"
-		val appPackage = additionalProperties["appPackage"]
-		val appName = additionalProperties["appRealName"]
+		val appPackage = additionalProperties["appPackage"] as String
+		val appName = additionalProperties["appRealName"] as String
 
 		val openApiWrapper = OpenApiWrapper(codegen)
 		val hasEntityBlocks = openApiWrapper.isOpenApiContainsType("Entity")
@@ -114,8 +114,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		val inputResRoot = "$inputAppRoot/src/main/resources"
 		addSupportFile(source = "$inputSrcRoot/springBootApplication.mustache", folder = "$baseResourceSrcFolder.$appPackage", target = "${appName}Application.kt")
 
-		//apiTemplateFiles["$inputSrcRoot/controller/apiController.mustache"] = "Controller.java"
-		//apiTestTemplateFiles["resources/integration-test/apiTest.mustache"] = ".kt"
+		applyAppKeycloakCodeFiles(inputSrcRoot, baseResourceSrcFolder, appPackage, appName)
 
 		additionalProperties["javaVersion"] = "1.8"
 
@@ -133,21 +132,11 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 
 		setupModuleFiles()
 
-		//addSupportFile("resources/errorCode-default.mustache", baseResourceResFolder, "errorCode-default.json")
-
-		val integrationTestConfigFolder = codegen.getIntegrationTestFolder(basePackage, "-resources")
-
 		addSupportFile("$inputResRoot/application.yml.mustache", baseResourceResFolder, "application.yml")
 		addSupportFile("$inputResRoot/application-dev.yml.mustache", baseResourceResFolder, "application-dev.yml")
 		addSupportFile("$inputResRoot/application-prod.yml.mustache", baseResourceResFolder, "application-prod.yml")
-		if (isAuthorizationEnabled()) {
-			addSupportFile("$inputResRoot/application-security.yml.mustache", baseResourceResFolder, "application-security.yml")
-		}
+		applyAppKeycloakResFiles(inputResRoot, baseResourceResFolder)
 		addSupportFile(source = "$inputResRoot/hibernate-types.properties", folder = baseResourceResFolder, target = "hibernate-types.properties")
-
-//		addSupportFile("resources/integration-test/configurationIT.mustache", "$integrationTestConfigFolder/config", "ConfigurationIT.kt")
-//		addSupportFile("resources/integration-test/mockBeansConfigIT.mustache", "$integrationTestConfigFolder/config", "MockBeansConfigIT.kt")
-//		addSupportFile("resources/integration-test/application.mustache", "$baseResourceIntegrationTestFolder/config", "application.yml")
 
 		additionalProperties["lower"] = LowercaseLambda()
 		additionalProperties["upperCamelToUpperUnderscore"] = CaseFormatLambda(CaseFormat.UPPER_CAMEL, CaseFormat.UPPER_UNDERSCORE)
@@ -193,7 +182,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		val destSrc = "$commonRoot/src/main/kotlin/$basePackage"
 		addSupportFile(source = "$commonRoot/build.gradle.kts.mustache", folder = commonRoot, target = "build.gradle.kts")
 		addSupportFile(source = "$inputSrc/config/WebConfig.kt.mustache", folder = "$destSrc/config", target = "WebConfig.kt")
-		addSupportFile(source = "$inputSrc/config/SpringFoxConfig.kt.mustache", folder = "$destSrc/config", target = "SpringFoxConfig.kt")
+
 		addSupportFile(source = "$inputSrc/constant/EntityState.kt.mustache", folder = "$destSrc/constant", target = "EntityState.kt")
 		addSupportFile(source = "$inputSrc/controller/AbstractController.kt.mustache", folder = "$destSrc/controller", target = "AbstractController.kt")
 		addSupportFile(source = "$inputSrc/controller/CommonController.kt.mustache", folder = "$destSrc/controller", target = "CommonController.kt")
@@ -205,20 +194,56 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		if (!OpenApiWrapper(codegen).isOpenApiContainsType("BaseDomain")) {
 			addSupportFile(source = "$inputSrc/domain/BaseDomain.kt.mustache", folder = "$destSrc/domain", target = "BaseDomain.kt")
 		}
-//		addSupportFile(source = "$inputSrc/domain/ResourceEntity.kt.mustache", folder = "$destSrc/domain", target = "ResourceEntity.kt")
-//		addSupportFile(source = "$inputSrc/domain/History.kt.mustache", folder = "$destSrc/domain", target = "History.kt")
-//		addSupportFile(source = "$inputSrc/domain/Identity.kt.mustache", folder = "$destSrc/domain", target = "Identity.kt")
 		addSupportFile(source = "$inputSrc/exception/InvalidRequestException.kt.mustache", folder = "$destSrc/exception", target = "InvalidRequestException.kt")
 		addSupportFile(source = "$inputSrc/exception/ResourceNotFoundException.kt.mustache", folder = "$destSrc/exception", target = "ResourceNotFoundException.kt")
 		addSupportFile(source = "$inputSrc/listener/BaseDomainListener.kt.mustache", folder = "$destSrc/listener", target = "BaseDomainListener.kt")
 		addSupportFile(source = "$inputSrc/repository/CommonRepository.kt.mustache", folder = "$destSrc/repository", target = "CommonRepository.kt")
 		addSupportFile(source = "$inputSrc/service/AbstractService.kt.mustache", folder = "$destSrc/service", target = "AbstractService.kt")
 		addSupportFile(source = "$inputSrc/service/CommonService.kt.mustache", folder = "$destSrc/service", target = "CommonService.kt")
-		if (isAuthorizationEnabled()) {
-			addSupportFile(source = "$inputSrc/security/urlmapper/CommonUrlAccessMapper.kt.mustache", folder = "$destSrc/security/urlmapper", target = "CommonUrlAccessMapper.kt")
-			addSupportFile(source = "$inputSrc/security/urlmapper/UrlAccessMapper.kt.mustache", folder = "$destSrc/security/urlmapper", target = "UrlAccessMapper.kt")
-			addSupportFile(source = "$inputSrc/config/KeycloakConfig.kt.mustache", folder = "$destSrc/config", target = "KeycloakConfig.kt")
+		applyCommonOpenApiFiles(inputSrc, destSrc)
+		applyCommonKeycloakFiles(inputSrc, destSrc)
+	}
+
+	private fun applyCommonOpenApiFiles(inputSrc: String, destSrc: String) {
+		val isSpringdoc = additionalProperties.getOrDefault("springdoc", false) as Boolean
+		val (sourceFile, targetFile) = if (isSpringdoc) {
+			Pair("$inputSrc/config/OpenApiConfig.kt.mustache", "OpenApiConfig.kt")
+		} else {
+			Pair("$inputSrc/config/SpringFoxConfig.kt.mustache", "SpringFoxConfig.kt")
 		}
+		addSupportFile(source = sourceFile, folder = "$destSrc/config", target = targetFile)
+
+	}
+
+	private fun applyAppKeycloakResFiles(inputResRoot: String, baseResourceResFolder: String) {
+		if (!isKeycloakEnabled()) {
+			return
+		}
+		addSupportFile("$inputResRoot/application-secure.yml.mustache", baseResourceResFolder, "application-secure.yml")
+		addSupportFile("$inputResRoot/application-nosecure.yml.mustache", baseResourceResFolder, "application-nosecure.yml")
+	}
+
+	private fun applyAppKeycloakCodeFiles(inputSrcRoot: String, baseResourceSrcFolder: String, appPackage: String, appName: String) {
+		if (!isKeycloakEnabled()) {
+			return
+		}
+		addSupportFile(
+			source = "$inputSrcRoot/config/SecurityConfig.kt.mustache",
+			folder = "$baseResourceSrcFolder.$appPackage.config",
+			target = "${appName}SecurityConfig.kt"
+		)
+	}
+
+	private fun applyCommonKeycloakFiles(inputSrc: String, destSrc: String) {
+		if (!isKeycloakEnabled()) {
+			return
+		}
+		addSupportFile(
+			source = "$inputSrc/config/FixedKeycloakConfigurerAdapter.kt.mustache",
+			folder = "$destSrc/config",
+			target = "FixedKeycloakConfigurerAdapter.kt"
+		)
+
 	}
 
 	private fun setupModuleFiles() {
@@ -245,8 +270,8 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		}
 	}
 
-	private fun isAuthorizationEnabled(): Boolean {
-		return true == additionalProperties.get(CodeCodegen.AUTHORIZATION_ENABLED) as Boolean?
+	private fun isKeycloakEnabled(): Boolean {
+		val keycloak = additionalProperties["keycloak"] as? Map<*, *> ?: return false
+		return keycloak["enabled"] as? Boolean ?: false
 	}
-
 }
