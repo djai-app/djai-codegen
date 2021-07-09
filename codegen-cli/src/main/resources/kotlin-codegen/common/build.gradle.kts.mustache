@@ -33,10 +33,10 @@ dependencies {
 	implementation("org.liquibase:liquibase-core")
 	implementation("{{database.dependency}}")
 	implementation("com.github.ichanzhar:rsql-hibernate-jpa:0.11")
-	{{#keycloak}}
+	{{#keycloak.enabled}}
 	api("org.springframework.boot:spring-boot-starter-security")
 	api("org.keycloak:keycloak-spring-boot-starter:14.0.0")
-	{{/keycloak}}
+	{{/keycloak.enabled}}
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

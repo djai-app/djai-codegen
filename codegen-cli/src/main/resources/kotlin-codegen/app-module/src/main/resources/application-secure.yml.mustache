@@ -5,11 +5,12 @@ keycloak:
   resource: {{keycloak.client}}
   ssl-required: external
   principal-attribute: preferred_username
-  credentials.secret: ${KEYCLOAK_SECRET:{{keycloak.secret}}}
+  credentials:
+    secret: ${KEYCLOAK_SECRET:{{keycloak.secret}}}
   use-resource-role-mappings: true
   bearer-only: true
-
 {{#springdoc}}
+
 springdoc:
   api-docs:
     enabled: ${SPRINGDOC_ENABLED:true}
@@ -23,4 +24,9 @@ springdoc:
       use-pkce-with-authorization-code-grant: true
       additional-query-string-params:
         nonce: 123456
+{{/springdoc}}
+{{^springdoc}}
+
+swagger-ui:
+  keycloak-url: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8099}/auth
 {{/springdoc}}

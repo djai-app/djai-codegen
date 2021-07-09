@@ -2,25 +2,25 @@ package {{basePackage}}.config
 
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
-{{#keycloak}}
+{{#keycloak.enabled}}
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.security.*
 import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.Environment
-{{/keycloak}}
+{{/keycloak.enabled}}
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class OpenApiConfig{{#keycloak}} : EnvironmentAware{{/keycloak}} {
-{{#keycloak}}
+class OpenApiConfig{{#keycloak.enabled}} : EnvironmentAware{{/keycloak.enabled}} {
+{{#keycloak.enabled}}
 
 	private lateinit var env: Environment
 
 	override fun setEnvironment(environment: Environment) {
 		env = environment
 	}
-{{/keycloak}}
+{{/keycloak.enabled}}
 
 	@Bean
 	fun springOpenAPI(): OpenAPI? {
@@ -30,12 +30,12 @@ class OpenApiConfig{{#keycloak}} : EnvironmentAware{{/keycloak}} {
 					.description("Spring Boot application")
 					.version("{{imageVersion}}")
 			)
-{{#keycloak}}
+{{#keycloak.enabled}}
 		addSecurity(openAPI)
-{{/keycloak}}
+{{/keycloak.enabled}}
 		return openAPI
 	}
-{{#keycloak}}
+{{#keycloak.enabled}}
 
 	private fun addSecurity(openAPI: OpenAPI) {
 		if (!env.activeProfiles.contains("secure")) {
@@ -58,5 +58,5 @@ class OpenApiConfig{{#keycloak}} : EnvironmentAware{{/keycloak}} {
 						)))
 		).security(arrayListOf(SecurityRequirement().addList("spring_oauth")))
 	}
-{{/keycloak}}
+{{/keycloak.enabled}}
 }

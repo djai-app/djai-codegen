@@ -31,8 +31,11 @@ abstract class FixedKeycloakConfigurerAdapter : KeycloakWebSecurityConfigurerAda
 
 	override fun configure(http: HttpSecurity) {
 		http
-			.csrf().requireCsrfProtectionMatcher(keycloakCsrfRequestMatcher())
+			.cors()
 			.and()
+			.csrf().disable()
+//			.csrf().requireCsrfProtectionMatcher(keycloakCsrfRequestMatcher())
+//			.and()
 			.sessionManagement()
 			.sessionAuthenticationStrategy(sessionAuthenticationStrategy())
 			.and()
@@ -49,9 +52,5 @@ abstract class FixedKeycloakConfigurerAdapter : KeycloakWebSecurityConfigurerAda
 			.addLogoutHandler(keycloakLogoutHandler())
 			.logoutUrl("/sso/logout").permitAll()
 			.logoutSuccessUrl("/")
-
-		http
-			.cors()
-			.and().csrf().disable()
 	}
 }

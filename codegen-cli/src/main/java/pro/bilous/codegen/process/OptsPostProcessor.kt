@@ -270,11 +270,8 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		}
 	}
 
-	private fun isAuthorizationEnabled(): Boolean {
-		return true == additionalProperties.get(CodeCodegen.AUTHORIZATION_ENABLED) as Boolean?
-	}
-
 	private fun isKeycloakEnabled(): Boolean {
-		return additionalProperties.containsKey("keycloak")
+		val keycloak = additionalProperties["keycloak"] as? Map<*, *> ?: return false
+		return keycloak["enabled"] as? Boolean ?: false
 	}
 }
