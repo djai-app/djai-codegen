@@ -132,7 +132,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	private fun removeUnnecessaryParams(operation: CodegenOperation) {
-		operation.allParams.removeIf { it.isHeaderParam && it.paramName == "bearer" }
+		operation.allParams.removeIf { it.paramName == "bearer" }
 		operation.allParams.removeIf {
 			it.isQueryParam &&
 					arrayOf("options", "startTime", "endTime").contains(it.paramName)
