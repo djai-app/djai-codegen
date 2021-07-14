@@ -184,9 +184,15 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		addSupportFile(source = "$inputSrc/config/WebConfig.kt.mustache", folder = "$destSrc/config", target = "WebConfig.kt")
 
 		addSupportFile(source = "$inputSrc/constant/EntityState.kt.mustache", folder = "$destSrc/constant", target = "EntityState.kt")
-		addSupportFile(source = "$inputSrc/controller/AbstractController.kt.mustache", folder = "$destSrc/controller", target = "AbstractController.kt")
-		addSupportFile(source = "$inputSrc/controller/CommonController.kt.mustache", folder = "$destSrc/controller", target = "CommonController.kt")
-		addSupportFile(source = "$inputSrc/controller/CommonParameterizedController.kt.mustache", folder = "$destSrc/controller", target = "CommonParameterizedController.kt")
+
+		val isControllerDelegate = additionalProperties.getOrDefault("controllerDelegate", false) as Boolean
+		if (isControllerDelegate) {
+			addSupportFile(source = "$inputSrc/controller/ControllerDelegate.kt.mustache", folder = "$destSrc/controller", target = "ControllerDelegate.kt")
+		} else {
+			addSupportFile(source = "$inputSrc/controller/AbstractController.kt.mustache", folder = "$destSrc/controller", target = "AbstractController.kt")
+			addSupportFile(source = "$inputSrc/controller/CommonController.kt.mustache", folder = "$destSrc/controller", target = "CommonController.kt")
+			addSupportFile(source = "$inputSrc/controller/CommonParameterizedController.kt.mustache", folder = "$destSrc/controller", target = "CommonParameterizedController.kt")
+		}
 		if (!OpenApiWrapper(codegen).isOpenApiContainsType("BaseResource")) {
 			addSupportFile(source = "$inputSrc/listener/BaseResourceListener.kt.mustache", folder = "$destSrc/listener", target = "BaseResourceListener.kt")
 			addSupportFile(source = "$inputSrc/domain/BaseResource.kt.mustache", folder = "$destSrc/domain", target = "BaseResource.kt")

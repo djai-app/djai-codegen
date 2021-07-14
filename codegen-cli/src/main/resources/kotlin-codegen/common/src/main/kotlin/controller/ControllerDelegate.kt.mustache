@@ -1,0 +1,113 @@
+package {{basePackage}}.controller
+
+import {{basePackage}}.domain.BaseResource
+import {{basePackage}}.domain.Identity
+import {{basePackage}}.exception.InvalidRequestException
+import {{basePackage}}.exception.ResourceNotFoundException
+import {{basePackage}}.service.CommonService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.util.Assert
+import org.springframework.web.bind.annotation.*
+
+class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) {
+
+	fun create(domain: E, parentId: String? = null, preCreate: (E) -> Unit = {}): ResponseEntity<E> {
+		assignParentIdentity(domain, parentId)
+		preCreate(domain)
+		val result = service.save(domain)?: throw InvalidRequestException()
+		return ResponseEntity(result, HttpStatus.CREATED)
+	}
+
+	fun delete(id: String, parentId: String? = null, preDelete: (E) -> Unit = {}): ResponseEntity<E> {
+		val result = service.getById(id)?: throw ResourceNotFoundException()
+		validateParent(result, parentId)
+		preDelete(result)
+		service.delete(result)
+		return ResponseEntity(result, HttpStatus.OK)
+	}
+
+	fun getById(id: String, parentId: String? = null, preGet: (E) -> Unit = {}): ResponseEntity<E> {
+		val result = service.getById(id) ?: throw ResourceNotFoundException()
+		{{#hasEntityBlocks}}
+		Assert.isTrue(parentId == result.entity.parent?.id, "parent $parentId is not valid")
+		{{/hasEntityBlocks}}
+		{{^hasEntityBlocks}}
+		//TODO: should assert parent id here
+		{{/hasEntityBlocks}}
+		preGet(result)
+		return ResponseEntity(result, HttpStatus.OK)
+	}
+
+	fun getAll(search: String?, pageable : Pageable, parentId: String? = null): ResponseEntity<Page<E>> {
+		val searchQuery = getSearchQuery(search, parentId)
+		return ResponseEntity(service.getAll(pageable, searchQuery), HttpStatus.OK)
+	}
+
+	fun update(id: String, domain: E, parentId: String? = null, preUpdate: (E) -> Unit = {}): ResponseEntity<E> {
+		service.getById(id)?: throw ResourceNotFoundException()
+		validateParent(domain, parentId)
+		domain.id = id
+		preUpdate(domain)
+		val result = service.update(domain)?: throw InvalidRequestException()
+		return ResponseEntity(result, HttpStatus.OK)
+	}
+
+	fun modify(id: String, domain: E, parentId: String? = null, preModify: (E) -> Unit = {}): ResponseEntity<E> {
+		return ResponseEntity(HttpStatus.NOT_IMPLEMENTED)
+	}
+
+	fun saveAll(domains: List<E>, parentId: String? = null): List<E> {
+		domains.forEach {
+			validateParent(it, parentId)
+			{{#hasIdentityBlocks}}
+			it.id = it.identity.id
+			{{/hasIdentityBlocks}}
+		}
+		return service.saveAll(domains)
+	}
+
+	fun deleteAll(@RequestParam ids: List<String>, parentId: String? = null): List<E> {
+		val domains = service.getByIds(ids)
+		domains.forEach { domain ->
+			validateParent(domain, parentId)
+		}
+		service.deleteAll(domains)
+		return domains
+	}
+
+	private fun assignParentIdentity(domain: BaseResource, parentId: String?) {
+		when {
+			parentId.isNullOrEmpty() -> return
+			domain.entity.parent != null -> domain.entity.parent?.id = parentId
+			domain.entity.parent == null -> Identity(id = parentId)
+		}
+	}
+
+	private fun validateParent(domain: E, parentId: String?) {
+		{{#hasEntityBlocks}}
+		when {
+			parentId.isNullOrEmpty() -> {
+				Assert.isNull(domain.entity.parent?.id, "parent id is not empty")
+			}
+			else -> {
+				Assert.isTrue(parentId == domain.entity.parent?.id, "parent $parentId is not valid")
+			}
+		}
+		{{/hasEntityBlocks}}
+		{{^hasEntityBlocks}}
+		//TODO: should check parent id here
+		{{/hasEntityBlocks}}
+	}
+
+	private fun getSearchQuery(query: String?, parentId: String?): String? {
+		val queryParentPart = "entity.parent.id==$parentId"
+		return when {
+			parentId.isNullOrEmpty() -> query
+			query.isNullOrEmpty() -> queryParentPart
+			else -> "$queryParentPart;$query"
+		}
+	}
+}

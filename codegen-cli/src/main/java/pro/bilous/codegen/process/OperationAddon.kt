@@ -12,6 +12,8 @@ class OperationAddon(val codegen: CodeCodegen) {
 		val ops = operations["operation"] as MutableList<CodegenOperation>
 		populateClassnames(objs, operations, ops)
 
+		val returnType = objs["returnEntityType"] as String
+
 		for (operation in ops) {
 			// fix operation responses
 			fixOperationResponses(operation)
@@ -28,9 +30,52 @@ class OperationAddon(val codegen: CodeCodegen) {
 			populatePrimaryQueryParam(operation)
 			populatePrimaryPathParam(operation, objs)
 			populateEventMapping(operation)
+			applyRequestParams(operation, returnType)
 		}
 		objs["hasEventMappingImport"] = ops.any {
 			it.vendorExtensions[OptsPreProcessor.EVENT_MAPPING].toString().toBoolean()
+		}
+	}
+
+	fun applyRequestParams(operation: CodegenOperation, returnType: String) {
+		// we support only header params for now, query params may need support as well
+		if (!operation.hasHeaderParams) {
+			return
+		}
+
+		val codegenModel = readModelByType(returnType)
+		val hasEntityType = codegenModel.allVars.any { it.complexType == "ResourceEntity" }
+		val optEntityModel = if (hasEntityType) {
+			readModelByType("Entity")
+		} else null
+
+		val headerParamToModelMap = mutableMapOf<String, String>()
+
+		operation.headerParams.forEach {
+			when {
+				codegenModel.vars.any { param -> param.name == it.paramName  } -> {
+					headerParamToModelMap[it.paramName] = "it.${it.paramName}"
+				}
+				optEntityModel != null && optEntityModel.vars.any { param -> param.name == it.paramName } -> {
+					headerParamToModelMap[it.paramName] = "it.entity.${it.paramName}"
+				}
+			}
+		}
+		if (headerParamToModelMap.isEmpty()) {
+			return
+		}
+		val funcName = when(operation.httpMethod.lowercase()) {
+			"get" -> if (operation.returnContainer == "List") return else "preGet"
+			"post" -> "preCreate"
+			"put" -> "preUpdate"
+			"patch" -> "preModify"
+			"delete" -> "preDelete"
+			else -> null
+		}
+		operation.vendorExtensions["hasPreFunc"] = true
+		operation.vendorExtensions["preFuncName"] = funcName
+		operation.vendorExtensions["preFuncParams"] = headerParamToModelMap.map {
+			mapOf("left" to it.value, "right" to it.key)
 		}
 	}
 

@@ -317,6 +317,8 @@ open class CodeCodegen : AbstractJavaCodegen() {
 			"$outSrc/$appPackage/controller/api/${tag}"
 		} else if (templateName.endsWith("/apiController.mustache")) {
 			"$outSrc/$appPackage/controller/${tag}"
+		} else if(templateName.endsWith("/apiControllerDelegate.mustache")) {
+			"$outSrc/$appPackage/controller/${tag}"
 		} else {
 			apiFileFolder() + File.separator + toApiFilename(tag)
 		}

@@ -1,0 +1,10 @@
+{{#vendorExtensions.hasPreFunc}}, {{vendorExtensions.preFuncName}} = {
+	{{#vendorExtensions.preFuncParams}}
+		{{#vendorExtensions.isPostMethod}}
+			{{left}} = {{right}}
+		{{/vendorExtensions.isPostMethod}}
+		{{^vendorExtensions.isPostMethod}}
+			Assert.isTrue({{left}} == {{right}}, "{{right}} does not match target {{left}}")
+		{{/vendorExtensions.isPostMethod}}
+	{{/vendorExtensions.preFuncParams}}
+		}{{/vendorExtensions.hasPreFunc}}
