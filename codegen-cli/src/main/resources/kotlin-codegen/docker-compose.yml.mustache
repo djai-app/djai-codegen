@@ -24,10 +24,13 @@ services:
       - {{port}}:8080
     depends_on:
       - db
+{{#keycloak.enabled}}
+      - keycloak
+{{/keycloak.enabled}}
 {{/appsMap}}
-{{#authorizationEnabled}}
+{{#keycloak.enabled}}
   keycloak:
-    image: jboss/keycloak:11.0.2
+    image: jboss/keycloak:14.0.0
     restart: on-failure
     command:
       - "-b"
@@ -49,9 +52,9 @@ services:
       - DB_PORT=3306
       - DB_DATABASE=keycloakdb
     ports:
-      - "8099:8099"
+      - 8099:8099
     depends_on:
       - db
-{{/authorizationEnabled}}
+{{/keycloak.enabled}}
 volumes:
   db_data:

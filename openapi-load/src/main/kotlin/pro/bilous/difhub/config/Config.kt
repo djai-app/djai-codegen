@@ -24,8 +24,11 @@ data class DifHub(
 	fun getDatasetsUrl(system: String, application: String)
 			= "${getApplicationsUrl(system)}/$application/datasets"
 
-	fun getDatatsetTypeUrl(system: String, application: String, type: String)
+	fun getDatasetTypeUrl(system: String, application: String, type: String)
 			= "${getDatasetsUrl(system, application)}/$type"
 }
 
-data class Config(val difhub: DifHub)
+class Config(val difhub: DifHub) {
+	var system: String = ""
+	var datasetStatus: DatasetStatus = DatasetStatus.DRAFT
+}

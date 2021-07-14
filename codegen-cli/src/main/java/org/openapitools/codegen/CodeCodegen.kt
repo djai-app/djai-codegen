@@ -9,16 +9,14 @@ import io.swagger.v3.oas.models.responses.ApiResponses
 import io.swagger.v3.oas.models.servers.Server
 import org.openapitools.codegen.languages.AbstractJavaCodegen
 import org.openapitools.codegen.utils.ModelUtils
-import org.slf4j.LoggerFactory
-
-import java.io.File
-
 import org.openapitools.codegen.utils.StringUtils.camelize
+import org.slf4j.LoggerFactory
 import pro.bilous.codegen.process.*
 import pro.bilous.codegen.process.filename.ModelFileNameArgs
 import pro.bilous.codegen.process.filename.ModelFileNameResolver
 import pro.bilous.codegen.process.models.AllModelsProcessor
 import pro.bilous.codegen.process.models.CommonModelsProcessor
+import java.io.File
 
 open class CodeCodegen : AbstractJavaCodegen() {
 	companion object {
@@ -33,7 +31,6 @@ open class CodeCodegen : AbstractJavaCodegen() {
 		const val OPENAPI_DOCKET_CONFIG = "swaggerDocketConfig"
 		const val DB_NAME = "dbName"
 		const val BINDING_KEY = "addBindingEntity"
-		const val AUTHORIZATION_ENABLED = "authorizationEnabled"
 	}
 
 	fun isEnableMerge(): Boolean {
@@ -118,7 +115,7 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	val databaseFolder: String
 		get() {
 			val subFolder = if (enableSubModules) "$artifactId-database" else ""
-			return (subFolder + File.separator + "src/main/resources").replace(".", File.separator)
+			return (subFolder + File.separator + "src/main/resources").fixDot()
 		}
 
 	init {
@@ -305,11 +302,14 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	override fun apiFilename(templateName: String, tag: String): String {
 		val suffix = apiTemplateFiles()[templateName]
 
-		val outSrc = "$outputDir/app-$artifactId/src/main/kotlin"
+		val outSrc = "$outputFolder/app-$artifactId/src/main/kotlin"
 
-		val appPackage = additionalProperties["appPackage"]
+		val appPackageName = additionalProperties["appPackage"] as? String
+			?: throw IllegalArgumentException("invalid package name - it should be a string")
 
-		val result: String = if (templateName.endsWith("/service.mustache")) {
+		val appPackage = appPackageName.fixDot()
+
+		val result = if (templateName.endsWith("/service.mustache")) {
 			"$outSrc/$appPackage/service/${tag}"
 		} else if (templateName.endsWith("/repository.mustache")) {
 			"$outSrc/$appPackage/repository/${tag}"
@@ -331,27 +331,29 @@ open class CodeCodegen : AbstractJavaCodegen() {
 //		return if (templateName == "resources/validationRules.mustache") {
 //			this.outputFolder + File.separator + getFolder("$basePackage.validation.rules", "-resources") + File.separator + tag + "ValidationRule" + suffix
 //		} else
-		return result.replace(".", File.separator) + suffix
+		return result.fixSeparator() + suffix
 	}
 
-	override fun apiFileFolder(): String {
-		return (this.outputFolder + File.separator + apiFolder).replace('/', File.separatorChar)
+	override fun apiFileFolder() = resolveFolder(apiFolder)
+
+	override fun apiTestFileFolder() = resolveFolder(apiTestFolder)
+
+	private fun apiIntegrationTestFolder() = resolveFolder(apiIntegrationTestFolded)
+
+	override fun modelFileFolder() = resolveFolder(modelFolder)
+
+	private fun resolveFolder(folder: String): String {
+		return (outputFolder + File.separator + folder).fixSeparator()
 	}
 
-	override fun apiTestFileFolder(): String {
-		return (this.outputFolder + File.separator + apiTestFolder).replace('/', File.separatorChar)
-	}
-
-	fun apiIntegrationTestFolder(): String {
-		return (this.outputFolder + File.separator + apiIntegrationTestFolded).replace('/', File.separatorChar)
-	}
-
-	override fun modelFileFolder(): String {
-		return (this.outputFolder + File.separator + modelFolder).replace('/', File.separatorChar)
-	}
-
+	/** Add trailing dashes to allow tests overwrite by codegen
+	 * see why **[DefaultGenerator.generateApis]** block code where __generateApiTests__ used
+	 **/
 	override fun apiTestFilename(templateName: String, tag: String): String {
-		val suffix = apiTestTemplateFiles()[templateName]
+		val suffix = apiTestTemplateFiles()[templateName] +
+			if (additionalProperties.getOrDefault("overwriteTests", false) as Boolean) {
+				"__"
+			} else ""
 		val fileFolder = if (templateName.startsWith("resources/integration-test")) {
 			apiIntegrationTestFolder()
 		} else apiTestFileFolder()
@@ -372,18 +374,18 @@ open class CodeCodegen : AbstractJavaCodegen() {
 
 	private fun getFolder(sourcePackage: String?, subModule: String): String {
 		val subFolder = "app-$artifactId"
-		return (subFolder + File.separator + "src/main/kotlin" + File.separator + sourcePackage).replace(".", File.separator).replace("/", File.separator)
+		return (subFolder + File.separator + "src/main/kotlin" + File.separator + sourcePackage).fixDot().fixSeparator()
 	}
 
 	fun getTestFolder(sourcePackage: String?, subModule: String): String {
 		val subFolder = "app-$artifactId"
 		val rightSourcePkg = sourcePackage?.replace("repository", "controller")
-		return (subFolder + File.separator + "src/test/kotlin" + File.separator + rightSourcePkg).replace(".", File.separator).replace("/", File.separator)
+		return (subFolder + File.separator + "src/test/kotlin" + File.separator + rightSourcePkg).fixDot().fixSeparator()
 	}
 
 	fun getIntegrationTestFolder(sourcePackage: String, subModule: String): String {
 		val subFolder = if (enableSubModules) artifactId + subModule else ""
-		return (subFolder + File.separator + "src/integration-test/kotlin" + File.separator + sourcePackage).replace(".", File.separator)
+		return (subFolder + File.separator + "src/integration-test/kotlin" + File.separator + sourcePackage).fixDot().fixSeparator()
 	}
 
 	override fun postProcessAllModels(objs: MutableMap<String, Any>): MutableMap<String, Any> {
@@ -397,4 +399,22 @@ open class CodeCodegen : AbstractJavaCodegen() {
 		}
 		return super.toModelImport(name)
 	}
+
+	fun addSupportFile(source: String, folder: String = "", target: String, condition: Boolean = true) {
+		if (condition) {
+			supportingFiles.add(SupportingFile(source, folder.fixDot(), target))
+		}
+	}
+
+	override fun postProcess() {
+		println("################################################################################")
+		println("# Thanks for using DJet Codegen.                                               #")
+		println("# Please star this project https://github.com/DJetCloud/djet-codegen \uD83D\uDE4F        #")
+		println("# Project site https://djet.cloud                                              #")
+		println("################################################################################")
+	}
+
+	private fun String.fixSeparator() = this.replace('/', File.separatorChar)
+
+	private fun String.fixDot() = this.replace('.', File.separatorChar)
 }

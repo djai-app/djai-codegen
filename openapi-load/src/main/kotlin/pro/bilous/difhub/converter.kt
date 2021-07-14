@@ -5,8 +5,9 @@ import pro.bilous.difhub.convert.DifHubToSwaggerConverter
 import pro.bilous.difhub.write.YamlWriter
 
 fun main() {
-	Console.select()
-	DifHubToSwaggerConverter(Console.system!!).convertAll().forEach {
+	val console = Console()
+	console.select()
+	DifHubToSwaggerConverter(console.modelLoader, console.config).convertAll().forEach {
 		YamlWriter(it.appName).write(it.openApi)
 	}
 }

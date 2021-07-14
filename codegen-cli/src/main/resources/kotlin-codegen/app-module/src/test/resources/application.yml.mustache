@@ -1,7 +1,6 @@
 spring:
   profiles:
-  # Uncomment the following line to enable tests against production database type rather than H2, using Testcontainers
-  #active: testcontainers
+    active: nosecure
   application:
     name: {{appNameLower}}
   datasource:
@@ -25,3 +24,16 @@ spring:
 server:
   port: 1{{serverPort}}
   address: localhost
+{{#keycloak.enabled}}
+{{^springdoc}}
+
+swagger-ui:
+  keycloak-url: http://localhost:8099/auth
+keycloak:
+  resource: client
+  realm: client
+  credentials:
+    secret: secret
+  enabled: false
+{{/springdoc}}
+{{/keycloak.enabled}}

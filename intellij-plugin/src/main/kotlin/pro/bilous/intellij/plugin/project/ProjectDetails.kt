@@ -6,6 +6,7 @@ import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.components.CheckBox
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.layout.*
+import pro.bilous.difhub.config.DatasetStatus
 import java.awt.Dimension
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JPanel
@@ -26,8 +27,10 @@ class ProjectDetails(moduleBuilder: ProjectModuleBuilder, wizardContext: WizardC
 		"Keycloak configuration will be added to project"
 	)
 	val defaultDatabaseStringLengthTextBox = JBTextField(request.defaultStringSize)
+	val datasetStatusComboBox = ComboBox(DefaultComboBoxModel(DatasetStatus.values().map { it.name.toLowerCase() }.toTypedArray()))
 
 	init {
+		datasetStatusComboBox.selectedItem = DatasetStatus.APPROVED.name.toLowerCase()
 		systemComboBox.addActionListener {
 			request.system = systemComboBox.selectedItem as String
 			selectSystemApplications(request.system)
@@ -47,6 +50,9 @@ class ProjectDetails(moduleBuilder: ProjectModuleBuilder, wizardContext: WizardC
 		}
 		enableAuthorizationCheckBox.addActionListener {
 			request.authorizationEnabled = enableAuthorizationCheckBox.isSelected
+		}
+		datasetStatusComboBox.addActionListener{
+			request.datasetStatus = DatasetStatus.valueOf((datasetStatusComboBox.selectedItem as String).toUpperCase())
 		}
 	}
 
@@ -70,9 +76,10 @@ class ProjectDetails(moduleBuilder: ProjectModuleBuilder, wizardContext: WizardC
 			}
 			titledRow("Advanced parameters") {
 				row("Default size of string in database") { defaultDatabaseStringLengthTextBox() }
+				row("Dataset status") { datasetStatusComboBox() }
 			}
 		}
-		rootPanel?.preferredSize = Dimension(400, 500)
+		rootPanel?.preferredSize = Dimension(400, 550)
 		return rootPanel!!
 	}
 

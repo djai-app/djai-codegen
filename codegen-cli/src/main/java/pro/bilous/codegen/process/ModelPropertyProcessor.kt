@@ -4,14 +4,18 @@ import io.swagger.v3.oas.models.media.Schema
 import org.openapitools.codegen.CodeCodegen
 import org.openapitools.codegen.CodegenModel
 import org.openapitools.codegen.CodegenProperty
+import org.slf4j.LoggerFactory
 import pro.bilous.codegen.configurator.Database
-import pro.bilous.codegen.process.strateges.MySqlTypeResolvingStrategy
-import pro.bilous.codegen.process.strateges.PostgreSqlTypeResolvingStrategy
-import pro.bilous.codegen.process.strateges.DefaultTypeResolvingStrategy
+import pro.bilous.codegen.process.strategy.MySqlTypeResolvingStrategy
+import pro.bilous.codegen.process.strategy.PostgreSqlTypeResolvingStrategy
+import pro.bilous.codegen.process.strategy.DefaultTypeResolvingStrategy
 import pro.bilous.codegen.utils.CamelCaseConverter
 import pro.bilous.codegen.utils.SqlNamingUtils
 
 open class ModelPropertyProcessor(val codegen: CodeCodegen) {
+	companion object {
+		private val log = LoggerFactory.getLogger(ModelPropertyProcessor::class.java)
+	}
 
 	private val additionalProperties = codegen.additionalProperties()
 	private val entityMode = codegen.entityMode
@@ -45,6 +49,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			convertToMetadataProperty(property, model)
 		}
 		addGuidAnnotation(property, model)
+		addImportOfDateIfPropertyHasTypeDate(property, model)
 	}
 
 	private fun processIfGuidOrObjectWithXDataTypesOrInteger(property: CodegenProperty) {
@@ -92,7 +97,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun processIfListOrIdentityComplexModelEndsWithId(model: CodegenModel, property: CodegenProperty) {
-		if (property.isListContainer && property.datatypeWithEnum.startsWith("List")) {
+		if (property.isArray && property.datatypeWithEnum.startsWith("List")) {
 //			property.datatypeWithEnum = "Set" + property.datatypeWithEnum.removePrefix("List")
 			property.defaultValue = if (property.required) "listOf()" else "null"
 			model.imports.remove("List")
@@ -144,7 +149,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		property.vendorExtensions["isMetadataAnnotation"] = true
 		property.vendorExtensions["metaGroupName"] =
 			CamelCaseConverter.convert(property.complexType.removeSuffix("Model"))
-		if (property.isListContainer) {
+		if (property.isArray) {
 			property.datatypeWithEnum = if (property.required) "List<String>" else "List<String>?"
 		} else {
 			property.datatypeWithEnum = if (property.required) "String" else "String?"
@@ -157,7 +162,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	}
 
 	fun isEnum(property: CodegenProperty): Boolean {
-		val prop = if (property.isListContainer && property.items != null) property.items else property
+		val prop = if (property.isArray && property.items != null) property.items else property
 		return hasEnumValues(prop)
 	}
 
@@ -170,10 +175,10 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun populateTableExtension(model: CodegenModel, property: CodegenProperty) {
-		applyColumnNames(model, property)
-		applyEmbeddedComponentOrOneToOne(model, property)
+		applyColumnNames(property)
+		applyEmbeddedComponentOrOneToOne(property)
 
-		if (entityMode && property.isListContainer) {
+		if (entityMode && property.isArray) {
 			val modelTableName = CamelCaseConverter.convert(model.name).toLowerCase()
 			val complexType = readComplexTypeFromProperty(property)
 
@@ -196,7 +201,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				// hardcode for the CodeableConcept as well, consider to implement a feature for this use case
 				arrayOf("Identity", "CodeableConcept").contains(complexType)
 						|| (complexType.isNotEmpty() && model.vars.any {
-					it.isListContainer && it.name != property.name && readComplexTypeFromProperty(it) == complexType
+					it.isArray && it.name != property.name && readComplexTypeFromProperty(it) == complexType
 				})
 
 			val (propertyTableName, propertyTableColumnName, realPropertyTableName) = if (hasOtherPropertyWithSameType) {
@@ -211,7 +216,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				if (propertyTableColumnName == modelTableName) "ref_$propertyTableColumnName" else propertyTableColumnName
 
 			property.getVendorExtensions()["modelTableName"] = SqlNamingUtils.escapeTableNameIfNeeded(modelTableName)
-			property.getVendorExtensions()["propertyTableName"] = realPropertyTableName
+			property.getVendorExtensions()["propertyTableName"] = SqlNamingUtils.escapeColumnNameIfNeeded(realPropertyTableName)
 			property.vendorExtensions["hasPropertyTable"] = openApiWrapper.isOpenApiContainsType(complexType)
 			property.getVendorExtensions()["joinTableName"] = joinTableName
 			property.getVendorExtensions()["joinColumnName"] = "${modelTableName}_id"
@@ -252,13 +257,13 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 
 	fun readSinglePropertyTableData(complexType: String, property: CodegenProperty): Triple<String, String, String> {
 		return when {
-			property.isListContainer && openApiWrapper.isOpenApiContainsType(complexType) -> {
+			property.isArray && openApiWrapper.isOpenApiContainsType(complexType) -> {
 				createTriple(complexType, complexType, complexType)
 			}
 			openApiWrapper.isOpenApiContainsType(complexType) -> {
 				createTriple(complexType, complexType, complexType)
 			}
-			complexType.isNotEmpty() && property.isListContainer -> {
+			complexType.isNotEmpty() && property.isArray -> {
 				createTriple(complexType, complexType, complexType)
 			}
 			else -> createTriple(property.name, property.name, property.name)
@@ -267,13 +272,13 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 
 	fun readManyPropertyTableData(complexType: String, property: CodegenProperty): Triple<String, String, String> {
 		return when {
-			property.isListContainer && openApiWrapper.isOpenApiContainsType(complexType) -> {
+			property.isArray && openApiWrapper.isOpenApiContainsType(complexType) -> {
 				createTriple(property.name, complexType, complexType)
 			}
 			openApiWrapper.isOpenApiContainsType(complexType) -> {
 				createTriple(complexType, complexType, complexType)
 			}
-			complexType.isNotEmpty() && property.isListContainer -> {
+			complexType.isNotEmpty() && property.isArray -> {
 				createTriple(property.name, complexType, complexType)
 			}
 			else -> createTriple(property.name, property.name, property.name)
@@ -288,20 +293,23 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		)
 	}
 
-	fun applyColumnNames(model: CodegenModel, property: CodegenProperty) {
+	private fun applyColumnNames(property: CodegenProperty) {
 		val columnName = CamelCaseConverter.convert(property.name).toLowerCase()
 		property.getVendorExtensions()["columnName"] = columnName
 		property.getVendorExtensions()["escapedColumnName"] = SqlNamingUtils.escapeColumnNameIfNeeded(columnName)
 		property.getVendorExtensions()["columnName"] = property.getVendorExtensions()["escapedColumnName"]
-
 	}
 
-	fun applyEmbeddedComponentOrOneToOne(model: CodegenModel, property: CodegenProperty) {
+	fun applyEmbeddedComponentOrOneToOne(property: CodegenProperty) {
 		if (!isInnerModel(property)) {
 			return
 		}
 		val realType = property.complexType.removeSuffix("Model")
 		val innerModelSchema = openApiWrapper.findSchema(realType)
+		if (innerModelSchema == null) {
+			log.error("type '$realType' is not found")
+			return
+		}
 		val innerModel = codegen.fromModel(realType, innerModelSchema)
 		if (innerModel.vendorExtensions["isEmbeddable"] == true) {
 			assignEmbeddedModel(property, innerModel, true)
@@ -332,8 +340,15 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	) {
 		property.vendorExtensions["embeddedComponent"] = innerModel
 		property.vendorExtensions["isEmbedded"] = true
+		var isAttributeOverrides = false
+		var isAssociationOverrides = false
 		// add embedded column names since we are in embedded mode.
 		innerModel.vars.forEach { prop ->
+			if (prop.vendorExtensions["isOneToOne"] != null) {
+				isAssociationOverrides = true
+			} else {
+				isAttributeOverrides = true
+			}
 			val originalColumnName = prop.vendorExtensions["columnName"]
 			val originalVarName = prop.name
 			val parentColumnName = if (property.vendorExtensions.containsKey("embeddedColumnName")) {
@@ -358,6 +373,8 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 				assignEmbeddedModel(prop, prop.vendorExtensions["embeddedComponent"] as CodegenModel, false)
 			}
 		}
+		property.vendorExtensions["isAttributeOverrides"] = isAttributeOverrides
+		property.vendorExtensions["isAssociationOverrides"] = isAssociationOverrides
 	}
 
 
@@ -375,5 +392,12 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	fun joinTableName(first: String, second: String, sort: Boolean = true): String {
 		return (if (sort) arrayOf(first, second).sortedArray() else arrayOf(first, second))
 			.joinToString(separator = "_to_")
+	}
+
+	private fun addImportOfDateIfPropertyHasTypeDate(property: CodegenProperty, model: CodegenModel) {
+		val imports = model.imports
+		if(!imports.contains("Date") && property.datatypeWithEnum.removeSuffix("?") == "Date") {
+			imports.add("Date")
+		}
 	}
 }

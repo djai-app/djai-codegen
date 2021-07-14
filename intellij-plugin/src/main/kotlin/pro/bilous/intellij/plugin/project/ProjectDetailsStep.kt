@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager.getApplication
 import com.intellij.openapi.ui.Messages.showErrorDialog
 import com.intellij.ui.ScrollPaneFactory.createScrollPane
 import com.intellij.ui.components.JBLoadingPanel
+import pro.bilous.difhub.config.DatasetStatus
 import java.awt.BorderLayout
 import java.lang.Exception
 import javax.swing.JComponent
@@ -27,6 +28,9 @@ class ProjectDetailsStep(
 		if (request.getMetadata() != null) {
 			return
 		}
+		val modelLoader = moduleBuilder.modelLoader ?: return
+		val config = moduleBuilder.config ?: return
+
 		// load systems and applications
 		loadingPanel.contentPanel.removeAll()
 		loadingPanel.startLoading()
@@ -34,7 +38,7 @@ class ProjectDetailsStep(
 
 		getApplication().executeOnPooledThread {
 			try {
-				val difHubData = difHubDataLoader.loadAllSystemsAndApps()
+				val difHubData = difHubDataLoader.loadAllSystemsAndApps(modelLoader, config)
 				request.difHubData = difHubData
 				invokeLater {
 					detailsForm = ProjectDetails(moduleBuilder, wizardContext).apply {
@@ -62,6 +66,7 @@ class ProjectDetailsStep(
 	override fun updateDataModel() {
 		detailsForm?.apply {
 			request.defaultStringSize = defaultDatabaseStringLengthTextBox.text
+			request.datasetStatus = DatasetStatus.valueOf((datasetStatusComboBox.selectedItem as String).toUpperCase())
 		}
 	}
 

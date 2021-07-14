@@ -1,9 +1,10 @@
 package pro.bilous.intellij.plugin
 
+import java.io.File
 import java.lang.IllegalStateException
 
 object PathTools {
-	private const val HOME_PATH = ".difhub-codegen"
+	private const val HOME_PATH = "djet"
 	private const val CREDENTIALS_FILE = ".credentials"
 	private const val SETTINGS_FILE = "settings"
 
@@ -11,7 +12,10 @@ object PathTools {
 		if (projectPath == null) {
 			throw IllegalStateException("projectPath can not be null")
 		}
-		return "${projectPath}/$HOME_PATH"
+
+		resolveHomePathForOldProjects(projectPath)
+
+		return "$projectPath/$HOME_PATH"
 	}
 
 	fun getCredentialsPath(projectPath: String?): String {
@@ -20,5 +24,17 @@ object PathTools {
 
 	fun getSettingsPath(projectPath: String?): String {
 		return "${getHomePath(projectPath)}/$SETTINGS_FILE.yaml"
+	}
+
+	private fun resolveHomePathForOldProjects(projectPath: String) {
+		val newHomeFolder = File("$projectPath/$HOME_PATH")
+		if (newHomeFolder.exists()) {
+			return
+		}
+		val oldHomePath = "$projectPath/.difhub-codegen"
+		val oldHomeFolder = File(oldHomePath)
+		if (oldHomeFolder.exists()) {
+			oldHomeFolder.renameTo(newHomeFolder)
+		}
 	}
 }

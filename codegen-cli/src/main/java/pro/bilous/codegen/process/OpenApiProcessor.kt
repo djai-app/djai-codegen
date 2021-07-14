@@ -37,6 +37,7 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 		if (openAPI.paths == null) {
 			return
 		}
+
 		for (pathname in openAPI.paths.keys) {
 			val path = openAPI.paths[pathname] ?: continue
 			if (path.readOperations() == null) continue
@@ -61,6 +62,24 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 				operation.addExtension("x-tags", tags)
 			}
 		}
+
+		additionalProperties["pathAntMatchers"] = getOrCreatePathAntMatchers(openAPI)
+	}
+
+	fun getOrCreatePathAntMatchers(openAPI: OpenAPI): MutableSet<String> {
+		val pathAntMatchers = mutableSetOf<String>()
+
+		for (pathname in openAPI.paths.keys) {
+			val pathParts = pathname.split("/")
+			val antParts = mutableListOf<String>()
+			pathParts.forEach { part ->
+				// replace all {name} parts
+				antParts.add(if (part.startsWith("{")) "*" else part)
+			}
+			pathAntMatchers.add(antParts.joinToString("/"))
+		}
+		return pathAntMatchers
+
 	}
 
 	private fun setupServerPort(openAPI: OpenAPI) {

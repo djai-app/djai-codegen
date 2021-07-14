@@ -1,16 +1,16 @@
 package pro.bilous.difhub.load
 
-import pro.bilous.difhub.config.ConfigReader
+import pro.bilous.difhub.config.Config
 import pro.bilous.difhub.model.Model
 
-class ApplicationsLoader {
+class ApplicationsLoader(val modelLoader: IModelLoader, val config: Config) {
 
-	var modelLoader: IModelLoader = ModelLoader(DefLoader())
-	var config = ConfigReader.loadConfig()
+	private val difhub = config.difhub
+	private val system = config.system
+	private val datasetStatus = config.datasetStatus
 
-	fun loadAppBySystem(system: String): List<String> {
-		val difhub = config.difhub
-		val models = modelLoader.loadModels(difhub.getApplicationsUrl(system))
+	fun loadAppBySystem(systemToLoad: String): List<String> {
+		val models = modelLoader.loadModels(difhub.getApplicationsUrl(systemToLoad))
 
 		val apps = mutableListOf<String>()
 		models?.filter {
@@ -24,19 +24,16 @@ class ApplicationsLoader {
 		return apps
 	}
 
-	fun loadAll(system: String): List<Model>? {
-		val difhub = config.difhub
+	fun loadAll(): List<Model>? {
 		return modelLoader.loadModels(difhub.getApplicationsUrl(system))
 	}
 
-	fun loadOne(system: String, app: String): Model? {
-		val difhub = config.difhub
-		return modelLoader.loadModel(difhub.getApplicationUrl(system, app))
+	fun loadOne(app: String): Model? {
+		return modelLoader.loadModel(difhub.getApplicationUrl(system, app), datasetStatus)
 	}
 
-	fun loadAppSettings(system: String, app: String): Model? {
-		val difhub = config.difhub
-		return modelLoader.loadModel(difhub.getApplicationSettingsUrl(system, app))
+	fun loadAppSettings(app: String): Model? {
+		return modelLoader.loadModel(difhub.getApplicationSettingsUrl(system, app), datasetStatus)
 	}
 
 }

@@ -28,7 +28,7 @@
 			{{/vendorExtensions.addEntityIdVar}}
 			{{#vendorExtensions.hasTableEntity}}
 			<column name="name" type="VARCHAR(255)"/>
-			<column name="description" type="VARCHAR(510)"/>
+			<column name="description" type="VARCHAR(4096)"/>
 			{{/vendorExtensions.hasTableEntity}}
 			{{#allVars}}
 				{{#vendorExtensions.isExtends}}
@@ -43,7 +43,7 @@
 			{{#vendorExtensions.hasJsonType}}
 			<column name="{{vendorExtensions.columnName}}" type="{{vendorExtensions.columnType}}"/>
 			{{/vendorExtensions.hasJsonType}}
-			{{^isListContainer}}
+			{{^isArray}}
 			{{#vendorExtensions.isEmbedded}}
 			{{#vendorExtensions.embeddedComponent}}
 			{{#vars}}
@@ -69,7 +69,7 @@
 			{{/required}}
 			{{/vendorExtensions.isNeedSkip}}
 			{{/vendorExtensions.isEmbedded}}
-			{{/isListContainer}}
+			{{/isArray}}
 			{{/vars}}
 		</createTable>
 	</changeSet>

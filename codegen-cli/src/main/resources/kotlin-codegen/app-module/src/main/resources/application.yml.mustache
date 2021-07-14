@@ -1,5 +1,6 @@
 server:
   port: ${SERVER_PORT:{{serverPort}}}
+  forward-headers-strategy: framework
   error:
     include-message: always
 
@@ -17,3 +18,9 @@ spring:
       ddl-auto: validate
   liquibase:
     change-log: classpath:/liquibase/liquibase-changeLog.xml
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

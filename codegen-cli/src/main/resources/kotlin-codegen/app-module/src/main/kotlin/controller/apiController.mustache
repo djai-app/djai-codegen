@@ -11,7 +11,6 @@ import {{appPackage}}.controller.filter.{{vendorExtensions.filterClassName}}
 {{/operations}}
 import {{appPackage}}.service.{{serviceClassname}}
 import {{appPackage}}.controller.api.{{classname}}
-import io.swagger.annotations.ApiParam
 import {{basePackage}}.controller.AbstractController
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -28,8 +27,8 @@ class {{controllerClassname}}(service: {{serviceClassname}})
 
 {{#operation}}
 
-    override fun {{vendorExtensions.operationMethodName}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>pageParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}): {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {
-{{>apiControllerMethodBody}}
+    override fun {{vendorExtensions.operationMethodName}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>pageParams}}{{^-last}},{{/-last}}{{/allParams}}): {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {
+        {{>apiControllerMethodBody}}
     }
 {{/operation}}
 
