@@ -35,6 +35,17 @@ class OperationAddon(val codegen: CodeCodegen) {
 		objs["hasEventMappingImport"] = ops.any {
 			it.vendorExtensions[OptsPreProcessor.EVENT_MAPPING].toString().toBoolean()
 		}
+
+		applyTestModelHeaderParams(objs, ops, returnType)
+	}
+
+	private fun applyTestModelHeaderParams(objs: MutableMap<String, Any>, ops: MutableList<CodegenOperation>, returnType: String) {
+		val testModel = objs["testModel"] as CodegenModel
+		val headerParamSet = mutableSetOf<String>()
+		ops.forEach {
+			headerParamSet.addAll(collectModelHeaderParams(it, returnType).values )
+		}
+		testModel.vendorExtensions["testHeaderParams"] = headerParamSet.map { mapOf( "left" to it, "right" to "test_http_header_value") }
 	}
 
 	fun applyRequestParams(operation: CodegenOperation, returnType: String) {
@@ -43,29 +54,16 @@ class OperationAddon(val codegen: CodeCodegen) {
 			return
 		}
 
-		val codegenModel = readModelByType(returnType)
-		val hasEntityType = codegenModel.allVars.any { it.complexType == "ResourceEntity" }
-		val optEntityModel = if (hasEntityType) {
-			readModelByType("Entity")
-		} else null
+		val headerParamToModelMap = collectModelHeaderParams(operation, returnType)
 
-		val headerParamToModelMap = mutableMapOf<String, String>()
-
-		operation.headerParams.forEach {
-			when {
-				codegenModel.vars.any { param -> param.name == it.paramName  } -> {
-					headerParamToModelMap[it.paramName] = "it.${it.paramName}"
-				}
-				optEntityModel != null && optEntityModel.vars.any { param -> param.name == it.paramName } -> {
-					headerParamToModelMap[it.paramName] = "it.entity.${it.paramName}"
-				}
-			}
-		}
 		if (headerParamToModelMap.isEmpty()) {
 			return
 		}
 		val funcName = when(operation.httpMethod.lowercase()) {
-			"get" -> if (operation.returnContainer == "List") return else "preGet"
+			"get" -> if (operation.returnContainer == "List") {
+				operation.vendorExtensions["hasSearchParams"] = true
+				"searchParams"
+			} else "preGet"
 			"post" -> "preCreate"
 			"put" -> "preUpdate"
 			"patch" -> "preModify"
@@ -77,6 +75,27 @@ class OperationAddon(val codegen: CodeCodegen) {
 		operation.vendorExtensions["preFuncParams"] = headerParamToModelMap.map {
 			mapOf("left" to it.value, "right" to it.key)
 		}
+	}
+
+	private fun collectModelHeaderParams(operation: CodegenOperation, returnType: String): Map<String, String> {
+		val codegenModel = readModelByType(returnType)
+		val hasEntityType = codegenModel.allVars.any { it.complexType == "ResourceEntity" }
+		val optEntityModel = if (hasEntityType) {
+			readModelByType("Entity")
+		} else null
+		val headerParamToModelMap = mutableMapOf<String, String>()
+
+		operation.headerParams.forEach {
+			when {
+				codegenModel.vars.any { param -> param.name == it.paramName  } -> {
+					headerParamToModelMap[it.paramName] = it.paramName
+				}
+				optEntityModel != null && optEntityModel.vars.any { param -> param.name == it.paramName } -> {
+					headerParamToModelMap[it.paramName] = "entity.${it.paramName}"
+				}
+			}
+		}
+		return headerParamToModelMap
 	}
 
 	private fun populateEventMapping(operation: CodegenOperation) {

@@ -1,0 +1,52 @@
+package {{basePackage}}.controller
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.jayway.jsonpath.JsonPath
+import org.junit.jupiter.api.Assertions
+import org.springframework.test.web.servlet.MvcResult
+import java.text.SimpleDateFormat
+import java.util.*
+
+private val expectedDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+private val objectMapper = ObjectMapper()
+
+fun assertListsEquals(list1: List<Any>?, list2: List<Any>?) {
+	if (list1.isNullOrEmpty() && list2.isNullOrEmpty()) {
+		return
+	}
+	list1!!
+	list2!!
+	Assertions.assertEquals(list1.size, list2.size, "Lists size should be equal")
+
+	// for now we about to check String lists only, complex object are not supported
+	if (!list1.toTypedArray().isArrayOf<String>()) {
+		return
+	}
+	val pairList = list1.zip(list2)
+	Assertions.assertTrue(pairList.all { (elt1, elt2) -> elt1 == elt2 }, "Lists content should be equal")
+}
+
+fun assertDateEquals(first: Date?, second: String?) {
+	if (first == null) {
+		return
+	}
+	Assertions.assertNotNull(second)
+	val secondDate = expectedDateFormat.parse(second)
+	Assertions.assertEquals(first.time, secondDate.time)
+}
+
+fun assertObjectEquals(first: Any?, second: Any?) {
+	if (first == null && second == null) {
+		return
+	}
+	val firstString = objectMapper.writeValueAsString(first)
+	val secondString = objectMapper.writeValueAsString(second)
+	Assertions.assertEquals(firstString, secondString, "JSON objects should be equal")
+}
+
+fun <T> getValue(mvcResult: MvcResult, jsonPath: String): T =
+	JsonPath.read(mvcResult.response.contentAsString, jsonPath)
+
+fun findIdentityId(result: MvcResult): String {
+	return getValue(result, "$.identity.id")
+}

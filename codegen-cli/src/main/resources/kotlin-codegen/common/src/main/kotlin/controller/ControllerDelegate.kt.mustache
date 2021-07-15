@@ -41,16 +41,16 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 		return ResponseEntity(result, HttpStatus.OK)
 	}
 
-	fun getAll(search: String?, pageable : Pageable, parentId: String? = null): ResponseEntity<Page<E>> {
-		val searchQuery = getSearchQuery(search, parentId)
+	fun getAll(search: String?, pageable : Pageable, parentId: String? = null, searchParams: Map<String, String?>? = null): ResponseEntity<Page<E>> {
+		val searchQuery = getSearchQuery(search, parentId, searchParams)
 		return ResponseEntity(service.getAll(pageable, searchQuery), HttpStatus.OK)
 	}
 
 	fun update(id: String, domain: E, parentId: String? = null, preUpdate: (E) -> Unit = {}): ResponseEntity<E> {
-		service.getById(id)?: throw ResourceNotFoundException()
+		val savedDomain = service.getById(id)?: throw ResourceNotFoundException()
 		validateParent(domain, parentId)
 		domain.id = id
-		preUpdate(domain)
+		preUpdate(savedDomain)
 		val result = service.update(domain)?: throw InvalidRequestException()
 		return ResponseEntity(result, HttpStatus.OK)
 	}
@@ -102,12 +102,10 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 		{{/hasEntityBlocks}}
 	}
 
-	private fun getSearchQuery(query: String?, parentId: String?): String? {
-		val queryParentPart = "entity.parent.id==$parentId"
-		return when {
-			parentId.isNullOrEmpty() -> query
-			query.isNullOrEmpty() -> queryParentPart
-			else -> "$queryParentPart;$query"
-		}
+	private fun getSearchQuery(query: String?, parentId: String?, params: Map<String, String?>?): String? {
+		val queryParentPart = if (parentId != null) "entity.parent.id==$parentId" else null
+		val queryParams = params?.filter { !it.value.isNullOrEmpty() }?.map { "${it.key}==${it.value}" }?.joinToString(";")
+		val allQueries = listOfNotNull(queryParentPart, query, queryParams)
+		return if (allQueries.isEmpty()) null else allQueries.joinToString(";")
 	}
 }

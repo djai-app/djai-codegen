@@ -1,0 +1,90 @@
+package {{basePackage}}.controller
+
+import {{basePackage}}.domain.BaseResource
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.MvcResult
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.util.MultiValueMap
+import org.springframework.http.HttpHeaders
+import org.springframework.stereotype.Component
+
+class ApiTestDelegate<E : BaseResource>(val mockMvc: MockMvc, val objectMapper: ObjectMapper) {
+
+	fun getById(urlTemplate: String, id: String, httpHeaders: HttpHeaders = HttpHeaders()): MvcResult {
+		return mockMvc.perform(
+			get("$urlTemplate/{id}", id)
+				.headers(httpHeaders)
+				.accept(MediaType.APPLICATION_JSON)
+		).andExpect(status().isOk).andReturn()
+	}
+
+	fun create(urlTemplate: String, entity: E, httpHeaders: HttpHeaders = HttpHeaders()): MvcResult {
+		return mockMvc.perform(
+			post("$urlTemplate")
+				.headers(httpHeaders)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(entity))
+		).andExpect(status().isCreated).andReturn()
+	}
+
+	fun update(urlTemplate: String, id: String, entity: E, httpHeaders: HttpHeaders = HttpHeaders()): MvcResult {
+		return mockMvc.perform(
+			put("$urlTemplate/{id}", id)
+				.headers(httpHeaders)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(entity))
+				.accept(MediaType.APPLICATION_JSON)
+		).andExpect(status().isOk).andReturn()
+	}
+
+	fun delete(urlTemplate: String, id: String, httpHeaders: HttpHeaders = HttpHeaders()): MvcResult {
+		return mockMvc.perform(
+			MockMvcRequestBuilders.delete("$urlTemplate/{id}", id)
+				.headers(httpHeaders)
+				.accept(MediaType.APPLICATION_JSON)
+		).andExpect(status().isOk).andReturn()
+	}
+
+	fun deleteAll(urlTemplate: String, ids: List<String?>, httpHeaders: HttpHeaders = HttpHeaders()): MvcResult {
+		return mockMvc.perform(
+			delete("$urlTemplate/bulk")
+				.headers(httpHeaders)
+				.param("ids", ids.joinToString(",") { it.toString() })
+				.accept(MediaType.APPLICATION_JSON)
+		).andExpect(status().isOk).andReturn()
+	}
+
+	fun findAll(urlTemplate: String, params: MultiValueMap<String, String>, httpHeaders: HttpHeaders = HttpHeaders()): MvcResult {
+		return mockMvc.perform(
+			get("$urlTemplate")
+				.headers(httpHeaders)
+				.params(params)
+				.accept(MediaType.APPLICATION_JSON)
+		).andExpect(status().isOk).andReturn()
+	}
+
+	fun createAll(urlTemplate: String, entities: List<E>, httpHeaders: HttpHeaders = HttpHeaders()): MvcResult {
+		return mockMvc.perform(
+			post("$urlTemplate/bulk")
+				.headers(httpHeaders)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(entities))
+		).andExpect(status().isOk).andReturn()
+	}
+
+	fun findById(urlTemplate: String, id: String): MvcResult {
+		TODO("Not yet implemented")
+	}
+
+	fun modify(urlTemplate: String, id: String, entity: E): MvcResult {
+		TODO("Not yet implemented")
+	}
+
+	fun updateAll(urlTemplate: String, ids: List<String>, entities: List<E>): MvcResult {
+		TODO("Not yet implemented")
+	}
+}

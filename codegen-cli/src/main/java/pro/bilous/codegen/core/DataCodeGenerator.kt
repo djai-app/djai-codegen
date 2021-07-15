@@ -50,12 +50,11 @@ class DataCodeGenerator(private val specIndex: Int = 0) : InCodeGenerator() {
 
 		val apiTestFiles = config.apiTestTemplateFiles()
 		apiTestFiles.clear()
-		apiTestFiles["$testRoot/controller/apiTest.kt.mustache"] = ".kt"
-//		config.apiTemplateFiles["resources/mapper.mustache"] = ".kt"
-//		config.apiTemplateFiles["resources/converter.mustache"] = ".kt"
-//		config.apiTemplateFiles["resources/validationRules.mustache"] = ".kt"
-
-//		config.setApiSuffix("Repository")
+		apiTestFiles[if (isControllerDelegate) {
+			"$testRoot/controller/apiTestDelegate.kt.mustache"
+		} else {
+			"$testRoot/controller/apiTest.kt.mustache"
+		}] = ".kt"
 
 		config.specIndex = specIndex
 

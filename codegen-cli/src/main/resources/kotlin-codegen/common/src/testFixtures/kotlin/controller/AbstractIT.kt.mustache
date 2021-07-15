@@ -1,0 +1,23 @@
+package {{basePackage}}.controller
+
+import {{basePackage}}.domain.BaseResource
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.BeforeEach
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.web.servlet.MockMvc
+
+abstract class AbstractIT<E : BaseResource> {
+
+	@Autowired
+	lateinit var mockMvc: MockMvc
+
+	@Autowired
+	lateinit var objectMapper: ObjectMapper
+
+	lateinit var api: ApiTestDelegate<E>
+
+	@BeforeEach
+	fun init() {
+		api = ApiTestDelegate(mockMvc, objectMapper)
+	}
+}

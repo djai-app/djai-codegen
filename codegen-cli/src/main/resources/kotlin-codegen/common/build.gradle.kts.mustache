@@ -1,5 +1,8 @@
 plugins {
 	id("org.springframework.boot")
+{{#controllerDelegate}}
+	id("java-test-fixtures")
+{{/controllerDelegate}}
 
 	kotlin("jvm")
 	kotlin("plugin.spring")
@@ -37,6 +40,12 @@ dependencies {
 	api("org.springframework.boot:spring-boot-starter-security")
 	api("org.keycloak:keycloak-spring-boot-starter:14.0.0")
 	{{/keycloak.enabled}}
+
+{{#controllerDelegate}}
+	testFixturesApi("org.springframework.boot:spring-boot-starter-test") {
+		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+	}
+{{/controllerDelegate}}
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

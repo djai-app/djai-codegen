@@ -1,0 +1,5 @@
+{{#vendorExtensions.hasPreFunc}}, HttpHeaders().apply {
+{{#vendorExtensions.preFuncParams}}
+			add("{{right}}", "test_http_header_value")
+{{/vendorExtensions.preFuncParams}}
+		}{{/vendorExtensions.hasPreFunc}}

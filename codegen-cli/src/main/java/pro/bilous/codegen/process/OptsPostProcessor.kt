@@ -121,8 +121,18 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		val inputTest = "common/src/test/kotlin/"
 		val destTest = "$appRoot/src/test/kotlin/$appPackage"
 
-		addSupportFile(source = "$inputTest/controller/AbstractIntegrationTest.kt.mustache", folder = "$destTest/controller", target = "AbstractIntegrationTest.kt")
-		addSupportFile(source = "$inputTest/controller/CommonIntegrationTest.kt.mustache", folder = "$destTest/controller", target = "CommonIntegrationTest.kt")
+		if (!isControllerDelegate()) {
+			addSupportFile(
+				source = "$inputTest/controller/AbstractIntegrationTest.kt.mustache",
+				folder = "$destTest/controller",
+				target = "AbstractIntegrationTest.kt"
+			)
+			addSupportFile(
+				source = "$inputTest/controller/CommonIntegrationTest.kt.mustache",
+				folder = "$destTest/controller",
+				target = "CommonIntegrationTest.kt"
+			)
+		}
 
 		val inputResTest = "app-module/src/test/resources/"
 		val destResTest = "$appRoot/src/test/resources/"
@@ -185,8 +195,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 
 		addSupportFile(source = "$inputSrc/constant/EntityState.kt.mustache", folder = "$destSrc/constant", target = "EntityState.kt")
 
-		val isControllerDelegate = additionalProperties.getOrDefault("controllerDelegate", false) as Boolean
-		if (isControllerDelegate) {
+		if (isControllerDelegate()) {
 			addSupportFile(source = "$inputSrc/controller/ControllerDelegate.kt.mustache", folder = "$destSrc/controller", target = "ControllerDelegate.kt")
 		} else {
 			addSupportFile(source = "$inputSrc/controller/AbstractController.kt.mustache", folder = "$destSrc/controller", target = "AbstractController.kt")
@@ -208,6 +217,30 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		addSupportFile(source = "$inputSrc/service/CommonService.kt.mustache", folder = "$destSrc/service", target = "CommonService.kt")
 		applyCommonOpenApiFiles(inputSrc, destSrc)
 		applyCommonKeycloakFiles(inputSrc, destSrc)
+		addCommonModuleTestFiles()
+	}
+
+	private fun addCommonModuleTestFiles() {
+		val inputTestSrc = "common/src/testFixtures/kotlin/"
+		val destTestSrc = "common/src/testFixtures/kotlin/$basePackage"
+		if (!isControllerDelegate()) {
+			return
+		}
+		addSupportFile(
+			source = "$inputTestSrc/controller/AbstractIT.kt.mustache",
+			folder = "$destTestSrc/controller",
+			target = "AbstractIT.kt"
+		)
+		addSupportFile(
+			source = "$inputTestSrc/controller/ApiTestDelegate.kt.mustache",
+			folder = "$destTestSrc/controller",
+			target = "ApiTestDelegate.kt"
+		)
+		addSupportFile(
+			source = "$inputTestSrc/controller/testUtils.kt.mustache",
+			folder = "$destTestSrc/controller",
+			target = "testUtils.kt"
+		)
 	}
 
 	private fun applyCommonOpenApiFiles(inputSrc: String, destSrc: String) {
@@ -280,4 +313,6 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		val keycloak = additionalProperties["keycloak"] as? Map<*, *> ?: return false
 		return keycloak["enabled"] as? Boolean ?: false
 	}
+
+	private fun isControllerDelegate() = additionalProperties.getOrDefault("controllerDelegate", false) as Boolean
 }

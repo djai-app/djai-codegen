@@ -1,0 +1,114 @@
+{{#vendorExtensions.isGetListMethod}}
+	@Test
+	fun `{{vendorExtensions.operationMethodName}} api`() {
+		repository.deleteAll()
+		val res1 = createWithRequiredFields()
+		val res2 = createWithAllFields()
+
+		val savedRes1 = repository.save(res1)
+		val savedRes2 = repository.save(res2)
+
+		val params = LinkedMultiValueMap<String, String>()
+		params["sort"] = "entity.history.{{#suffixHistoryAt}}createdAt{{/suffixHistoryAt}}{{^suffixHistoryAt}}createdDate{{/suffixHistoryAt}}"
+		val result = api.findAll(url, params{{>apiTestHeaders}})
+
+		resourceAsserts(savedRes1, result, 0)
+		resourceAsserts(savedRes2, result, 1)
+	}
+{{/vendorExtensions.isGetListMethod}}
+{{#vendorExtensions.isGetMethod}}
+	@Test
+	fun `{{vendorExtensions.operationMethodName}} with required fields`() {
+		val res = createWithRequiredFields()
+		val savedRes = repository.save(res)
+
+		val result = api.getById(url, savedRes.id!!{{>apiTestHeaders}})
+		resourceAsserts(savedRes, result)
+	}
+
+	@Test
+	fun `{{vendorExtensions.operationMethodName}} with all fields`() {
+		val res = createWithAllFields()
+		val savedRes = repository.save(res)
+
+		val result = api.getById(url, savedRes.id!!{{>apiTestHeaders}})
+		resourceAsserts(savedRes, result)
+	}
+{{/vendorExtensions.isGetMethod}}
+{{#vendorExtensions.isPostMethod}}
+	@Test
+	fun `{{vendorExtensions.operationMethodName}} with required fields`() {
+		val res = createWithRequiredFields()
+		val result = api.create(url, res{{>apiTestHeaders}})
+		val savedRes = repository.getById(findIdentityId(result))
+		resourceAsserts(savedRes, result)
+	}
+
+	@Test
+	fun `{{vendorExtensions.operationMethodName}} with all fields`() {
+		val res = createWithAllFields()
+		val result = api.create(url, res{{>apiTestHeaders}})
+		val savedRes = repository.getById(findIdentityId(result))
+		resourceAsserts(savedRes, result)
+	}
+{{/vendorExtensions.isPostMethod}}
+{{#vendorExtensions.isPutMethod}}
+	@Test
+	fun `{{vendorExtensions.operationMethodName}} with required fields`() {
+		val res = createWithRequiredFields()
+		val savedRes = repository.save(res)
+		{{#testModel.vendorExtensions.hasIdentity}}
+		savedRes.identity.name = "new identity"
+		savedRes.identity.description = "new description"
+		{{/testModel.vendorExtensions.hasIdentity}}
+
+		val result = api.update(url, savedRes.id!!, savedRes{{>apiTestHeaders}})
+		resourceAsserts(savedRes, result)
+	}
+
+	@Test
+	fun `{{vendorExtensions.operationMethodName}} with all fields`() {
+		val res = createWithAllFields()
+		val savedRes = repository.save(res)
+		{{#testModel.vendorExtensions.hasIdentity}}
+		savedRes.identity.name = "new identity"
+		savedRes.identity.description = "new description"
+		{{/testModel.vendorExtensions.hasIdentity}}
+
+		val result = api.update(url, savedRes.id!!, savedRes{{>apiTestHeaders}})
+		resourceAsserts(savedRes, result)
+	}
+{{/vendorExtensions.isPutMethod}}
+{{#vendorExtensions.isPatchMethod}}
+	@Test
+	fun `{{vendorExtensions.operationMethodName}} with all fields`() {
+		val res = createWithAllFields()
+		val savedRes = repository.save(res)
+		{{#testModel.vendorExtensions.hasIdentity}}
+		savedRes.identity.name = "new identity"
+		savedRes.identity.description = "new description"
+		{{/testModel.vendorExtensions.hasIdentity}}
+
+		val result = api.update(url, savedRes.id!!, savedRes{{>apiTestHeaders}})
+		resourceAsserts(savedRes, result)
+	}
+{{/vendorExtensions.isPatchMethod}}
+{{#vendorExtensions.isDeleteMethod}}
+	@Test
+	fun `{{vendorExtensions.operationMethodName}} api`() {
+		val res = createWithRequiredFields()
+		val savedRes = repository.save(res)
+
+		val result = api.delete(url, savedRes.id!!{{>apiTestHeaders}})
+		{{#testModel.vendorExtensions.hasEntity}}
+		savedRes.entity.state = "deleted"
+		{{/testModel.vendorExtensions.hasEntity}}
+		resourceAsserts(savedRes, result)
+	}
+{{/vendorExtensions.isDeleteMethod}}
+{{#vendorExtensions.isNoHttpMethod}}
+	@Test
+	fun `{{vendorExtensions.operationMethodName}} api`() {
+		TODO("not implemented")
+	}
+{{/vendorExtensions.isNoHttpMethod}}

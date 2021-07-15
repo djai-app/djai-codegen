@@ -1,10 +1,15 @@
-{{#vendorExtensions.hasPreFunc}}, {{vendorExtensions.preFuncName}} = {
+{{#vendorExtensions.hasPreFunc}}, {{vendorExtensions.preFuncName}} = {{#vendorExtensions.hasSearchParams}}mapOf({{/vendorExtensions.hasSearchParams}}{{^vendorExtensions.hasSearchParams}}{ {{/vendorExtensions.hasSearchParams}}
 	{{#vendorExtensions.preFuncParams}}
+		{{#vendorExtensions.hasSearchParams}}
+			"{{left}}" to {{right}}
+		{{/vendorExtensions.hasSearchParams}}
+		{{^vendorExtensions.hasSearchParams}}
 		{{#vendorExtensions.isPostMethod}}
-			{{left}} = {{right}}
+			it.{{left}} = {{right}}
 		{{/vendorExtensions.isPostMethod}}
 		{{^vendorExtensions.isPostMethod}}
-			Assert.isTrue({{left}} == {{right}}, "{{right}} does not match target {{left}}")
+			Assert.isTrue(it.{{left}} == {{right}}, "Header `{{right}}` does not match target parameter in `{{returnModelType}}#{{left}}`")
 		{{/vendorExtensions.isPostMethod}}
+		{{/vendorExtensions.hasSearchParams}}
 	{{/vendorExtensions.preFuncParams}}
-		}{{/vendorExtensions.hasPreFunc}}
+		{{#vendorExtensions.hasSearchParams}}){{/vendorExtensions.hasSearchParams}}{{^vendorExtensions.hasSearchParams}} }{{/vendorExtensions.hasSearchParams}}{{/vendorExtensions.hasPreFunc}}
