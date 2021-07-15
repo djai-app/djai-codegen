@@ -103,9 +103,10 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 	}
 
 	private fun getSearchQuery(query: String?, parentId: String?, params: Map<String, String?>?): String? {
-		val queryParentPart = if (parentId != null) "entity.parent.id==$parentId" else null
+		val queryParentPart = if (parentId.isNullOrEmpty()) null else "entity.parent.id==$parentId"
+		val queryString = if (query.isNullOrEmpty()) null else query
 		val queryParams = params?.filter { !it.value.isNullOrEmpty() }?.map { "${it.key}==${it.value}" }?.joinToString(";")
-		val allQueries = listOfNotNull(queryParentPart, query, queryParams)
+		val allQueries = listOfNotNull(queryParentPart, queryString, queryParams)
 		return if (allQueries.isEmpty()) null else allQueries.joinToString(";")
 	}
 }
