@@ -1,6 +1,8 @@
 spring:
+  {{#keycloak.enabled}}
   profiles:
     active: nosecure
+  {{/keycloak.enabled}}
   application:
     name: {{appNameLower}}
   datasource:

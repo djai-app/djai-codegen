@@ -5,3 +5,7 @@ metadata:
 data:
   DB_HOST: {{deployment.dbHost}}
   SPRINGDOC_ENABLED: 'true'
+  SPRING_PROFILES_ACTIVE: prod,secure
+{{#keycloak.enabled}}
+  AUTH_SERVER_URL: {{deployment.authServerUrl}}
+{{/keycloak.enabled}}

@@ -5,6 +5,8 @@ server:
     include-message: always
 
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev{{#keycloak.enabled}},nosecure{{/keycloak.enabled}}}
   datasource:
     url: jdbc:{{database.name}}://${DB_HOST:localhost}:${DB_PORT:{{database.port}}}/{{systemLower}}_{{appNameLower}}?autoReconnect=true&useSSL=false&rewriteBatchedStatements=true&serverTimezone=UTC&createDatabaseIfNotExist=true
     username: ${DB_USER:root}

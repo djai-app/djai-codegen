@@ -1,6 +1,6 @@
 keycloak:
   enabled: true
-  auth-server-url: ${KEYCLOAK_FRONTEND_URL:{{keycloak.authServerUrl}}}
+  auth-server-url: ${AUTH_SERVER_URL:{{keycloak.authServerUrl}}}
   realm: {{keycloak.realm}}
   resource: {{keycloak.client}}
   ssl-required: external
