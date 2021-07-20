@@ -31,8 +31,8 @@ internal class RequestParamOperationAddonTest {
 		})
 
 		whenever(codegenMock.fromModel(eq("Blog"), any())).thenReturn(CodegenModel().apply {
-			vars.add(CodegenProperty().apply {
-				baseType ="Entity"
+			allVars.add(CodegenProperty().apply {
+				complexType ="ResourceEntity"
 			})
 		})
 		whenever(codegenMock.fromModel(eq("Entity"), any())).thenReturn(CodegenModel().apply {
@@ -45,7 +45,7 @@ internal class RequestParamOperationAddonTest {
 		assertEquals("preCreate", operation.vendorExtensions["preFuncName"])
 
 		val funcParams = operation.vendorExtensions["preFuncParams"] as ArrayList<Map<String, String>>
-		assertEquals("it.entity.partyId", funcParams[0]["left"])
+		assertEquals("entity.partyId", funcParams[0]["left"])
 		assertEquals("partyId", funcParams[0]["right"])
 	}
 
@@ -74,7 +74,7 @@ internal class RequestParamOperationAddonTest {
 		assertEquals("preGet", operation.vendorExtensions["preFuncName"])
 
 		val funcParams = operation.vendorExtensions["preFuncParams"] as ArrayList<Map<String, String>>
-		assertEquals("it.partyId", funcParams[0]["left"])
+		assertEquals("partyId", funcParams[0]["left"])
 		assertEquals("partyId", funcParams[0]["right"])
 	}
 }
