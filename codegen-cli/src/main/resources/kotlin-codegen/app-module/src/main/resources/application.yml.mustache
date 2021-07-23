@@ -5,6 +5,8 @@ server:
     include-message: always
 
 spring:
+  application:
+    name: {{systemLower}}-{{appNameLower}}
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev{{#keycloak.enabled}},nosecure{{/keycloak.enabled}}}
   datasource:

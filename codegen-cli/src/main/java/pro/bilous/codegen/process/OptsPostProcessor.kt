@@ -217,6 +217,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		addSupportFile(source = "$inputSrc/service/CommonService.kt.mustache", folder = "$destSrc/service", target = "CommonService.kt")
 		applyCommonOpenApiFiles(inputSrc, destSrc)
 		applyCommonKeycloakFiles(inputSrc, destSrc)
+		applyCommonOpentelemetryFiles(inputSrc, destSrc)
 		addCommonModuleTestFiles()
 	}
 
@@ -285,6 +286,27 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 
 	}
 
+	private fun applyCommonOpentelemetryFiles(inputSrc: String, destSrc: String) {
+		if (!isOpentelemetry()) {
+			return
+		}
+		addSupportFile(
+			source = "$inputSrc/config/OpenTelemetryConfig.kt.mustache",
+			folder = "$destSrc/config",
+			target = "OpenTelemetryConfig.kt"
+		)
+		addSupportFile(
+			source = "$inputSrc/config/telemetry/HandlerMappingResourceNameFilter.kt.mustache",
+			folder = "$destSrc/config/telemetry",
+			target = "HandlerMappingResourceNameFilter.kt"
+		)
+		addSupportFile(
+			source = "$inputSrc/config/telemetry/ServerNameUpdater.kt.mustache",
+			folder = "$destSrc/config/telemetry",
+			target = "ServerNameUpdater.kt"
+		)
+	}
+
 	private fun setupModuleFiles() {
 		val inputRoot = "app-module/"
 		val destinationRoot = "app-${artifactId.toLowerCase()}"
@@ -315,4 +337,10 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun isControllerDelegate() = additionalProperties.getOrDefault("controllerDelegate", false) as Boolean
+
+	private fun isOpentelemetry(): Boolean {
+		val it = additionalProperties["opentelemetry"] as? Map<*, *> ?: return false
+		return it["enabled"] as? Boolean ?: false
+	}
+
 }

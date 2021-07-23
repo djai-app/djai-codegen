@@ -46,6 +46,13 @@ dependencies {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
 {{/controllerDelegate}}
+{{#opentelemetry.enabled}}
+	val otelBootVersion = "1.4.0-alpha"
+	implementation("io.opentelemetry.instrumentation:opentelemetry-jaeger-exporter-starter:$otelBootVersion")
+	implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-api:$otelBootVersion")
+	implementation("io.grpc:grpc-netty-shaded:1.39.0")
+	testFixturesImplementation("io.opentelemetry:opentelemetry-api:1.4.1")
+{{/opentelemetry.enabled}}
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

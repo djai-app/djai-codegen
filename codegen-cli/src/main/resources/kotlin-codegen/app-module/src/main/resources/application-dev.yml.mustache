@@ -5,3 +5,13 @@ spring:
     url: jdbc:{{database.name}}://${DB_HOST:localhost}:${DB_PORT:{{database.port}}}/{{systemLower}}_{{appNameLower}}?autoReconnect=true&useSSL=false&rewriteBatchedStatements=true&serverTimezone=UTC&createDatabaseIfNotExist=true
     username: ${DB_USER:root}
     password: ${DB_PASS:Qw123456}
+{{#opentelemetry.enabled}}
+
+otel:
+  exporter:
+    jaeger:
+      endpoint: http://localhost:14250
+  springboot:
+    web:
+      enabled: false
+{{/opentelemetry.enabled}}
