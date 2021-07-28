@@ -287,24 +287,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun applyCommonOpentelemetryFiles(inputSrc: String, destSrc: String) {
-		if (!isOpentelemetry()) {
-			return
-		}
-		addSupportFile(
-			source = "$inputSrc/config/OpenTelemetryConfig.kt.mustache",
-			folder = "$destSrc/config",
-			target = "OpenTelemetryConfig.kt"
-		)
-		addSupportFile(
-			source = "$inputSrc/config/telemetry/HandlerMappingResourceNameFilter.kt.mustache",
-			folder = "$destSrc/config/telemetry",
-			target = "HandlerMappingResourceNameFilter.kt"
-		)
-		addSupportFile(
-			source = "$inputSrc/config/telemetry/ServerNameUpdater.kt.mustache",
-			folder = "$destSrc/config/telemetry",
-			target = "ServerNameUpdater.kt"
-		)
+		// we do not have files anymore
 	}
 
 	private fun setupModuleFiles() {

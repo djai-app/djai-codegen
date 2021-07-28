@@ -8,6 +8,14 @@ plugins {
 	kotlin("plugin.spring")
 	kotlin("plugin.jpa")
 }
+{{#opentelemetry.enabled}}
+
+repositories {
+	maven {
+		url = uri("https://s01.oss.sonatype.org/content/groups/staging/")
+	}
+}
+{{/opentelemetry.enabled}}
 
 dependencies {
 	implementation(kotlin("stdlib-jdk8"))
@@ -47,10 +55,8 @@ dependencies {
 	}
 {{/controllerDelegate}}
 {{#opentelemetry.enabled}}
-	val otelBootVersion = "1.4.0-alpha"
-	implementation("io.opentelemetry.instrumentation:opentelemetry-jaeger-exporter-starter:$otelBootVersion")
-	implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-api:$otelBootVersion")
-	implementation("io.grpc:grpc-netty-shaded:1.39.0")
+	val djetSpringVersion = "0.1.0-alpha-SNAPSHOT"
+	implementation("cloud.djet.spring:djet-opentelemetry-springboot-starter:$djetSpringVersion")
 	testFixturesImplementation("io.opentelemetry:opentelemetry-api:1.4.1")
 {{/opentelemetry.enabled}}
 }
