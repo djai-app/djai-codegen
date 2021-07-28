@@ -8,14 +8,6 @@ plugins {
 	kotlin("plugin.spring")
 	kotlin("plugin.jpa")
 }
-{{#opentelemetry.enabled}}
-
-repositories {
-	maven {
-		url = uri("https://s01.oss.sonatype.org/content/groups/staging/")
-	}
-}
-{{/opentelemetry.enabled}}
 
 dependencies {
 	implementation(kotlin("stdlib-jdk8"))

@@ -24,6 +24,11 @@ allprojects {
 	repositories {
 		mavenCentral()
 		mavenLocal()
+{{#opentelemetry.enabled}}
+		maven {
+			url = uri("https://s01.oss.sonatype.org/content/groups/staging/")
+		}
+{{/opentelemetry.enabled}}
 	}
 
 	tasks.withType<Test> {
