@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 private val expectedDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-private val objectMapper = ObjectMapper()
 
 fun assertListsEquals(list1: List<Any>?, list2: List<Any>?) {
 	if (list1.isNullOrEmpty() && list2.isNullOrEmpty()) {
@@ -33,15 +32,6 @@ fun assertDateEquals(first: Date?, second: String?) {
 	Assertions.assertNotNull(second)
 	val secondDate = expectedDateFormat.parse(second)
 	Assertions.assertEquals(first.time, secondDate.time)
-}
-
-fun assertObjectEquals(first: Any?, second: Any?) {
-	if (first == null && second == null) {
-		return
-	}
-	val firstString = objectMapper.writeValueAsString(first)
-	val secondString = objectMapper.writeValueAsString(second)
-	Assertions.assertEquals(firstString, secondString, "JSON objects should be equal")
 }
 
 fun <T> getValue(mvcResult: MvcResult, jsonPath: String): T =

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 {{#opentelemetry.enabled}}
 import io.opentelemetry.api.GlobalOpenTelemetry
 {{/opentelemetry.enabled}}
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.servlet.MockMvc
@@ -25,5 +26,14 @@ abstract class AbstractIT<E : BaseResource> {
 		{{#opentelemetry.enabled}}
 		GlobalOpenTelemetry.resetForTest()
 		{{/opentelemetry.enabled}}
+	}
+
+	fun assertObjectEquals(first: Any?, second: Any?) {
+		if (first == null && second == null) {
+			return
+		}
+		val firstString = objectMapper.writeValueAsString(first)
+		val secondString = objectMapper.writeValueAsString(second)
+		Assertions.assertEquals(firstString, secondString, "JSON objects should be equal")
 	}
 }
