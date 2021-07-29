@@ -24,7 +24,7 @@ version = "1.0.0-alpha"
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-	version.value("2021.1.2")
+	version.value("2021.2")
 }
 
 //tasks.patchPluginXml {

@@ -47,7 +47,7 @@ dependencies {
 	}
 {{/controllerDelegate}}
 {{#opentelemetry.enabled}}
-	val djetSpringVersion = "0.1.0-alpha-SNAPSHOT"
+	val djetSpringVersion = "0.3.5-alpha"
 	implementation("cloud.djet.spring:djet-opentelemetry-springboot-starter:$djetSpringVersion")
 	testFixturesImplementation("io.opentelemetry:opentelemetry-api:1.4.1")
 {{/opentelemetry.enabled}}
