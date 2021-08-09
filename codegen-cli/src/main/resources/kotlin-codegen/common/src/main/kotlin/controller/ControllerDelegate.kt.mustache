@@ -79,10 +79,11 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 	}
 
 	private fun assignParentIdentity(domain: BaseResource, parentId: String?) {
-		when {
-			parentId.isNullOrEmpty() -> return
-			domain.entity.parent != null -> domain.entity.parent?.id = parentId
-			domain.entity.parent == null -> Identity(id = parentId)
+		val resolvedParentId = if (parentId.isNullOrEmpty()) null else parentId
+		if (domain.entity.parent != null) {
+			domain.entity.parent?.id = resolvedParentId
+		} else {
+			domain.entity.parent = Identity(id = resolvedParentId)
 		}
 	}
 
