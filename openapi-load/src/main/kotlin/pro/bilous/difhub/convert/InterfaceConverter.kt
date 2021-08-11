@@ -63,7 +63,11 @@ class InterfaceConverter(private val source: Model) {
 			}
 			val supportedParam = !identityName.startsWith("_")
 			if (supportedParam) {
-				parameters[param.name] = param
+				val prefix = when (location) {
+					"Header" -> "X-"
+					else -> ""
+				}
+				parameters[prefix + param.name] = param
 			}
 		}
 	}
@@ -173,27 +177,35 @@ class InterfaceConverter(private val source: Model) {
 	}
 
 	private fun addParameter(paramSource: ParametersItem, op: Operation, path: PathItem) {
-		val param = createParameter(paramSource)
+		val secondSourceParam = findParameter(paramSource.name) ?: return
 
-		val sourceParam = findParameter(paramSource.name) ?: return
-		if (sourceParam.location == "Header" && sourceParam.name == "bearer") {
+		val fullParam = ParametersItem(
+			id = paramSource.id,
+			name = paramSource.name,
+			description = paramSource.description,
+			field = secondSourceParam.field,
+			location = secondSourceParam.location
+		)
+		val param = createParameter(fullParam)
+
+		if (fullParam.location == "Header" && fullParam.name == "bearer") {
 			// Header Bearer parameter not supported
 			return
 		}
-		if (sourceParam.name.startsWith("_")) {
+		if (fullParam.name.startsWith("_")) {
 			// Underscore hides parameter from code generation
 			return
 		}
-		if (sourceParam.location == "Body") {
+		if (fullParam.location == "Body") {
 			op.requestBody(RequestBody().`$ref`(paramSource.name))
 			return
 		}
 
 		when(parameters[paramSource.name]) {
 			is PathParameter -> {
-				if (!pathRegisteredParams.contains(paramSource.name)) {
+				if (!pathRegisteredParams.contains(fullParam.name)) {
 					path.addParametersItem(param)
-					pathRegisteredParams.add(paramSource.name)
+					pathRegisteredParams.add(fullParam.name)
 				}
 			}
 			else -> op.addParametersItem(param)
@@ -209,7 +221,8 @@ class InterfaceConverter(private val source: Model) {
 	}
 
 	private fun createParameter(item: ParametersItem): Parameter {
-		return Parameter().apply { `$ref` = item.name }
+		val itemName = "${if (item.location == "Header") "X-" else ""}${item.name}"
+		return Parameter().apply { `$ref` = itemName }
 	}
 
 	private fun createHeaderParameter(item: ParametersItem): Parameter {
