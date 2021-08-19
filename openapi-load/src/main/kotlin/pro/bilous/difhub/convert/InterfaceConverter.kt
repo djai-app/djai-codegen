@@ -64,7 +64,7 @@ class InterfaceConverter(private val source: Model) {
 			val supportedParam = !identityName.startsWith("_")
 			if (supportedParam) {
 				val prefix = when (location) {
-					"Header" -> "X-"
+					"Header" -> source.identity.name + "-"
 					else -> ""
 				}
 				parameters[prefix + param.name] = param
@@ -221,7 +221,7 @@ class InterfaceConverter(private val source: Model) {
 	}
 
 	private fun createParameter(item: ParametersItem): Parameter {
-		val itemName = "${if (item.location == "Header") "X-" else ""}${item.name}"
+		val itemName = "${if (item.location == "Header") source.identity.name + "-" else ""}${item.name}"
 		return Parameter().apply { `$ref` = itemName }
 	}
 
@@ -230,8 +230,15 @@ class InterfaceConverter(private val source: Model) {
 		item.field!!
 		param.name = item.field.identity.name
 		param.description = item.field.identity.description
-		param.schema = createSchema(item.field)
 		param.required = !item.field.optional
+		if (item.field.access > 0) {
+			param.extensions = mapOf(
+				"x-auth-access" to item.field.access,
+				"x-auth-format" to item.field.format
+			)
+		}
+		param.schema = createSchema(item.field, useFormat = false)
+
 		return param
 	}
 
@@ -245,8 +252,9 @@ class InterfaceConverter(private val source: Model) {
 		return param
 	}
 
-	private fun createSchema(field: Field): Schema<Any> {
-		val type = PrimitiveType.fromTypeAndFormat(field.type.toLowerCase(), field.format.toLowerCase()) ?: return ObjectSchema()
+	private fun createSchema(field: Field, useFormat: Boolean = true): Schema<Any> {
+		val format = if (useFormat) field.format.lowercase() else null
+		val type = PrimitiveType.fromTypeAndFormat(field.type.lowercase(), format) ?: return ObjectSchema()
 
 		return if (field.count == 0) {
 			ArraySchema().apply {

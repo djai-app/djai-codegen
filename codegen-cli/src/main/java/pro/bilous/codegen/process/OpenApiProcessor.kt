@@ -1,6 +1,8 @@
 package pro.bilous.codegen.process
 
 import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.PathItem
+import io.swagger.v3.oas.models.parameters.Parameter
 import org.openapitools.codegen.CodeCodegen
 import org.openapitools.codegen.utils.StringUtils.camelize
 import org.openapitools.codegen.utils.URLPathUtils
@@ -63,23 +65,96 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 			}
 		}
 
-		additionalProperties["pathAntMatchers"] = getOrCreatePathAntMatchers(openAPI)
+		val guardsSet = mutableSetOf<Map<String, String?>>()
+
+		additionalProperties["authRules"] = createAuthRules(openAPI, guardsSet)
+		additionalProperties["guardsSet"] = guardsSet
+		additionalProperties["hasGuardsSet"] = guardsSet.isNotEmpty()
 	}
 
-	fun getOrCreatePathAntMatchers(openAPI: OpenAPI): MutableSet<String> {
-		val pathAntMatchers = mutableSetOf<String>()
+	fun createAuthRules(openAPI: OpenAPI, guardsSet: MutableSet<Map<String, String?>>): MutableSet<Map<String, Any?>> {
+		val authRules = mutableSetOf<Map<String, Any?>>()
 
 		for (pathname in openAPI.paths.keys) {
+			val ruleMap = mutableMapOf<String, Any?>()
 			val pathParts = pathname.split("/")
 			val antParts = mutableListOf<String>()
 			pathParts.forEach { part ->
 				// replace all {name} parts
 				antParts.add(if (part.startsWith("{")) "*" else part)
 			}
-			pathAntMatchers.add(antParts.joinToString("/"))
-		}
-		return pathAntMatchers
+			ruleMap["antMatcher"] = antParts.joinToString("/")
+			ruleMap["secured"] = true //TODO make it TRUE only when Header with name `bearer` is present
 
+			val guards = openAPI.paths[pathname]?.let { findGuardsInPath(it) }
+
+			guards?.forEach { guard ->
+				val alreadyAdded = guardsSet.any { it["guardName"] == guard["guardName"] }
+				if (!alreadyAdded) {
+					guardsSet.add(guard)
+				}
+			}
+
+			ruleMap["guards"] = guards
+			ruleMap["hasGuards"] = guards?.isNotEmpty()
+
+			authRules.add(ruleMap)
+		}
+		return authRules
+
+	}
+
+	private fun findGuardsInPath(path: PathItem): List<Map<String, String?>> {
+		val guards = mutableListOf<Map<String, String?>>()
+		val allParams = mutableListOf<Parameter>()
+		if (!path.parameters.isNullOrEmpty()) {
+			allParams.addAll(path.parameters)
+		}
+		if (path.get != null && !path.get.parameters.isNullOrEmpty()) {
+			allParams.addAll(path.get.parameters)
+		}
+		if (path.post != null && !path.post.parameters.isNullOrEmpty()) {
+			allParams.addAll(path.post.parameters)
+		}
+		if (path.put != null && !path.put.parameters.isNullOrEmpty()) {
+			allParams.addAll(path.put.parameters)
+		}
+		if (path.delete != null && !path.delete.parameters.isNullOrEmpty()) {
+			allParams.addAll(path.delete.parameters)
+		}
+
+		if (allParams.isEmpty()) {
+			return guards
+		}
+
+		for (param in allParams) {
+			val isAuthParam = param.`in` == "header" && param.extensions != null
+					&& param.extensions.containsKey("x-auth-access")
+					&& param.extensions["x-auth-access"].toString() == "4"
+			if (!isAuthParam) {
+				continue
+			}
+			val claimKey = "x-auth-format"
+			val claimName = if (param.extensions.containsKey(claimKey)) {
+				getClaimName(param.extensions["x-auth-format"].toString())
+			} else null
+			val guardName = param.name + "Guard"
+			if (guards.any { it["guardName"] == guardName }) {
+				continue
+			}
+			guards.add(mapOf(
+				"paramName" to param.name,
+				"guardName" to guardName,
+				"guardClassName" to guardName.capitalize(),
+				"claimName" to claimName?.removeSuffix("[]")
+			))
+		}
+		return guards
+	}
+
+	private fun getClaimName(format: String?): String? {
+		if (format == null) return null
+		return format.split(".").last()
 	}
 
 	private fun setupServerPort(openAPI: OpenAPI) {

@@ -5,21 +5,61 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+{{#hasGuardsSet}}
+import org.springframework.security.core.Authentication
+import org.springframework.stereotype.Component
+import javax.servlet.http.HttpServletRequest
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+{{/hasGuardsSet}}
 
 @Profile("secure")
 @Configuration
 @EnableWebSecurity
 class {{appRealName}}SecurityConfig : FixedKeycloakConfigurerAdapter() {
+{{#hasGuardsSet}}
+
+	companion object {
+		val log: Logger = LoggerFactory.getLogger("{{appRealName}}SecurityConfig")
+	}
+{{/hasGuardsSet}}
 
 	override fun configure(http: HttpSecurity) {
 		super.configure(http)
 		http
 			.authorizeRequests()
-			.antMatchers(
-{{#pathAntMatchers}}
-				"{{.}}"{{^-last}},{{/-last}}
-{{/pathAntMatchers}}
-			).authenticated()
+{{#authRules}}
+			.antMatchers("{{antMatcher}}").{{#hasGuards}}access("isAuthenticated(){{#guards}} and @{{guardName}}.check(authentication, request){{/guards}}"){{/hasGuards}}{{^hasGuards}}authenticated(){{/hasGuards}}
+{{/authRules}}
 			.anyRequest().permitAll()
 	}
+{{#guardsSet}}
+
+	@Component("{{guardName}}")
+	class {{guardClassName}} {
+		fun check(auth: Authentication, request: HttpServletRequest): Boolean {
+			if (auth !is KeycloakAuthenticationToken) {
+				log.warn("Authentication has unsupported type")
+				return false
+			}
+			val header = request.getHeader("{{paramName}}")
+			if (header == null) {
+				log.warn("Header partyId is missing")
+				return false
+			}
+			val claims = auth.account.keycloakSecurityContext.token.otherClaims
+			if (claims.isNullOrEmpty()) {
+				log.warn("Claims not found in token")
+				return false
+			}
+			val claimsList = (claims["{{claimName}}"] ?: {
+				log.warn("Claims: parties not found in token")
+				false
+			}).toString().split(",")
+
+			return claimsList.contains(header)
+		}
+	}
+{{/guardsSet}}
 }

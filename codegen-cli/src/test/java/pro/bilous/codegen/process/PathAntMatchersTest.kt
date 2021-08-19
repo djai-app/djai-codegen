@@ -20,7 +20,7 @@ class PathAntMatchersTest {
 			}
 		}
 
-		val result = OpenApiProcessor(CodeCodegen()).getOrCreatePathAntMatchers(openApi)
+		val result = OpenApiProcessor(CodeCodegen()).createAuthRules(openApi)
 
 		assertEquals(4, result.size)
 		assertEquals("/parties/*/libraries/*", result.elementAt(0))
