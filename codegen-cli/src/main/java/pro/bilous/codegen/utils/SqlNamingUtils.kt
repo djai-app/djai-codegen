@@ -3,6 +3,7 @@ package pro.bilous.codegen.utils
 object SqlNamingUtils {
 
 	private val sqlNamesToEscape = arrayOf(
+		"to",
 		"use",
 		"open",
 		"drop",
