@@ -188,10 +188,10 @@ class InterfaceConverter(private val source: Model) {
 		)
 		val param = createParameter(fullParam)
 
-		if (fullParam.location == "Header" && fullParam.name == "bearer") {
-			// Header Bearer parameter not supported
-			return
-		}
+//		if (fullParam.location == "Header" && fullParam.name == "bearer") {
+//			// Header Bearer parameter not supported
+//			return
+//		}
 		if (fullParam.name.startsWith("_")) {
 			// Underscore hides parameter from code generation
 			return

@@ -84,9 +84,11 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 				antParts.add(if (part.startsWith("{")) "*" else part)
 			}
 			ruleMap["antMatcher"] = antParts.joinToString("/")
-			ruleMap["secured"] = true //TODO make it TRUE only when Header with name `bearer` is present
 
-			val guards = openAPI.paths[pathname]?.let { findGuardsInPath(it) }
+			val pathItem = openAPI.paths[pathname]
+			ruleMap["secured"] = findAllParams(pathItem).any { param -> param.name == "bearer" }
+
+			val guards = pathItem?.let { findGuardsInPath(it) }
 
 			guards?.forEach { guard ->
 				val alreadyAdded = guardsSet.any { it["guardName"] == guard["guardName"] }
@@ -104,9 +106,11 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 
 	}
 
-	private fun findGuardsInPath(path: PathItem): List<Map<String, String?>> {
-		val guards = mutableListOf<Map<String, String?>>()
+	private fun findAllParams(path: PathItem?): List<Parameter> {
 		val allParams = mutableListOf<Parameter>()
+		if (path == null) {
+			return allParams
+		}
 		if (!path.parameters.isNullOrEmpty()) {
 			allParams.addAll(path.parameters)
 		}
@@ -122,6 +126,12 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 		if (path.delete != null && !path.delete.parameters.isNullOrEmpty()) {
 			allParams.addAll(path.delete.parameters)
 		}
+		return allParams
+	}
+
+	private fun findGuardsInPath(path: PathItem): List<Map<String, String?>> {
+		val guards = mutableListOf<Map<String, String?>>()
+		val allParams = findAllParams(path)
 
 		if (allParams.isEmpty()) {
 			return guards

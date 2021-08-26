@@ -30,7 +30,7 @@ class {{appRealName}}SecurityConfig : FixedKeycloakConfigurerAdapter() {
 		http
 			.authorizeRequests()
 {{#authRules}}
-			.antMatchers("{{antMatcher}}").{{#hasGuards}}access("isAuthenticated(){{#guards}} and @{{guardName}}.check(authentication, request){{/guards}}"){{/hasGuards}}{{^hasGuards}}authenticated(){{/hasGuards}}
+			.antMatchers("{{antMatcher}}").{{#secured}}{{#hasGuards}}access("isAuthenticated(){{#guards}} and @{{guardName}}.check(authentication, request){{/guards}}"){{/hasGuards}}{{^hasGuards}}authenticated(){{/hasGuards}}{{/secured}}{{^secured}}permitAll(){{/secured}}
 {{/authRules}}
 			.anyRequest().permitAll()
 	}
