@@ -136,9 +136,13 @@ class DefinitionConverter(private val modelLoader: IModelLoader, private val sou
 		schema.addProperties("name", stringProperty.apply {
 			description = "Name of the Reference, can be target Resource name or custom one"
 		})
-		schema.addProperties("description", stringProperty.apply {
+
+		val descriptionProperty = PrimitiveType.fromName("string").createProperty().apply {
 			description = "Description of the Reference, can be target Resource description or custom one"
-		})
+			addExtension("x-usage", "Description")
+		}
+		schema.addProperties("description", descriptionProperty)
+
 		schema.addProperties("type", stringProperty.apply {
 			description = "Name of the target Resource, required if resourceId designed to hold vary Resources types"
 		})
