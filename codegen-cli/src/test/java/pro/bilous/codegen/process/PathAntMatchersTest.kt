@@ -20,12 +20,18 @@ class PathAntMatchersTest {
 			}
 		}
 
-		val result = OpenApiProcessor(CodeCodegen()).createAuthRules(openApi)
+		val guardsSet = mutableSetOf<Map<String, String?>>()
+
+		val result = OpenApiProcessor(CodeCodegen()).createAuthRules(openApi, guardsSet)
 
 		assertEquals(4, result.size)
-		assertEquals("/parties/*/libraries/*", result.elementAt(0))
-		assertEquals("/parties/*/libraries", result.elementAt(1))
-		assertEquals("/clubs/*", result.elementAt(2))
-		assertEquals("/clubs", result.elementAt(3))
+		assertEquals("/parties/*/libraries/*", result.antMatcherAt(0))
+		assertEquals("/parties/*/libraries", result.antMatcherAt(1))
+		assertEquals("/clubs/*", result.antMatcherAt(2))
+		assertEquals("/clubs", result.antMatcherAt(3))
+	}
+
+	private fun MutableSet<Map<String, Any?>>.antMatcherAt(index: Int): String? {
+		return this.elementAt(index)["antMatcher"] as String?
 	}
 }
