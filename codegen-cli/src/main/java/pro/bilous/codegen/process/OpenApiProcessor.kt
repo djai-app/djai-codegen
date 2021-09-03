@@ -153,7 +153,7 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 				continue
 			}
 			guards.add(mapOf(
-				"paramName" to param.name,
+				"headerName" to param.name,
 				"guardName" to guardName,
 				"guardClassName" to guardName.capitalize(),
 				"claimName" to claimName?.removeSuffix("[]")

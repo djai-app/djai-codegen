@@ -272,6 +272,11 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 			folder = "$baseResourceSrcFolder.$appPackage.config",
 			target = "${appName}SecurityConfig.kt"
 		)
+		addSupportFile(
+			source = "$inputSrcRoot/config/RequestHeaderGuard.kt.mustache",
+			folder = "$baseResourceSrcFolder.$appPackage.config",
+			target = "RequestHeaderGuard.kt"
+		)
 	}
 
 	private fun applyCommonKeycloakFiles(inputSrc: String, destSrc: String) {

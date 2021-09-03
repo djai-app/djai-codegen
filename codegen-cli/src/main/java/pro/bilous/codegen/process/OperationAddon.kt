@@ -41,11 +41,14 @@ class OperationAddon(val codegen: CodeCodegen) {
 
 	private fun applyTestModelHeaderParams(objs: MutableMap<String, Any>, ops: MutableList<CodegenOperation>, returnType: String) {
 		val testModel = objs["testModel"] as CodegenModel
-		val headerParamSet = mutableSetOf<String>()
+		val headerParamSet = mutableSetOf<HeaderParamData>()
 		ops.forEach {
-			headerParamSet.addAll(collectModelHeaderParams(it, returnType).values )
+			headerParamSet.addAll(collectModelHeaderParams(it, returnType).toSet() )
 		}
-		testModel.vendorExtensions["testHeaderParams"] = headerParamSet.map { mapOf( "left" to it, "right" to "test_http_header_value") }
+
+		testModel.vendorExtensions["testHeaderParams"] = headerParamSet.map {
+			mapOf( "left" to it.left, "right" to "test_http_header_value", "baseName" to it.baseName)
+		}
 	}
 
 	fun applyRequestParams(operation: CodegenOperation, returnType: String) {
@@ -54,9 +57,9 @@ class OperationAddon(val codegen: CodeCodegen) {
 			return
 		}
 
-		val headerParamToModelMap = collectModelHeaderParams(operation, returnType)
+		val headerParamList = collectModelHeaderParams(operation, returnType)
 
-		if (headerParamToModelMap.isEmpty()) {
+		if (headerParamList.isEmpty()) {
 			return
 		}
 		val funcName = when(operation.httpMethod.lowercase()) {
@@ -72,30 +75,50 @@ class OperationAddon(val codegen: CodeCodegen) {
 		}
 		operation.vendorExtensions["hasPreFunc"] = true
 		operation.vendorExtensions["preFuncName"] = funcName
-		operation.vendorExtensions["preFuncParams"] = headerParamToModelMap.map {
-			mapOf("left" to it.value, "right" to it.key)
-		}
+		operation.vendorExtensions["preFuncParams"] = headerParamList
 	}
 
-	private fun collectModelHeaderParams(operation: CodegenOperation, returnType: String): Map<String, String> {
+	data class HeaderParamData(
+		val left: String,
+		val right: String,
+		val baseName: String
+	)
+
+	private fun collectModelHeaderParams(operation: CodegenOperation, returnType: String): List<HeaderParamData> {
 		val codegenModel = readModelByType(returnType)
 		val hasEntityType = codegenModel.allVars.any { it.complexType == "ResourceEntity" }
 		val optEntityModel = if (hasEntityType) {
 			readModelByType("Entity")
 		} else null
-		val headerParamToModelMap = mutableMapOf<String, String>()
+		val headerParamList = mutableListOf<HeaderParamData>()
 
 		operation.headerParams.forEach {
 			when {
+				it.baseName.startsWith("X-") -> {
+					val paramNameParts = it.baseName.removePrefix("X-").split("-")
+					headerParamList.add(HeaderParamData(
+						right = it.paramName,
+						left = paramNameParts.joinToString("."),
+						baseName = it.baseName
+					))
+				}
 				codegenModel.vars.any { param -> param.name == it.paramName  } -> {
-					headerParamToModelMap[it.paramName] = it.paramName
+					headerParamList.add(HeaderParamData(
+						right = it.paramName,
+						left = it.paramName,
+						baseName = it.baseName
+					))
 				}
 				optEntityModel != null && optEntityModel.vars.any { param -> param.name == it.paramName } -> {
-					headerParamToModelMap[it.paramName] = "entity.${it.paramName}"
+					headerParamList.add(HeaderParamData(
+						right = it.paramName,
+						left = "entity.${it.paramName}",
+						baseName = it.baseName
+					))
 				}
 			}
 		}
-		return headerParamToModelMap
+		return headerParamList
 	}
 
 	private fun populateEventMapping(operation: CodegenOperation) {

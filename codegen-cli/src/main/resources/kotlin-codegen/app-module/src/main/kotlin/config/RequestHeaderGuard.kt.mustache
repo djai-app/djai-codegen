@@ -1,0 +1,40 @@
+package {{appPackage}}.config
+
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
+import org.slf4j.LoggerFactory
+import org.springframework.security.core.Authentication
+import org.springframework.stereotype.Component
+import javax.servlet.http.HttpServletRequest
+
+@Component("headerGuard")
+class RequestHeaderGuard {
+	companion object {
+		private val log = LoggerFactory.getLogger(RequestHeaderGuard::class.java)
+	}
+
+	fun check(auth: Authentication,
+			  request: HttpServletRequest,
+			  headerName: String,
+			  claimName: String): Boolean {
+		if (auth !is KeycloakAuthenticationToken) {
+			log.warn("Authentication has unsupported type")
+			return false
+		}
+		val header = request.getHeader(headerName)
+		if (header == null) {
+			log.warn("Required header $headerName is missing")
+			return false
+		}
+		val claims = auth.account.keycloakSecurityContext.token.otherClaims
+		if (claims.isNullOrEmpty()) {
+			log.warn("Claims not found in token")
+			return false
+		}
+		val claimsList = (claims[claimName] ?: {
+			log.warn("Claims: $claimName not found in token")
+			false
+		}).toString().split(",")
+
+		return claimsList.contains(header)
+	}
+}

@@ -30,36 +30,9 @@ class {{appRealName}}SecurityConfig : FixedKeycloakConfigurerAdapter() {
 		http
 			.authorizeRequests()
 {{#authRules}}
-			.antMatchers("{{antMatcher}}").{{#secured}}{{#hasGuards}}access("isAuthenticated(){{#guards}} and @{{guardName}}.check(authentication, request){{/guards}}"){{/hasGuards}}{{^hasGuards}}authenticated(){{/hasGuards}}{{/secured}}{{^secured}}permitAll(){{/secured}}
+			.antMatchers("{{antMatcher}}").{{#secured}}{{#hasGuards}}access("isAuthenticated(){{#guards}}"
+				+ "and @headerGuard.check(authentication, request, '{{headerName}}', '{{claimName}}'){{/guards}}"){{/hasGuards}}{{^hasGuards}}authenticated(){{/hasGuards}}{{/secured}}{{^secured}}permitAll(){{/secured}}
 {{/authRules}}
 			.anyRequest().permitAll()
 	}
-{{#guardsSet}}
-
-	@Component("{{guardName}}")
-	class {{guardClassName}} {
-		fun check(auth: Authentication, request: HttpServletRequest): Boolean {
-			if (auth !is KeycloakAuthenticationToken) {
-				log.warn("Authentication has unsupported type")
-				return false
-			}
-			val header = request.getHeader("{{paramName}}")
-			if (header == null) {
-				log.warn("Header partyId is missing")
-				return false
-			}
-			val claims = auth.account.keycloakSecurityContext.token.otherClaims
-			if (claims.isNullOrEmpty()) {
-				log.warn("Claims not found in token")
-				return false
-			}
-			val claimsList = (claims["{{claimName}}"] ?: {
-				log.warn("Claims: parties not found in token")
-				false
-			}).toString().split(",")
-
-			return claimsList.contains(header)
-		}
-	}
-{{/guardsSet}}
 }
