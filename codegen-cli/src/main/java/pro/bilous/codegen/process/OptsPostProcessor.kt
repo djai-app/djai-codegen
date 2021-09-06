@@ -272,11 +272,6 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 			folder = "$baseResourceSrcFolder.$appPackage.config",
 			target = "${appName}SecurityConfig.kt"
 		)
-		addSupportFile(
-			source = "$inputSrcRoot/config/RequestHeaderGuard.kt.mustache",
-			folder = "$baseResourceSrcFolder.$appPackage.config",
-			target = "RequestHeaderGuard.kt"
-		)
 	}
 
 	private fun applyCommonKeycloakFiles(inputSrc: String, destSrc: String) {
@@ -287,6 +282,17 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 			source = "$inputSrc/config/FixedKeycloakConfigurerAdapter.kt.mustache",
 			folder = "$destSrc/config",
 			target = "FixedKeycloakConfigurerAdapter.kt"
+		)
+		//TODO build new open-sourced library for djet security and move security items there
+		addSupportFile(
+			source = "$inputSrc/config/guards/RequestHeaderGuard.kt.mustache",
+			folder = "$destSrc/config/guards",
+			target = "RequestHeaderGuard.kt"
+		)
+		addSupportFile(
+			source = "$inputSrc/config/guards/RequestReferenceGuard.kt.mustache",
+			folder = "$destSrc/config/guards",
+			target = "RequestReferenceGuard.kt"
 		)
 
 	}

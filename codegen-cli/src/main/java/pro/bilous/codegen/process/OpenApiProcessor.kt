@@ -65,14 +65,14 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 			}
 		}
 
-		val guardsSet = mutableSetOf<Map<String, String?>>()
+		val guardsSet = mutableSetOf<Map<String, Any?>>()
 
 		additionalProperties["authRules"] = createAuthRules(openAPI, guardsSet)
 		additionalProperties["guardsSet"] = guardsSet
 		additionalProperties["hasGuardsSet"] = guardsSet.isNotEmpty()
 	}
 
-	fun createAuthRules(openAPI: OpenAPI, guardsSet: MutableSet<Map<String, String?>>): MutableSet<Map<String, Any?>> {
+	fun createAuthRules(openAPI: OpenAPI, guardsSet: MutableSet<Map<String, Any?>>): MutableSet<Map<String, Any?>> {
 		val authRules = mutableSetOf<Map<String, Any?>>()
 
 		for (pathname in openAPI.paths.keys) {
@@ -98,6 +98,7 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 			}
 
 			ruleMap["guards"] = guards
+			ruleMap["multiGuards"] = guards != null && guards.size > 1
 			ruleMap["hasGuards"] = guards?.isNotEmpty()
 
 			authRules.add(ruleMap)
@@ -129,8 +130,8 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 		return allParams
 	}
 
-	private fun findGuardsInPath(path: PathItem): List<Map<String, String?>> {
-		val guards = mutableListOf<Map<String, String?>>()
+	private fun findGuardsInPath(path: PathItem): List<Map<String, Any?>> {
+		val guards = mutableListOf<Map<String, Any?>>()
 		val allParams = findAllParams(path)
 
 		if (allParams.isEmpty()) {
@@ -140,15 +141,23 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 		for (param in allParams) {
 			val isAuthParam = param.`in` == "header" && param.extensions != null
 					&& param.extensions.containsKey("x-auth-access")
-					&& param.extensions["x-auth-access"].toString() == "4"
+					&& param.extensions["x-auth-access"].toString().isNotEmpty()
 			if (!isAuthParam) {
 				continue
 			}
-			val claimKey = "x-auth-format"
-			val claimName = if (param.extensions.containsKey(claimKey)) {
-				getClaimName(param.extensions["x-auth-format"].toString())
+			val authFormatKey = "x-auth-format"
+			val authFormat = if (param.extensions.containsKey(authFormatKey)) {
+				readFormatAndFix(param.extensions[authFormatKey].toString())
 			} else null
-			val guardName = param.name + "Guard"
+			val guardName = when(param.name) {
+				"X-access-reference" -> "referenceGuard"
+				else -> "headerGuard"
+			}
+			val guardArgs = when(guardName) {
+				"referenceGuard" -> listOf("request", "'${param.name}'", "'$authFormat'")
+				"headerGuard" ->  listOf("authentication", "request", "'${param.name}'", "'$authFormat'")
+				else -> null
+			}
 			if (guards.any { it["guardName"] == guardName }) {
 				continue
 			}
@@ -156,15 +165,16 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 				"headerName" to param.name,
 				"guardName" to guardName,
 				"guardClassName" to guardName.capitalize(),
-				"claimName" to claimName?.removeSuffix("[]")
+				"format" to authFormat,
+				"args" to guardArgs
 			))
 		}
 		return guards
 	}
 
-	private fun getClaimName(format: String?): String? {
+	private fun readFormatAndFix(format: String?): String? {
 		if (format == null) return null
-		return format.split(".").last()
+		return format.split(".").last().removeSuffix("[]")
 	}
 
 	private fun setupServerPort(openAPI: OpenAPI) {

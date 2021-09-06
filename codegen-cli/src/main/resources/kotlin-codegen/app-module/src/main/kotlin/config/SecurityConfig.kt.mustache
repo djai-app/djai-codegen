@@ -5,34 +5,28 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-{{#hasGuardsSet}}
-import org.springframework.security.core.Authentication
-import org.springframework.stereotype.Component
-import javax.servlet.http.HttpServletRequest
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-{{/hasGuardsSet}}
 
 @Profile("secure")
 @Configuration
 @EnableWebSecurity
 class {{appRealName}}SecurityConfig : FixedKeycloakConfigurerAdapter() {
-{{#hasGuardsSet}}
 
 	companion object {
 		val log: Logger = LoggerFactory.getLogger("{{appRealName}}SecurityConfig")
 	}
-{{/hasGuardsSet}}
 
 	override fun configure(http: HttpSecurity) {
 		super.configure(http)
 		http
 			.authorizeRequests()
 {{#authRules}}
-			.antMatchers("{{antMatcher}}").{{#secured}}{{#hasGuards}}access("isAuthenticated(){{#guards}}"
-				+ "and @headerGuard.check(authentication, request, '{{headerName}}', '{{claimName}}'){{/guards}}"){{/hasGuards}}{{^hasGuards}}authenticated(){{/hasGuards}}{{/secured}}{{^secured}}permitAll(){{/secured}}
+			.antMatchers("{{antMatcher}}").{{#secured}}{{#hasGuards}}access("isAuthenticated() and{{#multiGuards}} ({{/multiGuards}}"{{#guards}}
+			 	+ "{{^-first}}or {{/-first}}@{{guardName}}.check({{#args}}{{{.}}}{{^-last}}, {{/-last}}{{/args}}){{^-last}}"{{/-last}}{{/guards}}{{#multiGuards}}){{/multiGuards}}"){{/hasGuards}}{{^hasGuards}}authenticated(){{/hasGuards}}{{/secured}}{{^secured}}permitAll(){{/secured}}
 {{/authRules}}
 			.anyRequest().permitAll()
+
+		log.debug("{{appRealName}}SecurityConfig successfully configured")
 	}
 }
