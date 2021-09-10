@@ -94,7 +94,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 
 		operation.headerParams.forEach {
 			when {
-				it.baseName.startsWith("X-") -> {
+				!it.baseName.startsWith("X-access-") && it.baseName.startsWith("X-") -> {
 					val paramNameParts = it.baseName.removePrefix("X-").split("-")
 					headerParamList.add(HeaderParamData(
 						right = it.paramName,

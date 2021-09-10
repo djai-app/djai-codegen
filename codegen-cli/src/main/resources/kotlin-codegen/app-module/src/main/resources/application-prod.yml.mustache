@@ -14,5 +14,5 @@ otel:
       endpoint: ${JAEGER_ENDPOINT:http://jaeger-collector.observability:14250}
   springboot:
     web:
-      enabled: true
+      enabled: ${OTEL_ENABLED:true}
 {{/opentelemetry.enabled}}

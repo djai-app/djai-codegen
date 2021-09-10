@@ -20,6 +20,10 @@ class RequestHeaderGuard {
 			log.warn("Authentication has unsupported type")
 			return false
 		}
+		if (isInternal(auth)) {
+			log.debug("Allow access for Service request with principal ${auth.account.principal.name}")
+			return true
+		}
 		val header = request.getHeader(headerName)
 		if (header == null) {
 			log.warn("Required header $headerName is missing")
@@ -36,5 +40,9 @@ class RequestHeaderGuard {
 		}).toString().split(",")
 
 		return claimsList.contains(header)
+	}
+
+	private fun isInternal(auth: KeycloakAuthenticationToken): Boolean {
+		return auth.account.principal.name.startsWith("service-account")
 	}
 }
