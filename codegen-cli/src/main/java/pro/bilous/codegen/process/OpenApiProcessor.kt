@@ -149,7 +149,7 @@ class OpenApiProcessor(val codegen: CodeCodegen) {
 			val authFormat = if (param.extensions.containsKey(authFormatKey)) {
 				readFormatAndFix(param.extensions[authFormatKey].toString())
 			} else null
-			if (authFormat == null) {
+			if (authFormat.isNullOrEmpty()) {
 				//Auth format is required to add Guard
 				continue
 			}

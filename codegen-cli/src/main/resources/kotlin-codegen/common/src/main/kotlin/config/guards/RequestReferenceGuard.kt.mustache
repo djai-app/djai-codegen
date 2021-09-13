@@ -34,15 +34,14 @@ class RequestReferenceGuard(private val rest: RestTemplate) {
 			return false
 		}
 		val host = "${formatParts[0]}:8080"
-		val resource = formatParts.subList(1, formatParts.size - 1)
-				.joinToString("/").replace("{referenceUri}", header)
+		val resource = formatParts.drop(1).joinToString("/").replace("{referenceUri}", header)
 		val uri = "http://$host/$resource"
 
 		val exchangeRequest = HttpEntity<String>(HttpHeaders().apply {
-			add(headerName, header)
-			for (it in request.headerNames) {
-				add(it, request.getHeader(it))
+			for (itHeader in request.headerNames) {
+				set(itHeader, request.getHeader(itHeader))
 			}
+			set("X-entity-partyId", request.getHeader("X-access-partyId"))
 		})
 
 		return try {
