@@ -20,7 +20,7 @@ class PathAntMatchersTest {
 			}
 		}
 
-		val guardsSet = mutableSetOf<Map<String, String?>>()
+		val guardsSet = mutableSetOf<Map<String, Any?>>()
 
 		val result = OpenApiProcessor(CodeCodegen()).createAuthRules(openApi, guardsSet)
 

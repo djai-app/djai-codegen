@@ -19,6 +19,7 @@ internal class RequestParamOperationAddonTest {
 			headerParams.add(CodegenParameter().apply {
 				isHeaderParam = true
 				paramName = "partyId"
+				baseName = "partyId"
 			})
 			httpMethod = "post"
 		}
@@ -44,9 +45,9 @@ internal class RequestParamOperationAddonTest {
 		OperationAddon(codegenMock).applyRequestParams(operation, "Blog")
 		assertEquals("preCreate", operation.vendorExtensions["preFuncName"])
 
-		val funcParams = operation.vendorExtensions["preFuncParams"] as ArrayList<Map<String, String>>
-		assertEquals("entity.partyId", funcParams[0]["left"])
-		assertEquals("partyId", funcParams[0]["right"])
+		val funcParams = operation.vendorExtensions["preFuncParams"] as ArrayList<OperationAddon.HeaderParamData>
+		assertEquals("entity.partyId", funcParams[0].left)
+		assertEquals("partyId", funcParams[0].right)
 	}
 
 	@Test
@@ -55,6 +56,7 @@ internal class RequestParamOperationAddonTest {
 			headerParams.add(CodegenParameter().apply {
 				isHeaderParam = true
 				paramName = "partyId"
+				baseName = "partyId"
 			})
 			httpMethod = "get"
 		}
@@ -73,8 +75,8 @@ internal class RequestParamOperationAddonTest {
 		OperationAddon(codegenMock).applyRequestParams(operation, "Club")
 		assertEquals("preGet", operation.vendorExtensions["preFuncName"])
 
-		val funcParams = operation.vendorExtensions["preFuncParams"] as ArrayList<Map<String, String>>
-		assertEquals("partyId", funcParams[0]["left"])
-		assertEquals("partyId", funcParams[0]["right"])
+		val funcParams = operation.vendorExtensions["preFuncParams"] as ArrayList<OperationAddon.HeaderParamData>
+		assertEquals("partyId", funcParams[0].left)
+		assertEquals("partyId", funcParams[0].right)
 	}
 }
