@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -35,6 +36,7 @@ internal class CodeCodegenTest {
 		assertFalse(result.imports.contains("Error"))
 	}
 
+	@Disabled
 	@Test
 	fun `print post process`() {
 		val gen = CodeCodegen()
