@@ -20,8 +20,11 @@ import java.io.File
 
 open class CodeCodegen : AbstractJavaCodegen() {
 	companion object {
-		private val LOGGER = LoggerFactory.getLogger(CodeCodegen::class.java)
+		private val log = LoggerFactory.getLogger(CodeCodegen::class.java)
 
+		// Version to control backward compatibility, when project is already generated using the latest version
+		// there is possible to set lock to disallow generation by lower version of codegen
+		const val DJET_VERSION_LOCK = 1
 		const val TITLE = "title"
 		const val SERVER_PORT = "serverPort"
 		const val BASE_PACKAGE = "basePackage"
@@ -160,6 +163,7 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	override fun getHelp() = "Generates a Java SpringBoot Server application using the SpringFox integration."
 
 	override fun processOpts() {
+		checkVersionLock()
 		OptsPreProcessor(this).process()
 		super.processOpts()
 		OptsPostProcessor(this).processOpts()
@@ -407,11 +411,38 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	}
 
 	override fun postProcess() {
+		addVersionCode()
 		println("################################################################################")
 		println("# Thanks for using DJet Codegen.                                               #")
 		println("# Please star this project https://github.com/DJetCloud/djet-codegen \uD83D\uDE4F        #")
 		println("# Project site https://djet.cloud                                              #")
 		println("################################################################################")
+	}
+
+	private fun getVersionLockPath(): String {
+		return outputFolder() + File.separator + "djet" + File.separator + "djet.version"
+	}
+
+	private fun addVersionCode() {
+		File(getVersionLockPath()).apply {
+			writeText("versionLock=$DJET_VERSION_LOCK")
+		}
+	}
+
+	private fun checkVersionLock() {
+		val versionFile = File(getVersionLockPath())
+		// bypass validation for existing projects.
+		if (!versionFile.exists()) {
+			return
+		}
+		val projectVersionLock = versionFile.readText().trim().removePrefix("versionLock=").toInt()
+		if (projectVersionLock > DJET_VERSION_LOCK) {
+			throw IllegalStateException("""
+				Your project was already generated using version: ${projectVersionLock}.
+				But your current djet-codegen version is: ${DJET_VERSION_LOCK}.
+				Please checkout new version of djet-codegen to continue work on the Project.
+			""")
+		}
 	}
 
 	private fun String.fixSeparator() = this.replace('/', File.separatorChar)

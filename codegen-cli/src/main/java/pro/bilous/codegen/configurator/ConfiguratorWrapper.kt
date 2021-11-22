@@ -47,6 +47,7 @@ class ConfiguratorWrapper(
 				log.info("Code generation for spec $appName completed")
 			} catch (error: Throwable) {
 				log.error("Failed generation for the app $appName", error)
+				throw IllegalArgumentException(error)
 			}
 		}
 	}
