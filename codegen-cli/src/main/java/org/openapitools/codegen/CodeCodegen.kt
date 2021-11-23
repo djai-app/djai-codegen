@@ -420,7 +420,7 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	}
 
 	private fun getVersionLockPath(): String {
-		return outputFolder() + File.separator + "djet" + File.separator + "djet.version"
+		return outputFolder() + File.separator + "djet" + File.separator + "djet.lock"
 	}
 
 	private fun addVersionCode() {
