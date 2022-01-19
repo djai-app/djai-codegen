@@ -17,7 +17,8 @@ object SqlNamingUtils {
 		"order",
 		"procedure",
 		"from",
-		"condition"
+		"condition",
+		"limit"
 	)
 
 	private val columnNamesToEscape = sqlNamesToEscape
