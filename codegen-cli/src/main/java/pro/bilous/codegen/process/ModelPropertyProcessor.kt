@@ -182,10 +182,10 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			val modelTableName = CamelCaseConverter.convert(model.name).toLowerCase()
 			val complexType = readComplexTypeFromProperty(property)
 
-			// ignoring at the table level
-			if (complexType == "Identity" && property.name == "tags") {
-				return
-			}
+			// The field 'tags' with type 'Identity' was forbidden, but now it is allowed
+			// if (complexType == "Identity" && property.name == "tags") {
+			//     return
+			// }
 
 			// if we do not have information for the join table. set it to JSON field
 			if (complexType == null) {
