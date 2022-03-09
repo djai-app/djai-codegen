@@ -41,8 +41,8 @@ class CommonModelsProcessor(val properties: MutableMap<String, Any>) {
 			model.vendorExtensions["addEntityIdVar"] = true
 			model.vendorExtensions["isEmbeddable"] = false
 			model.imports.add("JsonIgnore")
-			// not supported for now
-			model.vars.removeIf { it.name == "tags" }
+			// The field 'tags' was forbidden, but now it is allowed
+			// model.vars.removeIf { it.name == "tags" }
 		} else if (model.classname == "Identity") {
 			model.vendorExtensions["isEmbeddable"] = true
 			model.vendorExtensions["addIdentityId"] = true
