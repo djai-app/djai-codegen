@@ -63,5 +63,19 @@ internal class OptsPostProcessorTest {
 		additionalProperties()["appRealName"] = "test"
 	}
 
+	@Test
+	fun `check if mapping resolved`() {
+		val exclusion = "Test"
+		val codegen = mockCodegen().apply {
+			additionalProperties()["generation"] = mapOf(
+				"excludeFromMapping" to listOf(exclusion)
+			)
+			getImportMappings()[exclusion] = exclusion
+		}
+		val processor = OptsPostProcessor(codegen)
+		processor.processOpts()
+		assertFalse(codegen.getImportMappings().contains(exclusion))
+	}
+
 }
 
