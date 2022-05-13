@@ -85,7 +85,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 
 		typeMapping["file"] = "Resource"
 		OptsImportMappings(codegen).addDefaultMappings()
-		resolveDefaultMappings()
+		resolveMappings()
 
 		val appRoot = "app-${artifactId.toLowerCase()}"
 
@@ -338,11 +338,11 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		return it["enabled"] as? Boolean ?: false
 	}
 
-	private fun resolveDefaultMappings() {
+	private fun resolveMappings() {
 		val importMapping = codegen.importMapping()
 		val generationProperty = additionalProperties["generation"] as? Map<String, Any> ?: return
-		val excludedFromDefaultMapping = generationProperty["excludeFromDefaultMapping"] as? List<String> ?: return
-		importMapping.keys.removeAll(excludedFromDefaultMapping.toSet())
+		val excludedFromMapping = generationProperty["excludeFromMapping"] as? List<String> ?: return
+		importMapping.keys.removeAll(excludedFromMapping.toSet())
 	}
 
 }
