@@ -85,6 +85,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 
 		typeMapping["file"] = "Resource"
 		OptsImportMappings(codegen).addDefaultMappings()
+		resolveDefaultMappings()
 
 		val appRoot = "app-${artifactId.toLowerCase()}"
 
@@ -335,6 +336,13 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 	private fun isOpentelemetry(): Boolean {
 		val it = additionalProperties["opentelemetry"] as? Map<*, *> ?: return false
 		return it["enabled"] as? Boolean ?: false
+	}
+
+	private fun resolveDefaultMappings() {
+		val importMapping = codegen.importMapping()
+		val generationProperty = additionalProperties["generation"] as? Map<String, Any> ?: return
+		val excludedFromDefaultMapping = generationProperty["excludeFromDefaultMapping"] as? List<String> ?: return
+		importMapping.keys.removeAll(excludedFromDefaultMapping.toSet())
 	}
 
 }

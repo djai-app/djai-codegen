@@ -14,7 +14,7 @@ class OptsImportMappings(val codegen: CodeCodegen) {
 //			"History" to "$basePackage.domain.History",
 //			"DomainResource" to "DomainResource",
 //			"BindingType" to "BindingType",
-//			"Translation" to "Translation",
+			"Translation" to "Translation",
 			"Error" to "Error",
 			"Entity_1" to "Entity",
 			"Error_1" to "Error",
