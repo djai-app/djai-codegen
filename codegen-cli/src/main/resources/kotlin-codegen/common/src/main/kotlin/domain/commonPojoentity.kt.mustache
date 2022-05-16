@@ -100,7 +100,7 @@
 	@Column(name = "id", insertable = false, updatable = false)
 	{{/vendorExtensions.readOnlyColumn}}
 	{{^vendorExtensions.readOnlyColumn}}
-	@Column(name = "{{{vendorExtensions.escapedColumnName}}}")
+	@Column(name = "{{{vendorExtensions.escapedColumnName}}}"{{>app-module/src/main/kotlin/domain/columnDefinition}})
 	{{/vendorExtensions.readOnlyColumn}}
 	{{/vendorExtensions.isOneToOne}}
     {{/isArray}}
