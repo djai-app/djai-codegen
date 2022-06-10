@@ -32,7 +32,9 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 	fun getById(id: String, parentId: String? = null, preGet: (E) -> Unit = {}): ResponseEntity<E> {
 		val result = service.getById(id) ?: throw ResourceNotFoundException()
 		{{#hasEntityBlocks}}
-		Assert.isTrue(parentId == result.entity.parent?.id, "parent $parentId is not valid")
+		if (parentId != null) {
+			Assert.isTrue(parentId == result.entity.parent?.id, "Path parent '$parentId' is not valid")
+		}
 		{{/hasEntityBlocks}}
 		{{^hasEntityBlocks}}
 		//TODO: should assert parent id here
