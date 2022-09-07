@@ -100,6 +100,9 @@
 	@Column(name = "id", insertable = false, updatable = false)
 	{{/vendorExtensions.readOnlyColumn}}
 	{{^vendorExtensions.readOnlyColumn}}
+	{{#vendorExtensions.formatVersion}}
+	@Version
+	{{/vendorExtensions.formatVersion}}
 	@Column(name = "{{{vendorExtensions.escapedColumnName}}}"{{>app-module/src/main/kotlin/domain/columnDefinition}})
 	{{/vendorExtensions.readOnlyColumn}}
 	{{/vendorExtensions.isOneToOne}}

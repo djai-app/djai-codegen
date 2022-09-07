@@ -25,8 +25,8 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("\${BOOLEAN_VALUE}", ve["columnType"])
-		kotlin.test.assertEquals("java.lang.Boolean", ve["hibernateType"])
+		assertEquals("\${BOOLEAN_VALUE}", ve["columnType"])
+		assertEquals("java.lang.Boolean", ve["hibernateType"])
 		kotlin.test.assertTrue(property.isBoolean)
 	}
 
@@ -40,8 +40,8 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("\${BOOLEAN_VALUE}", ve["columnType"])
-		kotlin.test.assertEquals("java.lang.Boolean", ve["hibernateType"])
+		assertEquals("\${BOOLEAN_VALUE}", ve["columnType"])
+		assertEquals("java.lang.Boolean", ve["hibernateType"])
 		kotlin.test.assertTrue(property.isBoolean)
 	}
 
@@ -55,8 +55,8 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("datetime", ve["columnType"])
-		kotlin.test.assertEquals("java.util.Date", ve["hibernateType"])
+		assertEquals("datetime", ve["columnType"])
+		assertEquals("java.util.Date", ve["hibernateType"])
 		kotlin.test.assertTrue(property.isDate)
 	}
 
@@ -70,8 +70,8 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("datetime", ve["columnType"])
-		kotlin.test.assertEquals("java.util.Date", ve["hibernateType"])
+		assertEquals("datetime", ve["columnType"])
+		assertEquals("java.util.Date", ve["hibernateType"])
 		kotlin.test.assertTrue(property.isDate)
 	}
 
@@ -85,7 +85,7 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("int", ve["columnType"])
+		assertEquals("int", ve["columnType"])
 		kotlin.test.assertTrue(property.isInteger)
 	}
 
@@ -99,7 +99,7 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("int", ve["columnType"])
+		assertEquals("int", ve["columnType"])
 		kotlin.test.assertTrue(property.isInteger)
 	}
 
@@ -113,7 +113,7 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("decimal(10,2)", ve["columnType"])
+		assertEquals("decimal(10,2)", ve["columnType"])
 		kotlin.test.assertTrue(property.isNumber)
 	}
 
@@ -127,7 +127,7 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("decimal(10,2)", ve["columnType"])
+		assertEquals("decimal(10,2)", ve["columnType"])
 		kotlin.test.assertTrue(property.isNumber)
 	}
 
@@ -141,7 +141,7 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("bigint", ve["columnType"])
+		assertEquals("bigint", ve["columnType"])
 		kotlin.test.assertTrue(property.isNumber)
 	}
 
@@ -155,7 +155,7 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("bigint", ve["columnType"])
+		assertEquals("bigint", ve["columnType"])
 		kotlin.test.assertTrue(property.isNumber)
 	}
 
@@ -170,8 +170,8 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("VARCHAR(${PROPERTY_MAX_LENGTH})", ve["columnType"])
-		kotlin.test.assertEquals("java.lang.String", ve["hibernateType"])
+		assertEquals("VARCHAR(${PROPERTY_MAX_LENGTH})", ve["columnType"])
+		assertEquals("java.lang.String", ve["hibernateType"])
 	}
 
 	@Test
@@ -184,8 +184,8 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, PROJECT_DEFAULT_STRING_SIZE)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("VARCHAR(${PROJECT_DEFAULT_STRING_SIZE})", ve["columnType"])
-		kotlin.test.assertEquals("java.lang.String", ve["hibernateType"])
+		assertEquals("VARCHAR(${PROJECT_DEFAULT_STRING_SIZE})", ve["columnType"])
+		assertEquals("java.lang.String", ve["hibernateType"])
 	}
 
 	@Test
@@ -202,8 +202,8 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, null)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("VARCHAR(${STRING_SIZE_WHEN_USAGE_IS_DESCRIPTION})", ve["columnType"])
-		kotlin.test.assertEquals("java.lang.String", ve["hibernateType"])
+		assertEquals("VARCHAR(${STRING_SIZE_WHEN_USAGE_IS_DESCRIPTION})", ve["columnType"])
+		assertEquals("java.lang.String", ve["hibernateType"])
 	}
 
 	@Test
@@ -217,8 +217,8 @@ class DefaultTypeResolvingStrategyTest {
 		resolvingStrategy.resolvePropertyType(property, null)
 
 		val ve = property.vendorExtensions
-		kotlin.test.assertEquals("VARCHAR(${DEFAULT_STRING_SIZE})", ve["columnType"])
-		kotlin.test.assertEquals("java.lang.String", ve["hibernateType"])
+		assertEquals("VARCHAR(${DEFAULT_STRING_SIZE})", ve["columnType"])
+		assertEquals("java.lang.String", ve["hibernateType"])
 	}
 
 	@Test
@@ -233,5 +233,16 @@ class DefaultTypeResolvingStrategyTest {
 		assertEquals("\${TEXT_TYPE}", property.vendorExtensions["columnType"])
 		assertEquals("java.lang.String", property.vendorExtensions["hibernateType"])
 		assertEquals("text", property.vendorExtensions["columnDefinition"])
+	}
+
+	@Test
+	@DisplayName("Should set vendorExtension.formatVersion TRUE if property.format == VERSION")
+	fun `should add formatVersion to true for property with format VERSION`() {
+		val property = CodegenProperty().apply {
+			datatypeWithEnum = "Integer"
+			vendorExtensions["x-format"] = "VERSION"
+		}
+		DefaultTypeResolvingStrategy().resolvePropertyType(property)
+		assertEquals(true, property.vendorExtensions["formatVersion"] as? Boolean)
 	}
 }
