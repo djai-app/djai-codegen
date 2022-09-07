@@ -102,6 +102,9 @@
 	@JoinColumn(name = "{{{vendorExtensions.escapedColumnName}}}", referencedColumnName = "id")
 	{{/vendorExtensions.isOneToOne}}
 	{{^vendorExtensions.isOneToOne}}
+	{{#vendorExtensions.formatVersion}}
+	@Version
+	{{/vendorExtensions.formatVersion}}
 	@Column(name = "{{{vendorExtensions.escapedColumnName}}}"{{>app-module/src/main/kotlin/domain/columnDefinition}})
 	{{/vendorExtensions.isOneToOne}}
 	{{/isArray}}

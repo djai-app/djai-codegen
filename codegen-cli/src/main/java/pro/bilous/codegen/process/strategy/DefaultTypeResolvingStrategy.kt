@@ -9,6 +9,7 @@ open class DefaultTypeResolvingStrategy {
 	companion object {
 		const val DEFAULT_STRING_SIZE = 255
 		const val USAGE_DESCRIPTION_NAME = "Description"
+		const val FORMAT_VERSION = "VERSION"
 		const val DEFAULT_SIZE_FOR_DESCRIPTION = 4096
 	}
 
@@ -53,6 +54,8 @@ open class DefaultTypeResolvingStrategy {
 				resolveUndefinedType(property, resolvedDefaultStringSize)
 			}
 		}
+
+		resolveFormatVersion(property)
 	}
 
 	private fun resolveUndefinedType(property: CodegenProperty, defaultStringSize: Int) {
@@ -79,4 +82,11 @@ open class DefaultTypeResolvingStrategy {
 		ColumnTypePare("VARCHAR(${size})", null)
 
 	protected open fun resolveStringTypeWithFormat(format: String): ColumnTypePare? = null
+
+	private fun resolveFormatVersion(property: CodegenProperty) {
+		val format = property.vendorExtensions["x-format"]?.let { it as? String } ?: return
+		if (format.equals(FORMAT_VERSION, ignoreCase = true)) {
+			property.vendorExtensions["formatVersion"] = true
+		}
+	}
 }
