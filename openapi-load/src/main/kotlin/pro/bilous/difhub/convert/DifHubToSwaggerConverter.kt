@@ -149,7 +149,7 @@ class DifHubToSwaggerConverter(val modelLoader: IModelLoader, val config: Config
 	}
 
 	private fun buildServers(source: Model?): List<Server> {
-		val defaultPort = "8090"
+		val defaultPort = "8080"
 		val serverPort = if (source != null) {
 			findServerPort(source) ?: defaultPort
 		} else defaultPort
