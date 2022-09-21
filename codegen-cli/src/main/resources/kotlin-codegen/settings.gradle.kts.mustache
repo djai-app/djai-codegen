@@ -1,5 +1,5 @@
 rootProject.name = "{{systemLower}}-system"
 include("common")
 {{#appsLower}}
-include("app-{{.}}")
+include("{{>app-module/src/main/kotlin/domain/modulePrefixNameDefinition}}{{.}}")
 {{/appsLower}}
