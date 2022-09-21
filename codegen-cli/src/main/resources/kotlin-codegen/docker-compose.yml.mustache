@@ -14,8 +14,8 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 {{#appsMap}}
-  app-{{name}}:
-    image: app-{{name}}:0.0.1
+  {{>app-module/src/main/kotlin/domain/modulePrefixNameDefinition}}{{name}}:
+    image: {{>app-module/src/main/kotlin/domain/modulePrefixNameDefinition}}{{name}}:0.0.1
     restart: on-failure
     environment:
       DB_HOST: db
