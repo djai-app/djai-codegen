@@ -34,11 +34,20 @@ open class CodeCodegen : AbstractJavaCodegen() {
 		const val OPENAPI_DOCKET_CONFIG = "swaggerDocketConfig"
 		const val DB_NAME = "dbName"
 		const val BINDING_KEY = "addBindingEntity"
+		const val DEFAULT_MODULE_PREFIX_NAME = "app-"
+
+		fun resolveModulePrefixName(properties: Map<String, Any>): String {
+			val generationProperty = properties["generation"] as? Map<String, Any>
+				?: return DEFAULT_MODULE_PREFIX_NAME
+			return generationProperty["modulePrefixName"] as? String ?: DEFAULT_MODULE_PREFIX_NAME
+		}
 	}
 
 	fun isEnableMerge(): Boolean {
 		return additionalProperties.containsKey("enableMerge") && additionalProperties["enableMerge"] as Boolean
 	}
+
+	val modulePrefixName: String by lazy { resolveModulePrefixName(additionalProperties) }
 
 	fun getOpenApi() = openAPI
 
@@ -306,7 +315,7 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	override fun apiFilename(templateName: String, tag: String): String {
 		val suffix = apiTemplateFiles()[templateName]
 
-		val outSrc = "$outputFolder/app-$artifactId/src/main/kotlin"
+		val outSrc = "$outputFolder/$modulePrefixName$artifactId/src/main/kotlin"
 
 		val appPackageName = additionalProperties["appPackage"] as? String
 			?: throw IllegalArgumentException("invalid package name - it should be a string")
@@ -377,12 +386,12 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	}
 
 	private fun getFolder(sourcePackage: String?, subModule: String): String {
-		val subFolder = "app-$artifactId"
+		val subFolder = "$modulePrefixName$artifactId"
 		return (subFolder + File.separator + "src/main/kotlin" + File.separator + sourcePackage).fixDot().fixSeparator()
 	}
 
 	fun getTestFolder(sourcePackage: String?, subModule: String): String {
-		val subFolder = "app-$artifactId"
+		val subFolder = "$modulePrefixName$artifactId"
 		val rightSourcePkg = sourcePackage?.replace("repository", "controller")
 		return (subFolder + File.separator + "src/test/kotlin" + File.separator + rightSourcePkg).fixDot().fixSeparator()
 	}

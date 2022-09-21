@@ -26,6 +26,9 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 
 	private val artifactId = codegen.artifactId
 
+	private val modulePrefixName: String
+		get() = codegen.modulePrefixName
+
 	private val basePackage: String
 		get() = codegen.basePackage
 
@@ -87,7 +90,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		OptsImportMappings(codegen).addDefaultMappings()
 		resolveMappings()
 
-		val appRoot = "app-${artifactId.toLowerCase()}"
+		val appRoot = "$modulePrefixName${artifactId.toLowerCase()}"
 
 		if (mainIndex) {
 			setupRootFiles()
@@ -156,7 +159,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 			//supportingFiles.clear()
 
 			val inputRoot = "app-module/src/main/resources/liquibase"
-			val destinationRoot = "app-${artifactId.toLowerCase()}/src/main/resources/liquibase"
+			val destinationRoot = "$modulePrefixName${artifactId.toLowerCase()}/src/main/resources/liquibase"
 
 			addSupportFile(source = "$inputRoot/liquibase-changeLog.xml", target = "$destinationRoot/liquibase-changeLog.xml")
 			addSupportFile(source = "$inputRoot/settings.xml.mustache", target = "$destinationRoot/settings.xml")
@@ -304,7 +307,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 
 	private fun setupModuleFiles() {
 		val inputRoot = "app-module/"
-		val destinationRoot = "app-${artifactId.toLowerCase()}"
+		val destinationRoot = "$modulePrefixName${artifactId.toLowerCase()}"
 		addSupportFile(source = "$inputRoot/build.gradle.kts.mustache",  target = "$destinationRoot/build.gradle.kts")
 		// add kubernetes manifests for the application
 		deployment.addAppFiles(artifactId)

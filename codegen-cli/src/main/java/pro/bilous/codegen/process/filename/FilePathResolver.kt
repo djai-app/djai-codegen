@@ -3,7 +3,7 @@ package pro.bilous.codegen.process.filename
 import org.slf4j.LoggerFactory
 import java.io.File
 import org.openapitools.codegen.CodeCodegen
-import pro.bilous.codegen.process.deployment.DeploymentFileResolver
+import org.openapitools.codegen.CodeCodegen.Companion.resolveModulePrefixName
 
 class FilePathResolver {
 
@@ -62,13 +62,15 @@ class FilePathResolver {
 
 	private fun resolveCommon(templateData: Map<String, Any>, templateName: String, filePath: String): String {
 		val separator = File.separator
+		val sourceFolder = "${separator}src${separator}"
+		val modulePrefixName = resolveModulePrefixName(templateData)
 		val appPackagePath = (templateData["appPackage"] as String).replace(".", separator)
 		val appName = templateData["appNameLower"] as String
 		val basePackagePath = (templateData["basePackage"] as String).replace(".", separator)
 		log.debug("found appName: $appName, appPackagePath: $appPackagePath, basePackagePath: $basePackagePath")
 		return filePath
 			// 1st replace app folder to common. example: app-user to common
-			.replace("app-$appName", "common")
+			.replace("$modulePrefixName$appName$sourceFolder", "common$sourceFolder")
 			// 2nd replace app package to the common package (base) example: /app/client/user/ to /app/client/
 			.replace("$separator$appPackagePath$separator", "$separator$basePackagePath$separator")
 	}
