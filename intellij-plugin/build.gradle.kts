@@ -1,5 +1,7 @@
 plugins {
+	kotlin("jvm")
     id("org.jetbrains.intellij")
+	jacoco
 }
 
 repositories {
@@ -33,3 +35,21 @@ intellij {
 //      <em>most HTML tags may be used</em>""")
 //    sinceBuild("192")
 //}
+
+jacoco {
+	toolVersion = "0.8.7"
+}
+
+tasks.jacocoTestReport {
+	reports {
+		xml.isEnabled = true
+	}
+}
+
+tasks.test {
+	useJUnitPlatform()
+	finalizedBy(tasks.jacocoTestReport)
+}
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
+}

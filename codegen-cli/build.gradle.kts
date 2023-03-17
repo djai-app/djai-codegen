@@ -1,6 +1,8 @@
 plugins {
+	kotlin("jvm")
 	id("djet.publish-conventions")
 	id("djet.java-conventions")
+	jacoco
 }
 
 group = "cloud.djet.codegen"
@@ -26,4 +28,26 @@ dependencies {
 	testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+tasks.withType<Jar>() {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+jacoco {
+	toolVersion = "0.8.7"
+}
+
+tasks.jacocoTestReport {
+	reports {
+		xml.isEnabled = true
+	}
+}
+
+tasks.test {
+	useJUnitPlatform()
+	finalizedBy(tasks.jacocoTestReport)
+}
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
 }

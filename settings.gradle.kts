@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 include("openapi-load")
 include("codegen-cli")
-include("intellij-plugin")
+//include("intellij-plugin")

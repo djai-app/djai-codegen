@@ -1,3 +1,7 @@
+plugins {
+	kotlin("jvm")
+	jacoco
+}
 
 configure<SourceSetContainer> {
 	named("main") {
@@ -21,4 +25,22 @@ dependencies {
 	testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+jacoco {
+	toolVersion = "0.8.7"
+}
+
+tasks.jacocoTestReport {
+	reports {
+		xml.isEnabled = true
+	}
+}
+
+tasks.test {
+	useJUnitPlatform()
+	finalizedBy(tasks.jacocoTestReport)
+}
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
 }

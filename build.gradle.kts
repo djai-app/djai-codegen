@@ -2,7 +2,8 @@ import nebula.plugin.release.git.opinion.Strategies
 import java.time.Duration
 
 plugins {
-	kotlin("jvm") version "1.5.10"
+	kotlin("jvm") version "1.5.21"
+	id("idea")
 	id("org.jetbrains.intellij") version "1.0" apply false
 	id("org.jetbrains.gradle.plugin.idea-ext") version "1.0" apply false
 	id("io.github.gradle-nexus.publish-plugin")
@@ -22,10 +23,6 @@ nebulaRelease {
 }
 
 allprojects {
-	repositories {
-		mavenLocal()
-		mavenCentral()
-	}
 	tasks.withType<JavaCompile> {
 		sourceCompatibility = "1.8"
 		targetCompatibility = "1.8"
@@ -50,28 +47,18 @@ tasks {
 	}
 }
 
-subprojects {
-	apply(plugin = "org.jetbrains.kotlin.jvm")
-	apply(plugin = "jacoco")
-
-	jacoco {
-		toolVersion = "0.8.7"
-	}
-
-	tasks.jacocoTestReport {
-		reports {
-			xml.isEnabled = true
-		}
-	}
-
-	tasks.test {
-		useJUnitPlatform()
-		finalizedBy(tasks.jacocoTestReport)
-	}
-	tasks.jacocoTestReport {
-		dependsOn(tasks.test)
-	}
-}
+//subprojects {
+//
+//	tasks.withType<Jar>() {
+//		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//		manifest {
+//			attributes["Main-Class"] = "MainKt"
+//		}
+//		configurations["compileClasspath"].forEach { file: File ->
+//			from(zipTree(file.absoluteFile))
+//		}
+//	}
+//}
 
 nexusPublishing {
 	packageGroup.set("cloud.djet")
