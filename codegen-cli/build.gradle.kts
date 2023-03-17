@@ -1,3 +1,10 @@
+plugins {
+	id("djet.publish-conventions")
+	id("djet.java-conventions")
+}
+
+group = "cloud.djet.codegen"
+version = "1.0.0"
 
 sourceSets.main {
     java.srcDirs("src/main/java", "src/main/kotlin")
