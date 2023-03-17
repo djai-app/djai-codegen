@@ -7,6 +7,11 @@ on:
         required: true
         default: 'main'
 
+env:
+  GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+  GPG_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
+  SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+  SONATYPE_KEY: ${{ secrets.SONATYPE_KEY }}
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -22,4 +27,4 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Execute Gradle build
-        run: SONATYPE_USER=${{ secrets.SONATYPE_USER }} SONATYPE_KEY=${{ secrets.SONATYPE_KEY }} ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
