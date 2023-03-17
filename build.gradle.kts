@@ -15,7 +15,7 @@ group = "cloud.djet"
 version = "1.0.1"
 
 release {
-	defaultVersionStrategy = Strategies.getSNAPSHOT()
+	defaultVersionStrategy = Strategies.getDEVELOPMENT()
 }
 
 nebulaRelease {

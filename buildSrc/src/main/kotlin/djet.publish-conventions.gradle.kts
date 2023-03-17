@@ -30,11 +30,11 @@ publishing {
                 if (!groupId.startsWith("cloud.djet.")) {
                     throw GradleException("groupId is not set for this project or its parent ${project.parent}")
                 }
-                pom.description.set((project.description ?: "Instrumentation libraries for DJet Kotlin/Spring template"))
+                pom.description.set((project.description ?: "DJet code generation libraries"))
             }
             pom {
-                name.set("DJet instrumentation for Kotlin/Spring")
-                url.set("https://github.com/DJetCloud/djet-spring-kotlin")
+                name.set("DJet Codegen instrumentation")
+                url.set("https://github.com/DJetCloud/djet-codegen")
 
                 licenses {
                     license {
@@ -46,14 +46,14 @@ publishing {
                     developer {
                         id.set("djetcloud")
                         name.set("DJetCloud")
-                        url.set("https://github.com/DJetCloud/djet-spring-kotlin/discussions")
+                        url.set("https://github.com/DJetCloud/djet-codegen/discussions")
                     }
                 }
 
                 scm {
-                    connection.set("scm:git:git@github.com:DJetCloud/djet-spring-kotlin.git")
-                    developerConnection.set("scm:git:git@github.com:DJetCloud/djet-spring-kotlin.git")
-                    url.set("git@github.com:DJetCloud/djet-spring-kotlin.git")
+                    connection.set("scm:git:git@github.com:DJetCloud/djet-codegen.git")
+                    developerConnection.set("scm:git:git@github.com:DJetCloud/djet-codegen.git")
+                    url.set("git@github.com:DJetCloud/djet-codegen.git")
                 }
             }
         }
