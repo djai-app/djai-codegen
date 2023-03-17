@@ -2,17 +2,16 @@ name: Release Workflow
 on:
   workflow_dispatch:
     inputs:
-      release-version:
-        description: 'Version being released'
-        required: true
-      snapshot-version:
-        description: 'Next snapshot version'
-        required: true
       branch:
         description: 'Branch to release from'
         required: true
         default: 'main'
 
+env:
+  GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+  GPG_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
+  SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+  SONATYPE_KEY: ${{ secrets.SONATYPE_KEY }}
 jobs:
   release:
     runs-on: ubuntu-latest
