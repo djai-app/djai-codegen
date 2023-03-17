@@ -78,7 +78,7 @@ rootProject.tasks.named("release").configure {
 // signing tasks.
 if (System.getenv("CI") != null) {
     signing {
-        useInMemoryPgpKeys(System.getenv("GPG_PRIVATE_KEY"), System.getenv("GPG_PASSWORD"))
+        //useInMemoryPgpKeys(System.getenv("GPG_PRIVATE_KEY"), System.getenv("GPG_PASSWORD"))
         sign(publishing.publications["maven"])
     }
 }
