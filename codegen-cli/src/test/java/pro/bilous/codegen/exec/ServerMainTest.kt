@@ -1,7 +1,7 @@
 package pro.bilous.codegen.exec
 
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayOutputStream
 import java.util.zip.ZipOutputStream
 
@@ -10,11 +10,14 @@ class ServerMainTest {
 	@Test
 	fun testStart() {
 		val zipOut = ZipOutputStream(ByteArrayOutputStream())
-		ServerMain().generate(zipOut, ExecSettings(
-			projectPath = "",
-			specFilePath = "",
-			configFile = ""
-		))
+		val execSettings = ExecSettings(
+			projectPath = "/test/",
+			specFilePath = "test-spec.yaml",
+			configFile = "test-conf.yaml"
+		)
+		assertThrows<Exception> {
+			ServerMain().generate(zipOut, execSettings)
+		}
 	}
 }
 

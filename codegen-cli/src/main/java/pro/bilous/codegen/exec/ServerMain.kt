@@ -58,7 +58,17 @@ class ServerMain {
 		val version = Version.readVersionFromResources()
 		val builder = Cli.builder<Runnable>("codegen-cli")
 			.withDescription("Code Generation CLI (version $version).")
-			.withDefaultCommand(Generate::class.java)
+			.withDefaultCommand(ListGenerators::class.java)
+			.withCommands(
+				ListGenerators::class.java,
+				Generate::class.java,
+				Meta::class.java,
+				Help::class.java,
+				ConfigHelp::class.java,
+				Validate::class.java,
+				Version::class.java,
+				CompletionCommand::class.java
+			)
 
 		try {
 			val command = builder.build().parse(*args)
