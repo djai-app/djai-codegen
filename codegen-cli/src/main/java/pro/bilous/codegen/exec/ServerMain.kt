@@ -5,6 +5,7 @@ import org.openapitools.codegen.cmd.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import pro.bilous.codegen.core.ZipGenerateInvoker
+import java.io.OutputStream
 import java.io.PrintWriter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -14,10 +15,10 @@ class ServerMain {
 		val log: Logger = LoggerFactory.getLogger(ServerMain::class.java)
 	}
 
-	fun generate(zipOutput: ZipOutputStream, execSettings: ExecSettings) {
+	fun generate(outputStream: OutputStream, execSettings: ExecSettings) {
 		val generateLog = StringBuilder()
 
-		ZipOutputStream(zipOutput).use { zos ->
+		ZipOutputStream(outputStream).use { zos ->
 			try {
 				start(zos, execSettings, generateLog)
 			} catch (e: java.lang.Exception) {
