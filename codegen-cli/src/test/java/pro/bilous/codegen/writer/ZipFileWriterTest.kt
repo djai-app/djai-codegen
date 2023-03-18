@@ -13,6 +13,7 @@ class ZipFileWriterTest {
 	fun `should write file to zip`() {
 		val byteOutput = ByteArrayOutputStream()
 		val zipOutput = ZipOutputStream(byteOutput)
+		val zipLog = StringBuilder()
 		val writer = ZipFileWriter(zipOutput, zipLog)
 
 		val inputFileName = "/this/filepath/Test.txt"
