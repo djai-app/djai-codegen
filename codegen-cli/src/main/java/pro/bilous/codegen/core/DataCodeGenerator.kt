@@ -5,7 +5,7 @@ import org.openapitools.codegen.CodeCodegen
 import org.openapitools.codegen.CodegenConstants
 import org.openapitools.codegen.Generator
 
-class DataCodeGenerator(private val specIndex: Int = 0) : InCodeGenerator() {
+open class DataCodeGenerator(private val specIndex: Int = 0) : InCodeGenerator() {
 
 	init {
 		setGeneratorPropertyDefault(CodegenConstants.APIS, java.lang.Boolean.TRUE.toString())

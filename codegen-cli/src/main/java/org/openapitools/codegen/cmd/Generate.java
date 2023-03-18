@@ -23,7 +23,8 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.openapitools.codegen.*;
 import pro.bilous.codegen.configurator.ConfiguratorWrapper;
-import pro.bilous.codegen.core.GenerateInvoker;
+import pro.bilous.codegen.core.FileGenerateInvoker;
+import pro.bilous.codegen.core.IGenerateInvoker;
 import pro.bilous.codegen.core.InCustomCodegenConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -247,6 +248,12 @@ public class Generate implements Runnable {
 		description = "Only write output files that have changed.")
 	private Boolean minimalUpdate;
 
+	private IGenerateInvoker generateInvoker = new FileGenerateInvoker();
+
+	public void setGenerateInvoker(IGenerateInvoker generateInvoker) {
+		this.generateInvoker = generateInvoker;
+	}
+
 	@Override
 	public void run() {
 		if (logToStderr != null) {
@@ -404,7 +411,7 @@ public class Generate implements Runnable {
 
 		//configurator.setTemplatingEngineName("handlebars");
 
-		ConfiguratorWrapper wrapper = new ConfiguratorWrapper(configurator, new GenerateInvoker());
+		ConfiguratorWrapper wrapper = new ConfiguratorWrapper(configurator, generateInvoker);
 
 		try {
 			wrapper.generate();

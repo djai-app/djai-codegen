@@ -2,7 +2,7 @@ package pro.bilous.codegen.core
 
 import org.openapitools.codegen.ClientOptInput
 
-class GenerateInvoker : IGenerateInvoker {
+class FileGenerateInvoker : IGenerateInvoker {
 	override fun invoke(index: Int, optInput: ClientOptInput) {
 		DataCodeGenerator(index).opts(optInput).generate()
 	}

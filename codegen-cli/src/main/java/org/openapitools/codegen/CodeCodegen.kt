@@ -16,6 +16,7 @@ import pro.bilous.codegen.process.filename.ModelFileNameArgs
 import pro.bilous.codegen.process.filename.ModelFileNameResolver
 import pro.bilous.codegen.process.models.AllModelsProcessor
 import pro.bilous.codegen.process.models.CommonModelsProcessor
+import pro.bilous.codegen.writer.CodegenFileWriter
 import java.io.File
 
 open class CodeCodegen : AbstractJavaCodegen() {
@@ -42,6 +43,8 @@ open class CodeCodegen : AbstractJavaCodegen() {
 			return generationProperty["modulePrefixName"] as? String ?: DEFAULT_MODULE_PREFIX_NAME
 		}
 	}
+
+	var fileWriter: CodegenFileWriter? = null
 
 	fun isEnableMerge(): Boolean {
 		return additionalProperties.containsKey("enableMerge") && additionalProperties["enableMerge"] as Boolean

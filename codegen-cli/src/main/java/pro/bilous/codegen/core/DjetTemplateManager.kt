@@ -24,7 +24,7 @@ class DjetTemplateManager(
 		private val log = LoggerFactory.getLogger(DjetTemplateManager::class.java)
 	}
 
-	val fileMerge = FileMerge()
+	private val fileMerge = FileMerge()
 
 	override fun writeToFile(filename: String, contents: ByteArray): File? {
 		val newFilename = if (filename.contains("/.openapi-generator/")) {
@@ -35,14 +35,11 @@ class DjetTemplateManager(
 		if (newFilename.endsWith("FILES")) {
 			return null
 		}
-
-		if (codegen.isEnableMerge()) {
-			return writeFileWithMerge(newFilename, contents)
-		}
-		return super.writeToFile(newFilename, contents)
+		val fileWriter = codegen.fileWriter ?: return super.writeToFile(filename, contents)
+		return fileWriter.write(filename, contents)
 	}
 
-	private fun writeFileWithMerge(filename: String, contents: ByteArray): File {
+	fun writeFileWithMerge(filename: String, contents: ByteArray): File {
 		val tempFilename = "$filename.tmp"
 		// Use Paths.get here to normalize path (for Windows file separator, space escaping on Linux/Mac, etc)
 		val outputFile = java.nio.file.Paths.get(filename).toFile()
