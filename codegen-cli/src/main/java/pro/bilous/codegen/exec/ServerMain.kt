@@ -21,6 +21,11 @@ class ServerMain {
 		ZipOutputStream(outputStream).use { zos ->
 			try {
 				start(zos, execSettings, generateLog)
+
+				zos.putNextEntry(ZipEntry("PROJECT_GENERATION_LOG.txt"))
+				zos.write("Generation Log:\r\n\r\n".toByteArray())
+				zos.write(generateLog.toString().toByteArray())
+				zos.closeEntry()
 			} catch (e: java.lang.Exception) {
 				// If we get an error, put an PROJECT_GENERATION_ERROR file into the ZIP.
 				zos.putNextEntry(ZipEntry("PROJECT_GENERATION_FAILED.txt"))

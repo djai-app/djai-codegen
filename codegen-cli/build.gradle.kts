@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "cloud.djet.codegen"
-version = "1.0.0"
+version = "1.0.1"
 
 sourceSets.main {
     java.srcDirs("src/main/java", "src/main/kotlin")

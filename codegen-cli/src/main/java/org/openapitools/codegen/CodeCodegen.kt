@@ -436,9 +436,7 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	}
 
 	private fun addVersionCode() {
-		File(getVersionLockPath()).apply {
-			writeText("versionLock=$DJET_VERSION_LOCK")
-		}
+		fileWriter?.write(getVersionLockPath(), "versionLock=$DJET_VERSION_LOCK".toByteArray())
 	}
 
 	private fun checkVersionLock() {

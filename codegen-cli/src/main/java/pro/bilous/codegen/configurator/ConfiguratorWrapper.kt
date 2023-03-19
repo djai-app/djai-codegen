@@ -18,7 +18,9 @@ class ConfiguratorWrapper(
 		val props = settings.dynamicProperties["application"]
 		val apps = mutableListOf<String>()
 		if (props is List<*> && instance.getSpecCopyValue().endsWith("/")) {
-			apps.addAll(props.map { it.toString().toLowerCase() })
+			apps.addAll(props.map { it.toString().lowercase() })
+		} else if(props is List<*> && instance.getSpecCopyValue().endsWith(".json")) {
+			apps.addAll(props.map { it.toString().lowercase() })
 		}
 
 		val specDir = instance.getSpecCopyValue()
@@ -54,7 +56,11 @@ class ConfiguratorWrapper(
 
 	private fun generateOne(args: GenerateArgs) {
 		val app = args.appName.toLowerCase()
-		val inputSpecFile = "${args.specDir}$app-api.yaml"
+		val inputSpecFile = if (args.specDir.endsWith(".json")) {
+			args.specDir
+		} else {
+			"${args.specDir}$app-api.yaml"
+		}
 		instance.setCustomInputSpec(inputSpecFile)
 		instance.setCustomArtifactId(app)
 		instance.setCustomProperty("appPackage", "${args.basePackage}.$app")
