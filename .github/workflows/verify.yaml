@@ -17,6 +17,9 @@ on:
       - 'CODE_OF_CONDUCT*'
     branches: [main]
 
+env:
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 jobs:
   build-verify:
     name: Verify Build
@@ -34,3 +37,6 @@ jobs:
 
       - name: Execute Gradle build
         run: ./gradlew build
+        
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.1
