@@ -192,7 +192,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 
 	private fun addCommonModuleFiles() {
 		val commonRoot = "common"
-		val inputSrc = "$commonRoot/src/main/kotlin/"
+		val inputSrc = "$commonRoot/src/main/kotlin"
 		val destSrc = "$commonRoot/src/main/kotlin/$basePackage"
 		addSupportFile(source = "$commonRoot/build.gradle.kts.mustache", folder = commonRoot, target = "build.gradle.kts")
 		addSupportFile(source = "$inputSrc/config/WebConfig.kt.mustache", folder = "$destSrc/config", target = "WebConfig.kt")
