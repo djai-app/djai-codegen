@@ -122,7 +122,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 
 		additionalProperties["javaVersion"] = "1.8"
 
-		val inputTest = "common/src/test/kotlin/"
+		val inputTest = "common/src/test/kotlin"
 		val destTest = "$appRoot/src/test/kotlin/$appPackage"
 
 		if (!isControllerDelegate()) {
