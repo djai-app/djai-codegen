@@ -306,7 +306,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun setupModuleFiles() {
-		val inputRoot = "app-module/"
+		val inputRoot = "app-module"
 		val destinationRoot = "$modulePrefixName${artifactId.toLowerCase()}"
 		addSupportFile(source = "$inputRoot/build.gradle.kts.mustache",  target = "$destinationRoot/build.gradle.kts")
 		// add kubernetes manifests for the application
