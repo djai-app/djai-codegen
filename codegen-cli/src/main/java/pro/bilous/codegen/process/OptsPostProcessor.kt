@@ -138,8 +138,8 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 			)
 		}
 
-		val inputResTest = "app-module/src/test/resources/"
-		val destResTest = "$appRoot/src/test/resources/"
+		val inputResTest = "app-module/src/test/resources"
+		val destResTest = "$appRoot/src/test/resources"
 
 		addSupportFile(source = "$inputResTest/application.yml.mustache", folder = destResTest, target = "application.yml")
 		addSupportFile(source = "$inputResTest/application-testcontainers.yml.mustache", folder = destResTest, target = "application-testcontainers.yml")
@@ -226,7 +226,7 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun addCommonModuleTestFiles() {
-		val inputTestSrc = "common/src/testFixtures/kotlin/"
+		val inputTestSrc = "common/src/testFixtures/kotlin"
 		val destTestSrc = "common/src/testFixtures/kotlin/$basePackage"
 		if (!isControllerDelegate()) {
 			return
