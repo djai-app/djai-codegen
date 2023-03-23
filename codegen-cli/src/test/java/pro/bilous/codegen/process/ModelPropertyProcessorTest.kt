@@ -218,8 +218,11 @@ class ModelPropertyProcessorTest {
 			isModel = true// only model can be embedded
 			complexType = type // with required complex type
 		}
+		val model = CodegenModel().apply {
+			name = "ComplexModel"
+		}
 		val processor = createModelProcessor(type, true)
-		processor.applyEmbeddedComponentOrOneToOne(property)
+		processor.applyEmbeddedComponentOrOneToOne(model, property)
 
 		assertTrue(property.vendorExtensions["isEmbedded"] as Boolean)
 		assertFalse(property.vendorExtensions.containsKey("isOneToOne"))
@@ -233,8 +236,11 @@ class ModelPropertyProcessorTest {
 			isModel = true// only model can be embedded
 			complexType = type // with required complex type
 		}
+		val model = CodegenModel().apply {
+			name = "ComplexModel"
+		}
 		val processor = createModelProcessor(type, false)
-		processor.applyEmbeddedComponentOrOneToOne(property)
+		processor.applyEmbeddedComponentOrOneToOne(model, property)
 
 		assertTrue(property.vendorExtensions["isOneToOne"] as Boolean)
 		assertFalse(property.vendorExtensions.containsKey("isEmbedded"))
@@ -245,8 +251,11 @@ class ModelPropertyProcessorTest {
 		val property = CodegenProperty().apply {
 			isModel = false// only model can be embedded
 		}
+		val model = CodegenModel().apply {
+			name = "ComplexModel"
+		}
 		val processor = createModelProcessor("String", false)
-		processor.applyEmbeddedComponentOrOneToOne(property)
+		processor.applyEmbeddedComponentOrOneToOne(model, property)
 
 		assertFalse(property.vendorExtensions.containsKey("isOneToOne"))
 		assertFalse(property.vendorExtensions.containsKey("isEmbedded"))

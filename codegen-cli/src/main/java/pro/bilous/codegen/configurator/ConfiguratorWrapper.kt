@@ -15,15 +15,15 @@ class ConfiguratorWrapper(
 	fun generate() {
 		val settings = instance.getCustomSettings() ?: throw IllegalArgumentException("Settings file is required")
 
+		val specPath = instance.getSpecCopyValue()
 		val props = settings.dynamicProperties["application"]
 		val apps = mutableListOf<String>()
-		if (props is List<*> && instance.getSpecCopyValue().endsWith("/")) {
+		if (props is List<*> && specPath.endsWith("/")) {
 			apps.addAll(props.map { it.toString().lowercase() })
-		} else if(props is List<*> && instance.getSpecCopyValue().endsWith(".json")) {
+		} else if(props is List<*> && (specPath.endsWith(".json") || specPath.endsWith(".yaml"))) {
 			apps.addAll(props.map { it.toString().lowercase() })
 		}
 
-		val specDir = instance.getSpecCopyValue()
 		val basePackage =  settings.dynamicProperties["basePackage"].toString()
 		val database = settings.dynamicProperties["database"]?.toString() ?: "MySQL"
 
@@ -45,7 +45,7 @@ class ConfiguratorWrapper(
 		)
 		apps.forEachIndexed { index, appName ->
 			try {
-				generateOne(GenerateArgs(index, appName, specDir, basePackage))
+				generateOne(GenerateArgs(index, appName, specPath, basePackage))
 				log.info("Code generation for spec $appName completed")
 			} catch (error: Throwable) {
 				log.error("Failed generation for the app $appName", error)
@@ -56,7 +56,7 @@ class ConfiguratorWrapper(
 
 	private fun generateOne(args: GenerateArgs) {
 		val app = args.appName.toLowerCase()
-		val inputSpecFile = if (args.specDir.endsWith(".json")) {
+		val inputSpecFile = if (args.specDir.endsWith(".json") || args.specDir.endsWith(".yaml")) {
 			args.specDir
 		} else {
 			"${args.specDir}$app-api.yaml"

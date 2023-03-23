@@ -3,8 +3,13 @@ package pro.bilous.codegen.process
 import io.swagger.v3.oas.models.media.Schema
 import org.apache.commons.lang3.StringUtils
 import org.openapitools.codegen.*
+import org.slf4j.LoggerFactory
 
 class OperationAddon(val codegen: CodeCodegen) {
+
+	companion object {
+		private val log = LoggerFactory.getLogger(OperationAddon::class.java)
+	}
 
 	@Suppress("UNCHECKED_CAST")
 	fun populate(objs: MutableMap<String, Any>) {
@@ -40,7 +45,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	private fun applyTestModelHeaderParams(objs: MutableMap<String, Any>, ops: MutableList<CodegenOperation>, returnType: String) {
-		val testModel = objs["testModel"] as CodegenModel
+		val testModel = objs["testModel"] as CodegenModel? ?: return
 		val headerParamSet = mutableSetOf<HeaderParamData>()
 		ops.forEach {
 			headerParamSet.addAll(collectModelHeaderParams(it, returnType).toSet() )
@@ -298,7 +303,14 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	fun addTestModel(objs: MutableMap<String, Any>, returnType: String) {
+		if (returnType == "UUID") {
+			return;
+		}
 		val testModel = findTestCodegenModel(returnType)
+		if (testModel.classname == null) {
+			log.error("classname for $returnType was not assigned")
+			return
+		}
 		objs["testModel"] = testModel
 		objs["hasTestModel"] = true
 		applyImportsForTest(objs, testModel)
@@ -316,20 +328,22 @@ class OperationAddon(val codegen: CodeCodegen) {
 		mappingSet: MutableSet<String>,
 		importList: MutableList<Map<String, String>>,
 	) {
-		testModel.vars.forEach {
-			if (it.vendorExtensions.containsKey("testModel")) {
-				val inner = it.vendorExtensions["testModel"] as CodegenModel
-				if (!mappingSet.contains(inner.classname)) {
-					mappingSet.add(inner.classname)
-					importList.add(
-						mapOf(
-							"import" to codegen.toModelImport(inner.classname),
-							"classname" to inner.classname
-						)
-					)
-					addImportElements(inner, mappingSet, importList)
-				}
+		for (it in testModel.vars) {
+			if (!it.vendorExtensions.containsKey("testModel")) {
+				continue
 			}
+			val inner = it.vendorExtensions["testModel"] as CodegenModel
+			if (inner.classname == null) {
+				log.error("addImportElements: classname for the ${inner.name} was not assigned")
+				continue
+			}
+			if (mappingSet.contains(inner.classname)) {
+				continue
+			}
+			mappingSet.add(inner.classname)
+			val importLine = codegen.toModelImport(inner.classname)
+			importList.add(mapOf("import" to importLine, "classname" to inner.classname))
+			addImportElements(inner, mappingSet, importList)
 		}
 	}
 
@@ -340,8 +354,13 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	private fun readModelByType(type: String): CodegenModel {
-		val schema = codegen.findOpenApi().components.schemas[type] as Schema<*>
-		return codegen.fromModel(type, schema)
+		val schemas = codegen.findOpenApi().components.schemas
+		return if (schemas.containsKey(type)) {
+			codegen.fromModel(type, schemas[type] as Schema<*>)
+		} else {
+			log.error("Cant find schema for type $type, list of schema available: ${schemas.keys}")
+			return CodegenModel()
+		}
 	}
 
 	fun applyTestVars(model: CodegenModel) {

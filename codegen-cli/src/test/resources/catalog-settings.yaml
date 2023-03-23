@@ -1,0 +1,13 @@
+groupId: com.flo
+system: rater
+application:
+  - catalog
+artifactId: rater-catalog
+artifactVersion: 0.0.1
+artifactDescription: Application description
+title: Application title
+basePackage: rater.catalog
+addKotlin: true
+dateLibrary: default
+cicd: false
+addBindingEntity: false

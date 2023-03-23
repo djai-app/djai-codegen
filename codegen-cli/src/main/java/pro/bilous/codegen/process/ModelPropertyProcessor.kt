@@ -1,5 +1,6 @@
 package pro.bilous.codegen.process
 
+import io.swagger.v3.oas.models.media.ArraySchema
 import io.swagger.v3.oas.models.media.Schema
 import org.openapitools.codegen.CodeCodegen
 import org.openapitools.codegen.CodegenModel
@@ -147,8 +148,10 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 
 	fun convertToMetadataProperty(property: CodegenProperty, model: CodegenModel) {
 		property.vendorExtensions["isMetadataAnnotation"] = true
-		property.vendorExtensions["metaGroupName"] =
-			CamelCaseConverter.convert(property.complexType.removeSuffix("Model"))
+		if (property.complexType != null) {
+			property.vendorExtensions["metaGroupName"] =
+				CamelCaseConverter.convert(property.complexType.removeSuffix("Model"))
+		}
 		if (property.isArray) {
 			property.datatypeWithEnum = if (property.required) "List<String>" else "List<String>?"
 		} else {
@@ -176,7 +179,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 
 	private fun populateTableExtension(model: CodegenModel, property: CodegenProperty) {
 		applyColumnNames(property)
-		applyEmbeddedComponentOrOneToOne(property)
+		applyEmbeddedComponentOrOneToOne(model, property)
 
 		if (entityMode && property.isArray) {
 			val modelTableName = CamelCaseConverter.convert(model.name).toLowerCase()
@@ -232,7 +235,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 	}
 
 	private fun setForJsonField(model: CodegenModel, property: CodegenProperty): Boolean {
-		if (property.complexType != null) {
+		if (property.complexType != null && property.complexType != "UUID") {
 			val realType = property.complexType.removeSuffix("Model")
 			val innerModelSchema = codegen.getOpenApi().components.schemas[realType] as Schema<*>
 			val innerModel = codegen.fromModel(realType, innerModelSchema)
@@ -300,7 +303,7 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		property.getVendorExtensions()["columnName"] = property.getVendorExtensions()["escapedColumnName"]
 	}
 
-	fun applyEmbeddedComponentOrOneToOne(property: CodegenProperty) {
+	fun applyEmbeddedComponentOrOneToOne(model: CodegenModel, property: CodegenProperty) {
 		if (!isInnerModel(property)) {
 			return
 		}
@@ -309,6 +312,21 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		if (innerModelSchema == null) {
 			log.error("type '$realType' is not found")
 			return
+		} else {
+			for (prop in innerModelSchema.properties) {
+				val value = prop.value
+				if (value == null || value !is ArraySchema) {
+					continue
+				}
+				if (value.items?.`$ref` == null ) {
+					continue
+				}
+				val realPropType = value.items.`$ref`.split("/").last()
+				if (realPropType == model.name) {
+					log.warn("FIX THIS! This is recursive dependency! $realType vs $realPropType")
+					return
+				}
+			}
 		}
 		val innerModel = codegen.fromModel(realType, innerModelSchema)
 		if (innerModel.vendorExtensions["isEmbeddable"] == true) {
