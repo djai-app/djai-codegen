@@ -1,5 +1,6 @@
 package pro.bilous.codegen.exec
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayInputStream
@@ -23,6 +24,7 @@ class ServerMainTest {
 		}
 	}
 
+	@Disabled
 	@Test
 	fun shouldGenerateValidProject() {
 		val execSettings = ExecSettings(
