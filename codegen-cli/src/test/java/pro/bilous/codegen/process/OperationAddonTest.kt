@@ -190,7 +190,10 @@ internal class OperationAddonTest {
 	fun `should add test model`() {
 		val returnType = "Test"
 		val schemaOfReturnType = Schema<Any>()
-		val modelOfReturnType = CodegenModel()
+		val modelOfReturnType = CodegenModel().apply {
+			name = "TestName"
+			classname = "TestNameClass"
+		}
 		val openApi = OpenAPI().apply {
 			components = Components().apply {
 				addSchemas(returnType, schemaOfReturnType)

@@ -312,21 +312,8 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		if (innerModelSchema == null) {
 			log.error("type '$realType' is not found")
 			return
-		} else {
-			for (prop in innerModelSchema.properties) {
-				val value = prop.value
-				if (value == null || value !is ArraySchema) {
-					continue
-				}
-				if (value.items?.`$ref` == null ) {
-					continue
-				}
-				val realPropType = value.items.`$ref`.split("/").last()
-				if (realPropType == model.name) {
-					log.warn("FIX THIS! This is recursive dependency! $realType vs $realPropType")
-					return
-				}
-			}
+		} else if (shouldStopEmbedRecursiveDependency(innerModelSchema, model, realType)){
+			return
 		}
 		val innerModel = codegen.fromModel(realType, innerModelSchema)
 		if (innerModel.vendorExtensions["isEmbeddable"] == true) {
@@ -336,6 +323,30 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		} else { // assign one-to-one relationship if not isEmbeddable model (has id)
 			property.vendorExtensions["isOneToOne"] = true
 		}
+	}
+
+	private fun shouldStopEmbedRecursiveDependency(
+		innerModelSchema: Schema<*>,
+		model: CodegenModel,
+		realType: String) : Boolean {
+		if (innerModelSchema.properties == null) {
+			return false
+		}
+		for (prop in innerModelSchema.properties) {
+			val value = prop.value
+			if (value == null || value !is ArraySchema) {
+				continue
+			}
+			if (value.items?.`$ref` == null ) {
+				continue
+			}
+			val realPropType = value.items.`$ref`.split("/").last()
+			if (realPropType == model.name) {
+				log.warn("FIX THIS! This is recursive dependency! $realType vs $realPropType")
+				return true
+			}
+		}
+		return false
 	}
 
 	private fun assignExtendsModel(property: CodegenProperty, innerModel: CodegenModel) {
