@@ -21,16 +21,6 @@
 {{/vendorExtensions.addIdVar}}
 
 {{#vars}}
-	{{#isEnum}}
-	{{^isContainer}}
-	{{>enumClass}}
-	{{/isContainer}}
-	{{#isContainer}}
-	{{#mostInnerItems}}
-	{{>enumClass}}
-	{{/mostInnerItems}}
-	{{/isContainer}}
-	{{/isEnum}}
 	{{#vendorExtensions.extraAnnotation}}
 	{{{vendorExtensions.extraAnnotation}}}
 	{{/vendorExtensions.extraAnnotation}}

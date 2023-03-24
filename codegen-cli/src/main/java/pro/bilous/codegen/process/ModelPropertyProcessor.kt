@@ -38,6 +38,9 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		if ("null" == property.example) {
 			property.example = null
 		}
+		if (property.complexType == "UUID") {
+			log.warn("Type complexType=UUID is not supported fully.")
+		}
 		processIfGuidOrObjectWithXDataTypesOrInteger(property)
 		processIfOptional(property)
 		populateTableExtension(model, property)
@@ -224,7 +227,10 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 			property.getVendorExtensions()["joinTableName"] = joinTableName
 			property.getVendorExtensions()["joinColumnName"] = "${modelTableName}_id"
 			property.getVendorExtensions()["inverseJoinColumnName"] = "${inverseColName}_id"
-			property.vendorExtensions["isReferenceElement"] = property.complexType.isNullOrEmpty()
+
+			val pType = property.complexType
+			property.vendorExtensions["isReferenceElement"] = pType.isNullOrEmpty() || pType == "UUID"
+
 			property.vendorExtensions["joinReferencedColumnName"] =
 				if (modelTableName == "entity") "entity_id" else "id"
 
