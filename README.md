@@ -7,12 +7,12 @@
 DJet Cloud is an instument to simplify & sistematize building of Enterprise class systems.
 The mission of DJet – build development instrumentation to effectively design, generate, develop, & deploy microservice systems & modern web applications.
 
-We have integration with https://metucat.com which inlcudes API loader, codegen and IntelliJ Idea plugin. New features and instrumentation coming soon.
+New features and instrumentation coming soon.
 
 Projects:
-1. openapi-load – API loader, connects to difhub.com, loads metadata of the selected system and converts it to the OpenAPI documents. 
-2. codegen-cli – Codegen, takes OpenAPI specifications, settings, and generates project
-3. intellij-idea – Plugin for the IntellijIdea to have UX.
+1. codegen-cli – Codegen, takes OpenAPI specifications, settings, and generates the code for entire project incuding: data models, controllers, services, repositories, database tables, tests, entire configuration. Ready to run tests application.
+2. openapi-load (Deprecated) – API loader, connects to difhub.com, loads metadata of the selected system and converts it to the OpenAPI documents. 
+3. intellij-idea (On Hold)– Plugin for the IntellijIdea to have UX.
 
 ## Installation and usage instructions
 
