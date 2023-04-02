@@ -84,6 +84,14 @@ class OptsPostProcessor(val codegen: CodeCodegen) {
 		if (additionalProperties.containsKey(CodeCodegen.OPENAPI_DOCKET_CONFIG)) {
 			codegen.setOpenapiDocketConfig(java.lang.Boolean.valueOf(additionalProperties[CodeCodegen.OPENAPI_DOCKET_CONFIG].toString()))
 		}
+		if (additionalProperties.containsKey(CodeCodegen.ENTITY_ID_TYPE)) {
+			val entityIdType = additionalProperties[CodeCodegen.ENTITY_ID_TYPE].toString()
+			codegen.entityIdType = entityIdType
+		} else {
+			additionalProperties[CodeCodegen.ENTITY_ID_TYPE] = codegen.entityIdType
+		}
+		additionalProperties[CodeCodegen.ENTITY_HAS_UUID] = codegen.entityIdType == "UUID"
+		additionalProperties["entityIdIsString"] = codegen.entityIdType == "String"
 
 
 		typeMapping["file"] = "Resource"

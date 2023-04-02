@@ -11,17 +11,20 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.util.Assert
 import org.springframework.web.bind.annotation.*
+{{#entityHasUUID}}
+import java.util.UUID
+{{/entityHasUUID}}
 
 class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) {
 
-	fun create(domain: E, parentId: String? = null, preCreate: (E) -> Unit = {}): ResponseEntity<E> {
+	fun create(domain: E, parentId: {{entityIdType}}? = null, preCreate: (E) -> Unit = {}): ResponseEntity<E> {
 		assignParentIdentity(domain, parentId)
 		preCreate(domain)
 		val result = service.save(domain)?: throw InvalidRequestException()
 		return ResponseEntity(result, HttpStatus.CREATED)
 	}
 
-	fun delete(id: String, parentId: String? = null, preDelete: (E) -> Unit = {}): ResponseEntity<E> {
+	fun delete(id: {{entityIdType}}, parentId: {{entityIdType}}? = null, preDelete: (E) -> Unit = {}): ResponseEntity<E> {
 		val result = service.getById(id)?: throw ResourceNotFoundException()
 		validateParent(result, parentId)
 		preDelete(result)
@@ -29,7 +32,7 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 		return ResponseEntity(result, HttpStatus.OK)
 	}
 
-	fun getById(id: String, parentId: String? = null, preGet: (E) -> Unit = {}): ResponseEntity<E> {
+	fun getById(id: {{entityIdType}}, parentId: {{entityIdType}}? = null, preGet: (E) -> Unit = {}): ResponseEntity<E> {
 		val result = service.getById(id) ?: throw ResourceNotFoundException()
 		{{#hasEntityBlocks}}
 		if (parentId != null) {
@@ -43,12 +46,12 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 		return ResponseEntity(result, HttpStatus.OK)
 	}
 
-	fun getAll(search: String?, pageable : Pageable, parentId: String? = null, searchParams: Map<String, String?>? = null): ResponseEntity<Page<E>> {
+	fun getAll(search: String?, pageable : Pageable, parentId: {{entityIdType}}? = null, searchParams: Map<String, String?>? = null): ResponseEntity<Page<E>> {
 		val searchQuery = getSearchQuery(search, parentId, searchParams)
 		return ResponseEntity(service.getAll(pageable, searchQuery), HttpStatus.OK)
 	}
 
-	fun update(id: String, domain: E, parentId: String? = null, preUpdate: (E) -> Unit = {}): ResponseEntity<E> {
+	fun update(id: {{entityIdType}}, domain: E, parentId: {{entityIdType}}? = null, preUpdate: (E) -> Unit = {}): ResponseEntity<E> {
 		val savedDomain = service.getById(id)?: throw ResourceNotFoundException()
 		validateParent(domain, parentId)
 		domain.id = id
@@ -57,11 +60,11 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 		return ResponseEntity(result, HttpStatus.OK)
 	}
 
-	fun modify(id: String, domain: E, parentId: String? = null, preModify: (E) -> Unit = {}): ResponseEntity<E> {
+	fun modify(id: {{entityIdType}}, domain: E, parentId: {{entityIdType}}? = null, preModify: (E) -> Unit = {}): ResponseEntity<E> {
 		return ResponseEntity(HttpStatus.NOT_IMPLEMENTED)
 	}
 
-	fun saveAll(domains: List<E>, parentId: String? = null): List<E> {
+	fun saveAll(domains: List<E>, parentId: {{entityIdType}}? = null): List<E> {
 		domains.forEach {
 			validateParent(it, parentId)
 			{{#hasIdentityBlocks}}
@@ -71,7 +74,7 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 		return service.saveAll(domains)
 	}
 
-	fun deleteAll(@RequestParam ids: List<String>, parentId: String? = null): List<E> {
+	fun deleteAll(@RequestParam ids: List<String>, parentId: {{entityIdType}}? = null): List<E> {
 		val domains = service.getByIds(ids)
 		domains.forEach { domain ->
 			validateParent(domain, parentId)
@@ -80,7 +83,7 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 		return domains
 	}
 
-	private fun assignParentIdentity(domain: BaseResource, parentId: String?) {
+	private fun assignParentIdentity(domain: BaseResource, parentId: {{entityIdType}}?) {
 		val resolvedParentId = if (parentId.isNullOrEmpty()) null else parentId
 		if (domain.entity.parent != null) {
 			domain.entity.parent?.id = resolvedParentId
@@ -89,7 +92,7 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 		}
 	}
 
-	private fun validateParent(domain: E, parentId: String?) {
+	private fun validateParent(domain: E, parentId: {{entityIdType}}?) {
 		{{#hasEntityBlocks}}
 		when {
 			parentId.isNullOrEmpty() -> {
@@ -105,7 +108,7 @@ class ControllerDelegate<E: BaseResource, S: CommonService<E>>(val  service: S) 
 		{{/hasEntityBlocks}}
 	}
 
-	private fun getSearchQuery(query: String?, parentId: String?, params: Map<String, String?>?): String? {
+	private fun getSearchQuery(query: String?, parentId: {{entityIdType}}?, params: Map<String, String?>?): String? {
 		val queryParentPart = if (parentId.isNullOrEmpty()) null else "entity.parent.id==$parentId"
 		val queryString = if (query.isNullOrEmpty()) null else query
 		val queryParams = params?.filter { !it.value.isNullOrEmpty() }?.map { "${it.key}==${it.value}" }?.joinToString(";")

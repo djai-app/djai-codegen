@@ -25,7 +25,8 @@ class BaseResourceListener : AuditorAware<UUID> {
 		val now = Date()
 		val auditor = currentAuditor.orElse(null){{^keycloak.enabled}}?.toString(){{/keycloak.enabled}}
 
-		domain.id = UUID.randomUUID().toString()
+		domain.id = UUID.randomUUID(){{#entityIdIsString}}.toString(){{/entityIdIsString}}
+		{{#hasEntityBlocks}}
 		domain.entity.history.createdBy = auditor
 		{{#suffixHistoryAt}}
 		domain.entity.history.createdAt = now
@@ -40,12 +41,13 @@ class BaseResourceListener : AuditorAware<UUID> {
 		{{^suffixHistoryAt}}
 		domain.entity.history.updatedDate = now
 		{{/suffixHistoryAt}}
+		{{/hasEntityBlocks}}
 }
 
 	@PreUpdate
 	fun <T : BaseResource> touchForUpdate(domain: T) {
 		val now = Date()
-
+		{{#hasEntityBlocks}}
 		domain.entity.history.updatedBy = currentAuditor.orElse(null){{^keycloak.enabled}}?.toString(){{/keycloak.enabled}}
 		{{#suffixHistoryAt}}
 		domain.entity.history.updatedAt = now
@@ -53,5 +55,6 @@ class BaseResourceListener : AuditorAware<UUID> {
 		{{^suffixHistoryAt}}
 		domain.entity.history.updatedDate = now
 		{{/suffixHistoryAt}}
+		{{/hasEntityBlocks}}
 	}
 }

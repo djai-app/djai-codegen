@@ -36,6 +36,8 @@ open class CodeCodegen : AbstractJavaCodegen() {
 		const val DB_NAME = "dbName"
 		const val BINDING_KEY = "addBindingEntity"
 		const val DEFAULT_MODULE_PREFIX_NAME = "app-"
+		const val ENTITY_ID_TYPE = "entityIdType"
+		const val ENTITY_HAS_UUID = "entityHasUUID"
 
 		fun resolveModulePrefixName(properties: Map<String, Any>): String {
 			val generationProperty = properties["generation"] as? Map<String, Any>
@@ -95,6 +97,9 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	private var apiSuffix = "Api"
 	var entityMode = false
 	var dbName = "servicedb"
+
+	var entityIdType = "String"
+	var entityHasUUID = false
 
 	var specIndex: Int = 0
 

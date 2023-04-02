@@ -7,6 +7,7 @@ import org.openapitools.codegen.api.TemplatingEngineAdapter
 import org.openapitools.codegen.templating.TemplateManagerOptions
 import org.slf4j.LoggerFactory
 import pro.bilous.codegen.merge.FileMerge
+import pro.bilous.codegen.writer.FileSystemWriter
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -35,7 +36,7 @@ class DjetTemplateManager(
 		if (newFilename.endsWith("FILES")) {
 			return null
 		}
-		val fileWriter = codegen.fileWriter ?: return super.writeToFile(filename, contents)
+		val fileWriter = codegen.fileWriter ?: FileSystemWriter(codegen, this)
 		return fileWriter.write(filename, contents)
 	}
 

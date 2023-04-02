@@ -9,6 +9,6 @@ import java.util.*
 
 @NoRepositoryBean
 interface CommonRepository<E : BaseResource> :
-        PagingAndSortingRepository<E, String>,
-        JpaRepository<E, String>,
+        PagingAndSortingRepository<E, {{entityIdType}}>,
+        JpaRepository<E, {{entityIdType}}>,
         JpaSpecificationExecutor<E>

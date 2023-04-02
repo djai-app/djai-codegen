@@ -24,15 +24,14 @@ class ServerMainTest {
 		}
 	}
 
-	@Disabled
 	@Test
 	fun shouldGenerateValidProject() {
 		val execSettings = ExecSettings(
-			projectPath = "/Users/vova/Projects/PRO/djet-codegen/codegen-cli/build/test-results/file.zip",
+			projectPath = "",
 			specFilePath = "/Users/vova/Projects/PRO/djet-codegen/codegen-cli/src/test/resources/catalog-api.yaml",
 			configFile = "/Users/vova/Projects/PRO/djet-codegen/codegen-cli/src/test/resources/catalog-settings.yaml"
 		)
-		val outputStream = FileOutputStream(execSettings.projectPath)
+		val outputStream = FileOutputStream("/Users/vova/Projects/PRO/djet-codegen/codegen-cli/build/test-results/generated.zip")
 		ServerMain().generate(outputStream, execSettings)
 	}
 }

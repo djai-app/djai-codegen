@@ -3,6 +3,9 @@ package {{basePackage}}.domain
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.*
 import javax.persistence.*
+{{#entityHasUUID}}
+import java.util.UUID
+{{/entityHasUUID}}
 
 @Entity
 @Table(name = "entity")
@@ -11,7 +14,7 @@ data class ResourceEntity(
 		@JsonIgnore
 		@Id
 		@Column(name = "entity_id")
-		var entityId: String? = null,
+		var entityId: {{entityIdType}}? = null,
 
 		@Column(name = "state")
 		var state: String? = null,

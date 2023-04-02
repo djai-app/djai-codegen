@@ -5,6 +5,9 @@ package {{basePackage}}.domain
 import javax.persistence.*
 import org.hibernate.annotations.LazyCollection
 import org.hibernate.annotations.LazyCollectionOption
+{{#entityHasUUID}}
+import java.util.UUID
+{{/entityHasUUID}}
 
 {{#models}}
 {{#model}}

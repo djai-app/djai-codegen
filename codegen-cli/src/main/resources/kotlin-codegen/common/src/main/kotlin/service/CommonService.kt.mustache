@@ -9,9 +9,9 @@ interface CommonService<E: BaseResource> {
 	fun save(domain: E): E?
 	fun saveAll(domains: List<E>): List<E>
 	fun delete(domain: E)
-	fun getById(id: String): E?
+	fun getById(id: {{entityIdType}}): E?
 	fun update(domain: E): E?
 	fun getAll(pageable: Pageable, query: String?): Page<E>
-	fun getByIds(ids: List<String>): List<E>
+	fun getByIds(ids: List<{{entityIdType}}>): List<E>
 	fun deleteAll(domains: List<E>)
 }

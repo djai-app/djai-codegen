@@ -11,3 +11,4 @@ addKotlin: true
 dateLibrary: default
 cicd: false
 addBindingEntity: false
+entityIdType: UUID

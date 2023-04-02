@@ -24,6 +24,11 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 				model.vars = model.vars.filter { "identity" != it.name && "entity" != it.name }
 				extensions["hasTableEntity"] = true
 			}
+			args.hasId && args.hasName && args.hasDescription -> {
+				model.parent = "BaseResource()"
+				model.imports.add("BaseResource")
+				model.vars = model.vars.filter { "id" != it.name && "identity" != it.name }
+			}
 			args.hasId -> {
 				model.parent = "BaseDomain()"
 				model.imports.add("BaseDomain")
@@ -52,10 +57,12 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 
 	override fun buildArgs(): Args {
 		return Args(
-			hasEntity = model.vars.any { "entity" == it.name.toLowerCase() },
-			hasIdentity = model.vars.any { "identity" == it.name.toLowerCase() },
-			hasId = model.vars.any { "id" == it.name.toLowerCase() } && model.name != "Identity",
-			hasExtends = model.requiredVars.any { "_extends" == it.name.toLowerCase() }
+			hasEntity = model.vars.any { "entity" == it.name.lowercase() },
+			hasIdentity = model.vars.any { "identity" == it.name.lowercase() },
+			hasId = model.vars.any { "id" == it.name.lowercase() } && model.name != "Identity",
+			hasName = model.vars.any { "name" == it.name.lowercase() },
+			hasDescription = model.vars.any { "description" == it.name.lowercase() },
+			hasExtends = model.requiredVars.any { "_extends" == it.name.lowercase() }
 		)
 	}
 
@@ -78,6 +85,8 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 		val hasEntity: Boolean = false,
 		val hasIdentity: Boolean = false,
 		val hasId: Boolean = false,
+		val hasName: Boolean = false,
+		val hasDescription: Boolean = false,
 		val hasExtends: Boolean = false
 	)
 }

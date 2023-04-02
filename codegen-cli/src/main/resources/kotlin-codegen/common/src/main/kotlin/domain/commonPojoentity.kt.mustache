@@ -20,14 +20,14 @@
 {{#vendorExtensions.isSuperclass}}open{{/vendorExtensions.isSuperclass}}{{^vendorExtensions.isSuperclass}}data{{/vendorExtensions.isSuperclass}} class {{classname}}(
 {{#vendorExtensions.addIdVar}}
 
-	var id: String,
+	var id: {{entityIdType}},
 {{/vendorExtensions.addIdVar}}
 {{#vendorExtensions.addEntityIdVar}}
 
 	@JsonIgnore
 	@Id
 	@Column(name = "entity_id")
-	var entityId: String? = null,
+	var entityId: {{entityIdType}}? = null,
 {{/vendorExtensions.addEntityIdVar}}
 
 {{#vars}}

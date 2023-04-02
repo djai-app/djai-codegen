@@ -40,7 +40,7 @@ abstract class AbstractService<E: BaseResource, R: CommonRepository<E>>(protecte
 		save(domain)
 	}
 
-	override fun getById(id: String): E? {
+	override fun getById(id: {{entityIdType}}): E? {
 		val domain: E? = repository.findByIdOrNull(id)
 		return if (!domain.isDeleted()) domain else null
 	}
@@ -66,7 +66,7 @@ abstract class AbstractService<E: BaseResource, R: CommonRepository<E>>(protecte
 		saveAll(domains)
 	}
 
-	override fun getByIds(ids: List<String>): List<E> {
+	override fun getByIds(ids: List<{{entityIdType}}>): List<E> {
 		return repository.findAllById(ids).filter{ !it.isDeleted() }
 	}
 

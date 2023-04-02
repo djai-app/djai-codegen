@@ -262,8 +262,10 @@ class OperationAddon(val codegen: CodeCodegen) {
 	}
 
 	private fun resolveParamDataType(param: CodegenParameter) {
-		param.dataType = when(param.dataType) {
-			"Integer" -> "Int"
+		param.dataType = when {
+			param.dataType == "Integer" -> "Int"
+			param.paramName == "ids" && param.dataType == "UUID" -> "List<UUID>"
+			param.paramName == "ids" && param.dataType == "String" -> "List<UUID>"
 			else -> param.dataType
 		}
 	}
