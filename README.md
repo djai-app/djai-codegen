@@ -1,11 +1,11 @@
-[![Verify Build Workflow](https://github.com/DJetCloud/djet-codegen/actions/workflows/verify.yaml/badge.svg)](https://github.com/DJetCloud/djet-codegen/actions/workflows/verify.yaml)
-[![codecov](https://codecov.io/gh/DJetCloud/djet-codegen/branch/main/graph/badge.svg?token=J1Y895B9QV)](https://codecov.io/gh/DJetCloud/djet-codegen)
-[![CodeFactor](https://www.codefactor.io/repository/github/djetcloud/djet-codegen/badge)](https://www.codefactor.io/repository/github/djetcloud/djet-codegen) 
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDJetCloud%2Fdjet-codegen.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FDJetCloud%2Fdjet-codegen?ref=badge_shield)
+[![Verify Build Workflow](https://github.com/djai-app/djai-codegen/actions/workflows/verify.yaml/badge.svg)](https://github.com/djai-app/djai-codegen/actions/workflows/verify.yaml)
+[![codecov](https://codecov.io/gh/djai-app/djai-codegen/branch/main/graph/badge.svg?token=J1Y895B9QV)](https://codecov.io/gh/djai-app/djai-codegen)
+[![CodeFactor](https://www.codefactor.io/repository/github/djai-app/djai-codegen/badge)](https://www.codefactor.io/repository/github/djai-app/djai-codegen) 
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjai-app%2Fdjai-codegen.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjai-app%2Fdjai-codegen?ref=badge_shield)
 
-# DJet Code Generation instrumentation.
-DJet Cloud is an instument to simplify & sistematize building of Enterprise class systems.
-The mission of DJet – build development instrumentation to effectively design, generate, develop, & deploy microservice systems & modern web applications.
+# DJAI Code Generation instrumentation.
+DJAI is an instument to simplify & sistematize building of Enterprise class systems.
+The mission of DJAI – build development instrumentation to effectively design, generate, develop, & deploy microservice systems & modern web applications.
 
 New features and instrumentation coming soon.
 
