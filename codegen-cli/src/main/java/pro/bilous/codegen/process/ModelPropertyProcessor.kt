@@ -41,6 +41,11 @@ open class ModelPropertyProcessor(val codegen: CodeCodegen) {
 		if (property.complexType == "UUID") {
 			log.warn("Type complexType=UUID is not supported fully.")
 		}
+		if (property.baseType != null && property.baseType == "Map") {
+			property.isString = true
+			property.datatypeWithEnum = "String"
+			property.dataType = "String"
+		}
 		processIfGuidOrObjectWithXDataTypesOrInteger(property)
 		processIfOptional(property)
 		populateTableExtension(model, property)

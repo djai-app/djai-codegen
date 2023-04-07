@@ -34,7 +34,7 @@ class OptsImportMappings(val codegen: CodeCodegen) {
 //			"BaseResource" to "$basePackage.domain.BaseResource",
 			"BaseDomain" to "$basePackage.domain.BaseDomain",
 			"JsonType" to "org.hibernate.annotations.Type",
-			"JsonIgnore" to "com.fasterxml.jackson.annotation.JsonIgnore"
+			"JsonIgnore" to "com.fasterxml.jackson.annotation.JsonIgnore",
 	)
 
 	fun addDefaultMappings() {

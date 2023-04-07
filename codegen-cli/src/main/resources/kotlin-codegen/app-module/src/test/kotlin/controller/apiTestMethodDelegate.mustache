@@ -22,7 +22,7 @@
 		val res = createWithRequiredFields()
 		val savedRes = repository.save(res)
 
-		val result = api.getById(url, savedRes.id!!{{>apiTestHeaders}})
+		val result = api.getById(url, savedRes.id!!{{#entityHasUUID}}.toString(){{/entityHasUUID}}{{>apiTestHeaders}})
 		resourceAsserts(savedRes, result)
 	}
 
@@ -31,7 +31,7 @@
 		val res = createWithAllFields()
 		val savedRes = repository.save(res)
 
-		val result = api.getById(url, savedRes.id!!{{>apiTestHeaders}})
+		val result = api.getById(url, savedRes.id!!{{#entityHasUUID}}.toString(){{/entityHasUUID}}{{>apiTestHeaders}})
 		resourceAsserts(savedRes, result)
 	}
 {{/vendorExtensions.isGetMethod}}
@@ -40,7 +40,7 @@
 	fun `{{vendorExtensions.operationMethodName}} with required fields`() {
 		val res = createWithRequiredFields()
 		val result = api.create(url, res{{>apiTestHeaders}})
-		val savedRes = repository.getById(findIdentityId(result))
+		val savedRes = repository.getById(findIdentityId(result){{#entityHasUUID}}.toUUID(){{/entityHasUUID}})
 		resourceAsserts(savedRes, result)
 	}
 
@@ -48,7 +48,7 @@
 	fun `{{vendorExtensions.operationMethodName}} with all fields`() {
 		val res = createWithAllFields()
 		val result = api.create(url, res{{>apiTestHeaders}})
-		val savedRes = repository.getById(findIdentityId(result))
+		val savedRes = repository.getById(findIdentityId(result){{#entityHasUUID}}.toUUID(){{/entityHasUUID}})
 		resourceAsserts(savedRes, result)
 	}
 {{/vendorExtensions.isPostMethod}}
@@ -62,7 +62,7 @@
 		savedRes.identity.description = "new description"
 		{{/testModel.vendorExtensions.hasIdentity}}
 
-		val result = api.update(url, savedRes.id!!, savedRes{{>apiTestHeaders}})
+		val result = api.update(url, savedRes.id!!{{#entityHasUUID}}.toString(){{/entityHasUUID}}, savedRes{{>apiTestHeaders}})
 		resourceAsserts(savedRes, result)
 	}
 
@@ -75,7 +75,7 @@
 		savedRes.identity.description = "new description"
 		{{/testModel.vendorExtensions.hasIdentity}}
 
-		val result = api.update(url, savedRes.id!!, savedRes{{>apiTestHeaders}})
+		val result = api.update(url, savedRes.id!!{{#entityHasUUID}}.toString(){{/entityHasUUID}}, savedRes{{>apiTestHeaders}})
 		resourceAsserts(savedRes, result)
 	}
 {{/vendorExtensions.isPutMethod}}
@@ -89,7 +89,7 @@
 		savedRes.identity.description = "new description"
 		{{/testModel.vendorExtensions.hasIdentity}}
 
-		val result = api.update(url, savedRes.id!!, savedRes{{>apiTestHeaders}})
+		val result = api.update(url, savedRes.id!!{{#entityHasUUID}}.toString(){{/entityHasUUID}}, savedRes{{>apiTestHeaders}})
 		resourceAsserts(savedRes, result)
 	}
 {{/vendorExtensions.isPatchMethod}}
@@ -99,7 +99,7 @@
 		val res = createWithRequiredFields()
 		val savedRes = repository.save(res)
 
-		val result = api.delete(url, savedRes.id!!{{>apiTestHeaders}})
+		val result = api.delete(url, savedRes.id!!{{#entityHasUUID}}.toString(){{/entityHasUUID}}{{>apiTestHeaders}})
 		{{#testModel.vendorExtensions.hasEntity}}
 		savedRes.entity.state = "deleted"
 		{{/testModel.vendorExtensions.hasEntity}}

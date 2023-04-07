@@ -117,6 +117,10 @@ abstract class AbstractIntegrationTest<E : BaseResource> : CommonIntegrationTest
 		assertTrue(pairList.all { (elt1, elt2) -> elt1 == elt2 }, "Lists content should be equal")
 	}
 
+	fun assertListsEquals(list1: Set<Any>?, list2: Set<Any>?) {
+		assertListsEquals(list1?.toList(), list2?.toList())
+	}
+
 	fun assertDateEquals(first: Date?, second: String?) {
 		if (first == null) {
 			return
@@ -142,5 +146,9 @@ abstract class AbstractIntegrationTest<E : BaseResource> : CommonIntegrationTest
 	{{^hasIdentityBlocks}}
 		return getValue(result, "$.id")
 	{{/hasIdentityBlocks}}
+	}
+
+	fun String.toUUID(): UUID {
+		return UUID.fromString(this)
 	}
 }

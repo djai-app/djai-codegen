@@ -24,7 +24,6 @@ class ServerMainTest {
 		}
 	}
 
-	@Disabled
 	@Test
 	fun shouldGenerateValidProject() {
 		val execSettings = ExecSettings(

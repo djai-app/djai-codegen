@@ -367,6 +367,10 @@ class OperationAddon(val codegen: CodeCodegen) {
 
 	fun applyTestVars(model: CodegenModel) {
 		model.vars.forEach {
+			if (it.name == "actionSetIds") {
+				println("")
+			}
+
 			if (it.vendorExtensions.containsKey("isOneToOne") && it.vendorExtensions["isOneToOne"] as Boolean) {
 				val embeddedModel = readModelByType(it.complexType)
 				applyTestVars(embeddedModel)
@@ -378,20 +382,41 @@ class OperationAddon(val codegen: CodeCodegen) {
 				it.vendorExtensions["testModel"] = embeddedModel
 				it.vendorExtensions["hasTestModel"] = true
 			} else if (it.isArray && !it.complexType.isNullOrEmpty() && !arrayOf(
-					"List<String>",
-					"List<String>?"
+					"List<String>", "List<String>?",
+					"List<UUID>", "List<UUID>?",
+					"Set<UUID>", "Set<UUID>?",
 				).contains(it.datatypeWithEnum)
 			) {
 				val embeddedInListModel = readModelByType(it.complexType)
+				it.containerType = when (it.baseType) {
+					"Set" -> "set"
+					"List" -> "list"
+					else -> "array"
+				}
 				applyTestVars(embeddedInListModel)
 				it.vendorExtensions["testModel"] = embeddedInListModel
 				it.vendorExtensions["hasTestModel"] = true
 			} else {
 				it.defaultValue = when {
-					!it.defaultValue.isNullOrEmpty() && it.defaultValue != "null" && it.defaultValue != "listOf()" -> {
+					!it.defaultValue.isNullOrEmpty()
+						&& it.dataType == "String"
+						&& it.defaultValue.startsWith("new HashMap") -> {
+						"hash_map_string_value"
+					}
+					!it.defaultValue.isNullOrEmpty()
+						&& !it.defaultValue.startsWith("new LinkedHashSet")
+						&& it.defaultValue != "null"
+						&& it.defaultValue != "listOf()" -> {
 						it.defaultValue
 					}
 					it.vendorExtensions["x-data-type"] == "Guid" -> "aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff"
+					it.dataType == "UUID" -> {
+						it.isString = false
+						it.isUuid = true
+						"""
+							"aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff".toUUID()
+						""".trimIndent()
+					}
 					it.isString -> {
 						val maxLength = it.maxLength
 						if (it.maxLength != null && it.maxLength > 0 && it.maxLength <= 16) {
@@ -402,6 +427,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 					it.dataType == "Date" -> {
 						"Date()"
 					}
+					it.dataType.endsWith("Timestamp") -> "java.sql.Timestamp(System.currentTimeMillis())"
 					it.isBoolean -> "false"
 					it.isLong -> "9223372036854775807L"
 					it.dataType == "BigDecimal" -> "777.77.toBigDecimal()"
@@ -410,7 +436,26 @@ class OperationAddon(val codegen: CodeCodegen) {
 						"test_enum_value"
 					}
 					it.isArray && arrayOf("List<String>", "List<String>?").contains(it.datatypeWithEnum) -> {
+						it.containerType = "list"
 						"\"test_list_string_value\""
+					}
+					it.isArray && arrayOf("Set<String>", "Set<String>?").contains(it.datatypeWithEnum) -> {
+						it.containerType = "set"
+						"\"test_set_string_value\""
+					}
+					it.isArray && arrayOf("List<UUID>", "List<UUID>?").contains(it.datatypeWithEnum) -> {
+						it.isString = false
+						it.containerType = "list"
+						"""
+							"aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff".toUUID()
+						""".trimIndent()
+					}
+					it.isArray && arrayOf("Set<UUID>", "Set<UUID>?").contains(it.datatypeWithEnum) -> {
+						it.isString = false
+						it.containerType = "set"
+						"""
+							"aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff".toUUID()
+						""".trimIndent()
 					}
 					it.isFreeFormObject && arrayOf("String", "String?").contains(it.datatypeWithEnum) -> {
 						it.isString = true

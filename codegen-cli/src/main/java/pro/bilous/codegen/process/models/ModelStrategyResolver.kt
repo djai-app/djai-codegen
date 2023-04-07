@@ -9,7 +9,18 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 
 	companion object {
 		val importsToIgnore = arrayOf(
-			"ApiModel", "ApiModelProperty", "JsonProperty", "Entity", "ResourceEntity", "Identity", "Property"
+			"ApiModel",
+			"ApiModelProperty",
+			"JsonProperty",
+			"Entity",
+			"ResourceEntity",
+			"Identity",
+			"Property",
+			"Set",
+			"List",
+			"LinkedHashSet",
+			"Map",
+			"HashMap"
 		)
 	}
 
@@ -25,6 +36,16 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 				extensions["hasTableEntity"] = true
 			}
 			args.hasId && args.hasName && args.hasDescription -> {
+				model.parent = "BaseResource()"
+				model.imports.add("BaseResource")
+				model.vars = model.vars.filter { "id" != it.name && "identity" != it.name }
+			}
+			args.hasId && args.hasCreatedDate && args.hasUpdatedDate -> {
+				model.parent = "BaseResource()"
+				model.imports.add("BaseResource")
+				model.vars = model.vars.filter { "id" != it.name && "identity" != it.name }
+			}
+			args.hasId && args.hasRealm && args.hasIsDeleted -> {
 				model.parent = "BaseResource()"
 				model.imports.add("BaseResource")
 				model.vars = model.vars.filter { "id" != it.name && "identity" != it.name }
@@ -62,7 +83,11 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 			hasId = model.vars.any { "id" == it.name.lowercase() } && model.name != "Identity",
 			hasName = model.vars.any { "name" == it.name.lowercase() },
 			hasDescription = model.vars.any { "description" == it.name.lowercase() },
-			hasExtends = model.requiredVars.any { "_extends" == it.name.lowercase() }
+			hasExtends = model.requiredVars.any { "_extends" == it.name.lowercase() },
+			hasCreatedDate = model.vars.any { "createddate" == it.name.lowercase() },
+			hasUpdatedDate = model.vars.any { "updateddate" == it.name.lowercase() },
+			hasRealm = model.vars.any { "realm" == it.name.lowercase() },
+			hasIsDeleted = model.vars.any { "isdeleted" == it.name.lowercase() }
 		)
 	}
 
@@ -87,6 +112,10 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 		val hasId: Boolean = false,
 		val hasName: Boolean = false,
 		val hasDescription: Boolean = false,
-		val hasExtends: Boolean = false
+		val hasExtends: Boolean = false,
+		val hasCreatedDate: Boolean = false,
+		val hasUpdatedDate: Boolean = false,
+		val hasRealm: Boolean = false,
+		val hasIsDeleted: Boolean = false
 	)
 }
