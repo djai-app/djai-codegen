@@ -1,4 +1,4 @@
-rootProject.name = "djet-codegen"
+rootProject.name = "djai-codegen"
 
 pluginManagement {
 	plugins {

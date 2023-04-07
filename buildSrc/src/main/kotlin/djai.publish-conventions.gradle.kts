@@ -13,7 +13,7 @@ publishing {
                     fromResolutionResult()
                 }
             }
-            val isStable = findProperty("djet.stable") == "true"
+            val isStable = findProperty("djai.stable") == "true"
             if (!isStable) {
                 val versionParts = version.split('-').toMutableList()
                 versionParts[0] += "-alpha"
@@ -27,14 +27,14 @@ publishing {
                 }
                 artifactId = artifactPrefix(project, base.archivesName.get()) + base.archivesName.get()
 
-                if (!groupId.startsWith("cloud.djet.")) {
+                if (!groupId.startsWith("app.djai.")) {
                     throw GradleException("groupId is not set for this project or its parent ${project.parent}")
                 }
-                pom.description.set((project.description ?: "DJet code generation libraries"))
+                pom.description.set((project.description ?: "DJAI code generation libraries"))
             }
             pom {
-                name.set("DJet Codegen instrumentation")
-                url.set("https://github.com/DJetCloud/djet-codegen")
+                name.set("DJAI Codegen instrumentation")
+                url.set("https://github.com/djai-app/djai-codegen")
 
                 licenses {
                     license {
@@ -44,16 +44,16 @@ publishing {
                 }
                 developers {
                     developer {
-                        id.set("djetcloud")
-                        name.set("DJetCloud")
-                        url.set("https://github.com/DJetCloud/djet-codegen/discussions")
+                        id.set("v-bilous")
+                        name.set("Vova Bilous")
+                        url.set("https://github.com/djai-app/djai-codegen/discussions")
                     }
                 }
 
                 scm {
-                    connection.set("scm:git:git@github.com:DJetCloud/djet-codegen.git")
-                    developerConnection.set("scm:git:git@github.com:DJetCloud/djet-codegen.git")
-                    url.set("git@github.com:DJetCloud/djet-codegen.git")
+                    connection.set("scm:git:git@github.com:djai-app/djai-codegen.git")
+                    developerConnection.set("scm:git:git@github.com:djai-app/djai-codegen.git")
+                    url.set("git@github.com:djai-app/djai-codegen.git")
                 }
             }
         }
@@ -61,13 +61,13 @@ publishing {
 }
 
 fun artifactPrefix(p: Project, archivesBaseName: String): String {
-    if (archivesBaseName.startsWith("djet")) {
+    if (archivesBaseName.startsWith("djai")) {
         return ""
     }
-    if (p.name.startsWith("djet")) {
+    if (p.name.startsWith("djai")) {
         return ""
     }
-    return "djet-"
+    return "djai-"
 }
 
 rootProject.tasks.named("release").configure {

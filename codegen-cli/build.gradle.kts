@@ -1,12 +1,12 @@
 plugins {
 	kotlin("jvm")
-	id("djet.publish-conventions")
-	id("djet.java-conventions")
+	id("djai.publish-conventions")
+	id("djai.java-conventions")
 	jacoco
 }
 
-group = "cloud.djet.codegen"
-version = "1.0.5"
+group = "app.djai.codegen"
+version = "1.1.0"
 
 sourceSets.main {
     java.srcDirs("src/main/java", "src/main/kotlin")

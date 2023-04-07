@@ -11,7 +11,7 @@ plugins {
 	jacoco
 }
 
-group = "cloud.djet"
+group = "app.djai"
 version = "1.0.1"
 
 release {
@@ -61,7 +61,7 @@ tasks {
 //}
 
 nexusPublishing {
-	packageGroup.set("cloud.djet")
+	packageGroup.set("app.djai")
 
 	repositories {
 		sonatype {
