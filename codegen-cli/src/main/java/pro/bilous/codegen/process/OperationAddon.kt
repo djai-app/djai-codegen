@@ -427,7 +427,7 @@ class OperationAddon(val codegen: CodeCodegen) {
 					it.dataType == "Date" -> {
 						"Date()"
 					}
-					it.dataType.endsWith("Timestamp") -> "java.sql.Timestamp(System.currentTimeMillis())"
+					it.dataType != null && it.dataType.endsWith("Timestamp") -> "java.sql.Timestamp(System.currentTimeMillis())"
 					it.isBoolean -> "false"
 					it.isLong -> "9223372036854775807L"
 					it.dataType == "BigDecimal" -> "777.77.toBigDecimal()"
