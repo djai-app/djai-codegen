@@ -430,14 +430,15 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	override fun postProcess() {
 		addVersionCode()
 		println("################################################################################")
-		println("# Thanks for using DJet Codegen.                                               #")
-		println("# Please star this project https://github.com/DJetCloud/djet-codegen \uD83D\uDE4F        #")
-		println("# Project site https://djet.cloud                                              #")
+		println("# Thanks for using DJAI Codegen.                                               #")
+		println("# Please star this project https://github.com/djai-app/djai-codegen \uD83D\uDE4F        #")
+		println("# Project site https://djai.app                                              #")
 		println("################################################################################")
 	}
 
 	private fun getVersionLockPath(): String {
-		return outputFolder() + File.separator + "djet" + File.separator + "djet.lock"
+		return ((outputFolder() + File.separator + "djai" + File.separator + "djai.lock"))
+			.replace("//", "/")
 	}
 
 	private fun addVersionCode() {

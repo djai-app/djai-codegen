@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "app.djai.codegen"
-version = "1.1.0"
+version = "1.1.1"
 
 sourceSets.main {
     java.srcDirs("src/main/java", "src/main/kotlin")

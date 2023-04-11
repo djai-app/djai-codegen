@@ -13,12 +13,12 @@ class ZipFileWriter(
 		private val log = LoggerFactory.getLogger(ZipFileWriter::class.java)
 	}
 	override fun write(filename: String, contents: ByteArray): File {
-		if (filename.contains("/./")) {
+		val fixedFilename = filename.replace("//", "/")
+		if (fixedFilename.contains("/./")) {
 			log.debug("File directory should be root, fixing it for $filename")
-			val fixedFilename = "./" + filename.split("/./").last()
-			return writeToZip(fixedFilename, contents)
+			return writeToZip("./" + fixedFilename.split("/./").last(), contents)
 		}
-		return writeToZip(filename, contents)
+		return writeToZip(fixedFilename, contents)
 	}
 
 	private fun writeToZip(filename: String, contents: ByteArray): File {
