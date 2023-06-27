@@ -11,6 +11,7 @@ import org.openapitools.codegen.languages.AbstractJavaCodegen
 import org.openapitools.codegen.utils.ModelUtils
 import org.openapitools.codegen.utils.StringUtils.camelize
 import org.slf4j.LoggerFactory
+import pro.bilous.codegen.core.DataCodeGenerator
 import pro.bilous.codegen.process.*
 import pro.bilous.codegen.process.filename.ModelFileNameArgs
 import pro.bilous.codegen.process.filename.ModelFileNameResolver
@@ -45,6 +46,8 @@ open class CodeCodegen : AbstractJavaCodegen() {
 			return generationProperty["modulePrefixName"] as? String ?: DEFAULT_MODULE_PREFIX_NAME
 		}
 	}
+
+	var generator: DataCodeGenerator? = null
 
 	var fileWriter: CodegenFileWriter? = null
 
@@ -410,7 +413,8 @@ open class CodeCodegen : AbstractJavaCodegen() {
 	}
 
 	override fun postProcessAllModels(objs: MutableMap<String, Any>): MutableMap<String, Any> {
-		return AllModelsProcessor().process(super.postProcessAllModels(objs))
+
+		return AllModelsProcessor(this).process(super.postProcessAllModels(objs))
 	}
 
 	override fun toModelImport(name: String): String {

@@ -1,13 +1,14 @@
 package pro.bilous.codegen.exec
 
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
-import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+
+fun main() {
+	ServerMainTest().shouldGenerateValidProject()
+}
 
 class ServerMainTest {
 
@@ -24,16 +25,34 @@ class ServerMainTest {
 		}
 	}
 
-	@Disabled
-	@Test
+	val outputZip = "/Users/vova/Projects/test-results/generated.zip"
+
 	fun shouldGenerateValidProject() {
 		val execSettings = ExecSettings(
 			projectPath = "",
-			specFilePath = "/Users/vova/Projects/PRO/djet-codegen/codegen-cli/src/test/resources/catalog-api.yaml",
-			configFile = "/Users/vova/Projects/PRO/djet-codegen/codegen-cli/src/test/resources/catalog-settings.yaml"
+			specFilePath = "/Users/vova/Projects/djai-codegen/codegen-cli/src/test/resources/pet-api.yml",
+			configFile = "/Users/vova/Projects/djai-codegen/codegen-cli/src/test/resources/pet-settings.yml"
 		)
-		val outputStream = FileOutputStream("/Users/vova/Projects/PRO/djet-codegen/codegen-cli/build/test-results/generated.zip")
+		val outputStream = FileOutputStream(outputZip)
 		ServerMain().generate(outputStream, execSettings)
+
+		unzipProject();
+	}
+
+	private fun unzipProject() {
+		ProcessBuilder()
+			.command("rm", "-rf", "/Users/vova/Projects/test-results/project-out/")
+			.redirectError(ProcessBuilder.Redirect.INHERIT)
+			.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+			.start()
+			.waitFor()
+
+		ProcessBuilder()
+			.command("unzip", "-o", outputZip, "-d", "/Users/vova/Projects/test-results/project-out/")
+			.redirectError(ProcessBuilder.Redirect.INHERIT)
+			.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+			.start()
+			.waitFor()
 	}
 }
 

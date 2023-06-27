@@ -50,6 +50,11 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 				model.imports.add("BaseResource")
 				model.vars = model.vars.filter { "id" != it.name && "identity" != it.name }
 			}
+			args.hasOperation -> {
+				model.parent = "BaseResource()"
+				model.imports.add("BaseResource")
+				model.vars = model.vars.filter { "id" != it.name && "identity" != it.name }
+			}
 			args.hasId -> {
 				model.parent = "BaseDomain()"
 				model.imports.add("BaseDomain")
@@ -87,7 +92,8 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 			hasCreatedDate = model.vars.any { "createddate" == it.name.lowercase() },
 			hasUpdatedDate = model.vars.any { "updateddate" == it.name.lowercase() },
 			hasRealm = model.vars.any { "realm" == it.name.lowercase() },
-			hasIsDeleted = model.vars.any { "isdeleted" == it.name.lowercase() }
+			hasIsDeleted = model.vars.any { "isdeleted" == it.name.lowercase() },
+			hasOperation = model.vendorExtensions.containsKey("hasOperation")
 		)
 	}
 
@@ -98,7 +104,8 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 		}
 		val tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, model.name)
 		extensions["tableName"] = SqlNamingUtils.escapeTableNameIfNeeded(tableName)
-		extensions["isEmbeddable"] = !args.hasEntity && !args.hasIdentity && !args.hasId && !args.hasExtends
+		extensions["isEmbeddable"] =
+			!args.hasEntity && !args.hasIdentity && !args.hasId && !args.hasExtends && !args.hasOperation
 		extensions["addIdVar"] = false // !hasEntity && hasIdentity
 		val isSuperclass = SuperclassRegistry.hasName(model.name)
 		extensions["isSuperclass"] = isSuperclass
@@ -116,6 +123,7 @@ class ModelStrategyResolver(val model: CodegenModel) : IModelStrategyResolver {
 		val hasCreatedDate: Boolean = false,
 		val hasUpdatedDate: Boolean = false,
 		val hasRealm: Boolean = false,
-		val hasIsDeleted: Boolean = false
+		val hasIsDeleted: Boolean = false,
+		val hasOperation: Boolean = false
 	)
 }

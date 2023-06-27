@@ -10,7 +10,11 @@ class ConfiguratorWrapper(
 	private val generateInvoker: IGenerateInvoker
 ) {
 
-	private val log = LoggerFactory.getLogger(ConfiguratorWrapper::class.java)
+
+	companion object  {
+		private val log = LoggerFactory.getLogger(ConfiguratorWrapper::class.java)
+		private val supportedFmt = arrayOf("json", "yaml", "yml")
+	}
 
 	fun generate() {
 		val settings = instance.getCustomSettings() ?: throw IllegalArgumentException("Settings file is required")
@@ -20,7 +24,7 @@ class ConfiguratorWrapper(
 		val apps = mutableListOf<String>()
 		if (props is List<*> && specPath.endsWith("/")) {
 			apps.addAll(props.map { it.toString().lowercase() })
-		} else if(props is List<*> && (specPath.endsWith(".json") || specPath.endsWith(".yaml"))) {
+		} else if(props is List<*> && supportedFmt.contains(specPath.split(".").last())) {
 			apps.addAll(props.map { it.toString().lowercase() })
 		}
 
@@ -56,7 +60,7 @@ class ConfiguratorWrapper(
 
 	private fun generateOne(args: GenerateArgs) {
 		val app = args.appName.toLowerCase()
-		val inputSpecFile = if (args.specDir.endsWith(".json") || args.specDir.endsWith(".yaml")) {
+		val inputSpecFile = if (supportedFmt.contains(args.specDir.split(".").last())) {
 			args.specDir
 		} else {
 			"${args.specDir}$app-api.yaml"

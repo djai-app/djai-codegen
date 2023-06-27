@@ -1,0 +1,15 @@
+groupId: org.test
+system: pets
+application:
+    - pet
+artifactId: pet-test
+artifactVersion: 0.0.1
+artifactDescription: Application description
+title: Application title
+basePackage: org.test.pet
+addKotlin: true
+dateLibrary: default
+cicd: false
+addBindingEntity: false
+entityIdType: String
+h2OnDev: true

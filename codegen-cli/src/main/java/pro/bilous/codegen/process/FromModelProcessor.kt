@@ -4,7 +4,6 @@ import org.openapitools.codegen.CodeCodegen
 import org.openapitools.codegen.CodegenModel
 import org.slf4j.LoggerFactory
 import pro.bilous.codegen.process.models.CommonModelsProcessor
-import pro.bilous.codegen.process.models.IModelStrategyResolver
 import pro.bilous.codegen.process.models.ModelStrategyResolver
 
 class FromModelProcessor(val codegen: CodeCodegen) {
@@ -14,8 +13,7 @@ class FromModelProcessor(val codegen: CodeCodegen) {
 
 	fun process(codegenModel: CodegenModel): CodegenModel {
 		removeIgnoredFields(codegenModel)
-
-		applyStrategyResolver(ModelStrategyResolver(codegenModel))
+		applyModelStrategies(codegenModel)
 
 		fixEnumName(codegenModel)
 
@@ -27,6 +25,14 @@ class FromModelProcessor(val codegen: CodeCodegen) {
 		resolveDataClass(codegenModel)
 
 		return codegenModel
+	}
+
+	private fun applyModelStrategies(codegenModel: CodegenModel) {
+		val resolver = ModelStrategyResolver(codegenModel)
+		val args = resolver.buildArgs()
+		resolver.resolveParent(args)
+		resolver.cleanupImports()
+		resolver.addExtensions(args)
 	}
 
 	fun fixEnumName(model: CodegenModel) {
@@ -49,13 +55,6 @@ class FromModelProcessor(val codegen: CodeCodegen) {
 				it.defaultValue = null
 			}
 		}
-	}
-
-	fun applyStrategyResolver(resolver: IModelStrategyResolver) {
-		val args = resolver.buildArgs()
-		resolver.resolveParent(args)
-		resolver.cleanupImports()
-		resolver.addExtensions(args)
 	}
 
 	fun resolveDataClass(model: CodegenModel) {

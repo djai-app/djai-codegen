@@ -1,0 +1,230 @@
+openapi: 3.0.2
+info:
+    title: TestAPI
+    version: 1.0.0
+    description: |-
+        A sample API that uses a petstore as an example to demonstrate features
+        in the OpenAPI 3.0 specification
+    termsOfService: 'http://swagger.io/terms/'
+    contact:
+        name: Swagger API Team
+        url: 'http://swagger.io'
+        email: apiteam@swagger.io
+    license:
+        name: Apache 2.0
+        url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+    -
+        url: 'http://localhost:8080'
+paths:
+    /pets:
+        get:
+            tags:
+                - Pet
+            parameters:
+                -
+                    style: form
+                    name: search
+                    description: search line to filter by
+                    schema:
+                        type: string
+                    in: query
+                    required: false
+                -
+                    name: limit
+                    description: maximum number of results to return
+                    schema:
+                        format: int32
+                        type: integer
+                    in: query
+                    required: false
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Pet'
+                            examples:
+                                laurent_cats:
+                                    value:
+                                        -
+                                            id: 1
+                                            name: Zaza
+                                            tag: cat
+                                        -
+                                            id: 2
+                                            name: Tigresse
+                                            tag: cat
+                                        -
+                                            id: 3
+                                            name: Maki
+                                            tag: cat
+                                        -
+                                            id: 4
+                                            name: Toufik
+                                            tag: cat
+                    description: pet response
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: unexpected error
+            operationId: findPets
+            description: |
+                Returns all pets from the system that the user has access to
+        post:
+            requestBody:
+                description: Pet to add to the store
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Pet'
+                        examples:
+                            tigresse:
+                                value:
+                                    name: Tigresse
+                                    tag: cat
+                required: true
+            tags:
+                - Pet
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Pet'
+                            examples:
+                                tigresse:
+                                    value:
+                                        id: 2
+                                        name: Tigresse
+                                        tag: cat
+                    description: pet response
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: unexpected error
+            operationId: addPet
+            description: Creates a new pet in the store.  Duplicates are allowed
+    '/pets/{id}':
+        get:
+            tags:
+                - Pet
+            parameters:
+                -
+                    examples:
+                        zaza:
+                            value: 1
+                    name: id
+                    description: ID of pet to fetch
+                    schema:
+                        type: string
+                    in: path
+                    required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Pet'
+                            examples:
+                                zaza:
+                                    value:
+                                        id: 1
+                                        name: Zaza
+                                        tag: cat
+                    description: pet response
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: unexpected error
+            operationId: findPetById
+            description: |-
+                Returns a user based on a single ID, if the user does not have
+                access to the pet
+        delete:
+            tags:
+                - Pet
+            parameters:
+                -
+                    name: id
+                    description: ID of pet to delete
+                    schema:
+                        type: string
+                    in: path
+                    required: true
+            responses:
+                '204':
+                    description: pet deleted
+                default:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: unexpected error
+            operationId: deletePet
+            description: deletes a single pet based on the ID supplied
+        parameters:
+            -
+                name: id
+                description: Pet identifier
+                schema:
+                    type: integer
+                in: path
+                required: true
+components:
+    schemas:
+        Error:
+            required:
+                - code
+                - message
+            properties:
+                code:
+                    format: int32
+                    type: integer
+                message:
+                    type: string
+        Pet:
+            required:
+                - name
+            properties:
+                name:
+                    type: string
+                tag:
+                    type: string
+                id:
+                    type: string
+                history:
+                    $ref: '#/components/schemas/History'
+                    description: ''
+        History:
+            title: Root Type for History
+            description: ''
+            type: object
+            properties:
+                createdBy:
+                    type: string
+                updatedBy:
+                    type: string
+                createdOn:
+                    format: int32
+                    type: integer
+                updatedOn:
+                    format: int32
+                    type: integer
+            example:
+                createdBy: user
+                updatedBy: user2
+                createdOn: 1687527604
+                updatedOn: 1687527604
+tags:
+    -
+        name: Pet
+        description: Tag for PetController group

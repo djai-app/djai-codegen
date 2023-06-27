@@ -1,8 +1,10 @@
 package pro.bilous.codegen.process
 
 import org.openapitools.codegen.CodeCodegen
+import org.openapitools.codegen.CodegenModel
 import org.openapitools.codegen.CodegenOperation
 import org.openapitools.codegen.CodegenParameter
+import pro.bilous.codegen.process.models.ModelStrategyResolver
 import java.util.ArrayList
 
 class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
@@ -11,6 +13,14 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 	fun postProcessOperationsWithModels(objs: MutableMap<String, Any>, allModels: List<Any>):  Map<String, Any> {
 		val operations = objs["operations"] as MutableMap<String, Any>
 		val ops = operations["operation"] as MutableList<CodegenOperation>
+
+		setOperationReturnType(ops)
+
+		OperationAddon(codegen).populate(objs)
+		return objs
+	}
+
+	private fun setOperationReturnType(ops: MutableList<CodegenOperation>) {
 		for (operation in ops) {
 			val responses = operation.responses
 			if (responses != null) {
@@ -19,7 +29,7 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 						resp.code = "200"
 					}
 					doDataTypeAssignment(resp.dataType, object :
-                        DataTypeAssigner {
+						DataTypeAssigner {
 						override fun setReturnType(returnType: String) {
 							resp.dataType = returnType
 						}
@@ -31,7 +41,7 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 			}
 
 			doDataTypeAssignment(operation.returnType, object :
-                DataTypeAssigner {
+				DataTypeAssigner {
 				override fun setReturnType(returnType: String) {
 					operation.returnType = returnType
 				}
@@ -43,9 +53,6 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 				removeHeadersFromAllParams(operation.allParams)
 			}
 		}
-		OperationAddon(codegen).populate(objs)
-
-		return objs
 	}
 
 	/**
@@ -74,6 +81,7 @@ class OperationsWithModelsProcessor(val codegen: CodeCodegen) {
 				dataTypeAssigner.setReturnContainer("Set")
 			}
 		}
+
 	}
 
 	/**

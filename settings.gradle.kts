@@ -3,12 +3,18 @@ rootProject.name = "djai-codegen"
 pluginManagement {
 	plugins {
 		id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-		id("nebula.release") version "15.3.1"
+		id("nebula.release") version "17.2.2"
+	}
+	repositories {
+		gradlePluginPortal()
+		google()
+		mavenCentral()
 	}
 }
 
 dependencyResolutionManagement {
 	repositories {
+		google()
 		mavenCentral()
 		mavenLocal()
 	}

@@ -23,6 +23,7 @@ open class DataCodeGenerator(private val specIndex: Int = 0) : InCodeGenerator()
 		val testRoot = "app-module/src/test/kotlin"
 
 		val config = opts.config as CodeCodegen
+		config.generator = this
 		config.entityMode = true
 		config.modelNameSuffix = ""
 

@@ -84,21 +84,6 @@ internal class FromModelProcessorTest {
 	}
 
 	@Test
-	fun `should apply strategy resolver to model`() {
-		val processor = FromModelProcessor(mock())
-
-		val resolver: IModelStrategyResolver = mock()
-		val testArgs = ModelStrategyResolver.Args()
-		whenever(resolver.buildArgs()).thenReturn(testArgs)
-
-		processor.applyStrategyResolver(resolver)
-
-		verify(resolver).resolveParent(testArgs)
-		verify(resolver).cleanupImports()
-		verify(resolver).addExtensions(testArgs)
-	}
-
-	@Test
 	fun `should set class of model as data if any var presents`() {
 		val processor = FromModelProcessor(mock())
 		val model = CodegenModel().apply {
