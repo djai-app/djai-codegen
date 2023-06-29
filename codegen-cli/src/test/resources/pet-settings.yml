@@ -13,3 +13,5 @@ cicd: false
 addBindingEntity: false
 entityIdType: String
 h2OnDev: true
+#controllerDelegate: true
+springdoc: true

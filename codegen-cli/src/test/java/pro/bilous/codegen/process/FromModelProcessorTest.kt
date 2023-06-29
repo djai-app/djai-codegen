@@ -1,14 +1,10 @@
 package pro.bilous.codegen.process
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.Mockito.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.openapitools.codegen.CodegenModel
 import org.openapitools.codegen.CodegenProperty
-import pro.bilous.codegen.process.models.IModelStrategyResolver
-import pro.bilous.codegen.process.models.ModelStrategyResolver
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 

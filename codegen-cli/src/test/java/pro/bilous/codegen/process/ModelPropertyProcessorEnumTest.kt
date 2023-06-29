@@ -1,6 +1,6 @@
 package pro.bilous.codegen.process
 
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.*
 import org.junit.jupiter.api.Test
 import org.openapitools.codegen.CodegenModel
 import org.openapitools.codegen.CodegenProperty

@@ -2,10 +2,10 @@ import nebula.plugin.release.git.opinion.Strategies
 import java.time.Duration
 
 plugins {
-	kotlin("jvm") version "1.5.21"
+	kotlin("jvm") version "1.8.22"
 	id("idea")
-	id("org.jetbrains.intellij") version "1.0" apply false
-	id("org.jetbrains.gradle.plugin.idea-ext") version "1.0" apply false
+	id("org.jetbrains.intellij") version "1.14.2" apply false
+	id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.7" apply false
 	id("io.github.gradle-nexus.publish-plugin")
 	id("nebula.release")
 	jacoco
@@ -24,12 +24,12 @@ nebulaRelease {
 
 allprojects {
 	tasks.withType<JavaCompile> {
-		sourceCompatibility = "1.8"
-		targetCompatibility = "1.8"
+		sourceCompatibility = "11"
+		targetCompatibility = "11"
 	}
 	tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 		kotlinOptions {
-			jvmTarget = "1.8"
+			jvmTarget = "11"
 		}
 	}
 }
@@ -39,11 +39,15 @@ dependencies {
 }
 
 tasks {
+	compileJava {
+		sourceCompatibility = "11"
+		targetCompatibility = "11"
+	}
 	compileKotlin {
-		kotlinOptions.jvmTarget = "1.8"
+		kotlinOptions.jvmTarget = "11"
 	}
 	compileTestKotlin {
-		kotlinOptions.jvmTarget = "1.8"
+		kotlinOptions.jvmTarget = "11"
 	}
 }
 

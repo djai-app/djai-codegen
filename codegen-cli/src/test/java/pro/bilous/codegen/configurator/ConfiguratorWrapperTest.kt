@@ -1,7 +1,7 @@
 package pro.bilous.codegen.configurator
 
-import com.nhaarman.mockitokotlin2.*
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.*
 import org.openapitools.codegen.ClientOptInput
 import pro.bilous.codegen.core.ICustomConfigurator
 import pro.bilous.codegen.core.IGenerateInvoker

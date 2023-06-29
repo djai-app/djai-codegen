@@ -17,10 +17,12 @@ dependencies {
 	api("io.springfox:springfox-boot-starter:3.0.0")
 {{/springdoc}}
 {{#springdoc}}
-	api("org.springdoc:springdoc-openapi-ui:1.5.9")
-	api("org.springdoc:springdoc-openapi-security:1.5.9")
-	api("org.springdoc:springdoc-openapi-kotlin:1.5.9")
-	api("org.springdoc:springdoc-openapi-data-rest:1.5.9")
+	api("org.springdoc:springdoc-openapi-ui:1.7.0")
+	{{#keycloak.enabled}}
+	api("org.springdoc:springdoc-openapi-security:1.7.0")
+	{{/keycloak.enabled}}
+	api("org.springdoc:springdoc-openapi-kotlin:1.7.0")
+	api("org.springdoc:springdoc-openapi-data-rest:1.7.0")
 {{/springdoc}}
 	api("com.vladmihalcea:hibernate-types-52:2.11.1")
 	api("com.fasterxml.jackson.module:jackson-module-kotlin")

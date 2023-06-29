@@ -1,7 +1,6 @@
 package pro.bilous.codegen.process
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.*
 import io.swagger.v3.oas.models.media.Schema
 import org.junit.jupiter.api.Test
 import org.openapitools.codegen.CodeCodegen
