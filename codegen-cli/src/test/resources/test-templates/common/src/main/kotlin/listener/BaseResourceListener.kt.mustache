@@ -1,0 +1,60 @@
+package {{basePackage}}.listener
+
+import {{basePackage}}.domain.BaseResource
+import org.springframework.data.domain.AuditorAware
+{{#keycloak.enabled}}import org.springframework.security.core.context.SecurityContextHolder
+{{/keycloak.enabled}}import java.util.*
+import javax.persistence.PrePersist
+import javax.persistence.PreUpdate
+
+{{#keycloak.enabled}}
+class BaseResourceListener : AuditorAware<String> {
+	override fun getCurrentAuditor(): Optional<String> =
+		Optional.ofNullable(SecurityContextHolder.getContext().authentication?.name)
+{{/keycloak.enabled}}
+{{^keycloak.enabled}}
+class BaseResourceListener : AuditorAware<UUID> {
+	// TODO need to get current userId
+	override fun getCurrentAuditor(): Optional<UUID> {
+		return Optional.empty()
+	}
+{{/keycloak.enabled}}
+
+	@PrePersist
+	fun <T : BaseResource> touchForCreate(domain: T) {
+		val now = Date()
+		val auditor = currentAuditor.orElse(null){{^keycloak.enabled}}?.toString(){{/keycloak.enabled}}
+
+		domain.id = UUID.randomUUID(){{#entityIdIsString}}.toString(){{/entityIdIsString}}
+		{{#hasEntityBlocks}}
+		domain.entity.history.createdBy = auditor
+		{{#suffixHistoryAt}}
+		domain.entity.history.createdAt = now
+		{{/suffixHistoryAt}}
+		{{^suffixHistoryAt}}
+		domain.entity.history.createdDate = now
+		{{/suffixHistoryAt}}
+		domain.entity.history.updatedBy = auditor
+		{{#suffixHistoryAt}}
+		domain.entity.history.updatedAt = now
+		{{/suffixHistoryAt}}
+		{{^suffixHistoryAt}}
+		domain.entity.history.updatedDate = now
+		{{/suffixHistoryAt}}
+		{{/hasEntityBlocks}}
+}
+
+	@PreUpdate
+	fun <T : BaseResource> touchForUpdate(domain: T) {
+		val now = Date()
+		{{#hasEntityBlocks}}
+		domain.entity.history.updatedBy = currentAuditor.orElse(null){{^keycloak.enabled}}?.toString(){{/keycloak.enabled}}
+		{{#suffixHistoryAt}}
+		domain.entity.history.updatedAt = now
+		{{/suffixHistoryAt}}
+		{{^suffixHistoryAt}}
+		domain.entity.history.updatedDate = now
+		{{/suffixHistoryAt}}
+		{{/hasEntityBlocks}}
+	}
+}

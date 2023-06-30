@@ -1,0 +1,15 @@
+package {{appPackage}}
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.runApplication
+
+{{>generatedAnnotation}}
+@SpringBootApplication(scanBasePackages = ["{{appPackage}}", "{{basePackage}}.config"])
+@EntityScan(value = ["{{appPackage}}.domain", "{{basePackage}}.domain"])
+class {{appRealName}}Application
+
+@Suppress("SpreadOperator")
+fun main(args: Array<String>) {
+    runApplication<{{appRealName}}Application>(*args)
+}

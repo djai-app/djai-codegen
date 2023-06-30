@@ -1,0 +1,5 @@
+{{name}} = {{^vendorExtensions.hasTestModel}}{{#isArray}}{{containerType}}Of({{/isArray}}{{#isString}}"{{/isString}}{{{defaultValue}}}{{#isString}}"{{/isString}}{{#isArray}}){{/isArray}}{{/vendorExtensions.hasTestModel}}{{#vendorExtensions.hasTestModel}}{{#isArray}}{{containerType}}Of({{/isArray}}{{#vendorExtensions.testModel}}{{classname}}(
+				{{#vars}}
+					{{>app-module/src/test/kotlin/controller/apiTestVar}}{{^-last}},{{/-last}}
+				{{/vars}}
+				){{/vendorExtensions.testModel}}{{#isArray}}){{/isArray}}{{/vendorExtensions.hasTestModel}}

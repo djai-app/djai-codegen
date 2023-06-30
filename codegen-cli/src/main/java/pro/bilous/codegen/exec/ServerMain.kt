@@ -48,8 +48,9 @@ class ServerMain {
 		val projectPath = execSettings.projectPath
 		val specFilePath = execSettings.specFilePath
 		val configFile = execSettings.configFile
+		val templateDir = execSettings.templateDir
 
-		val args = arrayOf(
+		var args = arrayOf(
 			"generate",
 			"-g",
 			"bhn-codegen",
@@ -60,6 +61,11 @@ class ServerMain {
 			"-c",
 			configFile
 		)
+		if (!templateDir.isNullOrEmpty()) {
+			args = args
+				.plus("-t")
+				.plus(templateDir)
+		}
 
 		val version = Version.readVersionFromResources()
 		val builder = Cli.builder<Runnable>("codegen-cli")

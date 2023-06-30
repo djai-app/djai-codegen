@@ -1,0 +1,18 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  datasource:
+    url: jdbc:{{database.name}}://${DB_HOST:localhost}:${DB_PORT:{{database.port}}}/{{systemLower}}_{{appNameLower}}?autoReconnect=true&useSSL=false&rewriteBatchedStatements=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: ${DB_USER:root}
+    password: ${DB_PASS:Qw123456}
+{{#opentelemetry.enabled}}
+
+otel:
+  exporter:
+    jaeger:
+      endpoint: ${JAEGER_ENDPOINT:http://jaeger-collector.observability:14250}
+  springboot:
+    web:
+      enabled: ${OTEL_ENABLED:true}
+{{/opentelemetry.enabled}}

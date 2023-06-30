@@ -1,0 +1,120 @@
+/**
+* {{{description}}}
+{{#vars}}
+* @param {{name}} {{{description}}}
+{{/vars}}
+*/
+{{>generatedAnnotation}}
+{{^vendorExtensions.isEmbeddable}}
+{{^vendorExtensions.isSuperclass}}
+@Entity
+@Table(name = "{{vendorExtensions.tableName}}")
+{{/vendorExtensions.isSuperclass}}
+{{/vendorExtensions.isEmbeddable}}
+{{#vendorExtensions.isEmbeddable}}
+@Embeddable
+{{/vendorExtensions.isEmbeddable}}
+{{#vendorExtensions.isSuperclass}}
+@MappedSuperclass
+{{/vendorExtensions.isSuperclass}}
+{{#vendorExtensions.isSuperclass}}open{{/vendorExtensions.isSuperclass}}{{^vendorExtensions.isSuperclass}}data{{/vendorExtensions.isSuperclass}} class {{classname}}(
+{{#vendorExtensions.addIdVar}}
+
+	var id: {{entityIdType}},
+{{/vendorExtensions.addIdVar}}
+{{#vendorExtensions.addEntityIdVar}}
+
+	@JsonIgnore
+	@Id
+	@Column(name = "entity_id")
+	var entityId: {{entityIdType}}? = null,
+{{/vendorExtensions.addEntityIdVar}}
+
+{{#vars}}
+    {{#isEnum}}
+    {{^isContainer}}
+    {{>enumClass}}
+    {{/isContainer}}
+    {{#isContainer}}
+    {{#mostInnerItems}}
+    {{>enumClass}}
+    {{/mostInnerItems}}
+    {{/isContainer}}
+    {{/isEnum}}
+    {{#vendorExtensions.extraAnnotation}}
+    {{{vendorExtensions.extraAnnotation}}}
+    {{/vendorExtensions.extraAnnotation}}
+    {{#vendorExtensions.isEmbedded}}
+	{{^vendorExtensions.isHistory}}
+	{{#vendorExtensions.embeddedComponent}}
+	@AttributeOverrides(
+		{{#vars}}
+			{{#vendorExtensions.isEmbedded}}
+				{{#vendorExtensions.embeddedComponent}}
+					{{#vars}}
+		AttributeOverride(name = "{{vendorExtensions.embeddedVarName}}", column = Column(name = "{{vendorExtensions.embeddedColumnName}}"{{#vendorExtensions.hasJsonType}}, columnDefinition = "json"{{/vendorExtensions.hasJsonType}})),
+					{{/vars}}
+				{{/vendorExtensions.embeddedComponent}}
+			{{/vendorExtensions.isEmbedded}}
+			{{^vendorExtensions.isEmbedded}}
+		AttributeOverride(name = "{{name}}", column = Column(name = "{{vendorExtensions.embeddedColumnName}}")),
+			{{/vendorExtensions.isEmbedded}}
+		{{/vars}}
+	)
+	{{/vendorExtensions.embeddedComponent}}
+	{{/vendorExtensions.isHistory}}
+	@Embedded
+    {{/vendorExtensions.isEmbedded}}
+    {{^vendorExtensions.isEmbedded}}
+    {{#vendorExtensions.hasJsonType}}
+	@Type(type = "json")
+	@Column(name = "{{vendorExtensions.columnName}}", columnDefinition = "json")
+    {{/vendorExtensions.hasJsonType}}
+    {{^vendorExtensions.hasJsonType}}
+    {{#isArray}}
+    {{#vendorExtensions.isReferenceElement}}
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(
+			name = "{{vendorExtensions.joinTableName}}",
+			joinColumns = [JoinColumn(name = "{{vendorExtensions.joinColumnName}}")]
+	)
+	@Column(name = "{{vendorExtensions.inverseJoinColumnName}}")
+    {{/vendorExtensions.isReferenceElement}}
+    {{^vendorExtensions.isReferenceElement}}
+	@OneToMany(cascade = [CascadeType.ALL])
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@JoinTable(
+			name = "{{vendorExtensions.joinTableName}}",
+			joinColumns = [JoinColumn(name = "{{vendorExtensions.joinColumnName}}", referencedColumnName = "{{vendorExtensions.joinReferencedColumnName}}")],
+			inverseJoinColumns = [JoinColumn(name = "{{vendorExtensions.inverseJoinColumnName}}", referencedColumnName = "id")]
+	)
+    {{/vendorExtensions.isReferenceElement}}
+    {{/isArray}}
+    {{^isArray}}
+	{{#vendorExtensions.isOneToOne}}
+	@OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.EAGER{{#required}}, optional = false{{/required}})
+	@JoinColumn(name = "{{{vendorExtensions.escapedColumnName}}}", referencedColumnName = "id")
+	{{/vendorExtensions.isOneToOne}}
+	{{^vendorExtensions.isOneToOne}}
+	{{#vendorExtensions.readOnlyColumn}}
+	@Column(name = "id", insertable = false, updatable = false)
+	{{/vendorExtensions.readOnlyColumn}}
+	{{^vendorExtensions.readOnlyColumn}}
+	{{#vendorExtensions.formatVersion}}
+	@Version
+	{{/vendorExtensions.formatVersion}}
+	@Column(name = "{{{vendorExtensions.escapedColumnName}}}"{{>app-module/src/main/kotlin/domain/columnDefinition}})
+	{{/vendorExtensions.readOnlyColumn}}
+	{{/vendorExtensions.isOneToOne}}
+    {{/isArray}}
+    {{/vendorExtensions.hasJsonType}}
+    {{/vendorExtensions.isEmbedded}}
+    {{#isContainer}}
+	var {{name}}: {{{datatypeWithEnum}}}{{#defaultValue}} = {{defaultValue}}{{/defaultValue}}{{^-last}},{{/-last}}
+    {{/isContainer}}
+    {{^isContainer}}
+	var {{name}}: {{{datatypeWithEnum}}}{{#defaultValue}} = {{defaultValue}}{{/defaultValue}}{{^-last}},{{/-last}}
+    {{/isContainer}}
+
+{{/vars}}
+) {{#parent}}: {{{parent}}}{{/parent}}{{^parent}}{{/parent}}

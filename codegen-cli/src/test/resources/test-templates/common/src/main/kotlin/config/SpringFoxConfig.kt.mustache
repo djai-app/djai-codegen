@@ -1,0 +1,88 @@
+package {{basePackage}}.config
+
+import org.springframework.beans.factory.annotation.Value
+import io.swagger.annotations.ApiModelProperty
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.data.domain.Pageable
+import springfox.documentation.builders.PathSelectors
+import springfox.documentation.builders.RequestHandlerSelectors
+import springfox.documentation.spi.DocumentationType
+import springfox.documentation.spring.web.plugins.Docket
+{{#keycloak.enabled}}
+import springfox.documentation.service.GrantType
+import springfox.documentation.service.ResourceOwnerPasswordCredentialsGrant
+import springfox.documentation.service.SecurityReference
+import springfox.documentation.service.SecurityScheme
+import springfox.documentation.builders.OAuthBuilder
+import springfox.documentation.spi.service.contexts.SecurityContext
+import springfox.documentation.swagger.web.SecurityConfiguration
+import springfox.documentation.swagger.web.SecurityConfigurationBuilder
+{{/keycloak.enabled}}
+
+@Configuration
+class SpringFoxConfig {
+	{{#keycloak.enabled}}
+	@Value("\${swagger-ui.keycloak-url}")
+	private val authServer: String? = null
+	@Value("\${keycloak.credentials.secret}")
+	private val secret: String? = null
+	@Value("\${keycloak.resource}")
+	private val client: String? = null
+	@Value("\${keycloak.realm}")
+	private val realm: String? = null
+
+	private val OAUTH_NAME = "spring_oauth"
+	{{/keycloak.enabled}}
+
+	@Bean
+	fun api(): Docket = Docket(DocumentationType.SWAGGER_2)
+			.select()
+			.apis(RequestHandlerSelectors.any())
+			.paths(PathSelectors.any())
+			.build()
+			.directModelSubstitute(Pageable::class.java, SwaggerPageable::class.java)
+	{{#keycloak.enabled}}
+			.securitySchemes(listOf(securityScheme()))
+			.securityContexts(listOf(securityContext()))
+	{{/keycloak.enabled}}
+
+	{{#keycloak.enabled}}
+	@Bean
+	fun security(): SecurityConfiguration? {
+		return SecurityConfigurationBuilder.builder()
+				.realm(realm)
+				.clientId(client)
+				.clientSecret(secret)
+				.build()
+	}
+
+	private fun securityScheme(): SecurityScheme? {
+		val grantType: GrantType = ResourceOwnerPasswordCredentialsGrant("$authServer/realms/$realm/protocol/openid-connect/token")
+		return OAuthBuilder()
+				.name(OAUTH_NAME)
+				.grantTypes(listOf(grantType))
+				.scopes(listOf())
+				.build()
+	}
+
+	private fun securityContext(): SecurityContext? {
+		return SecurityContext.builder()
+				.securityReferences(listOf(SecurityReference(OAUTH_NAME, arrayOf())))
+				.build()
+	}
+	{{/keycloak.enabled}}
+}
+
+data class SwaggerPageable(
+		@ApiModelProperty("Number of records per page", example = "20")
+		val size: Int?,
+		@ApiModelProperty("Results page you want to retrieve (0..N)", example = "0")
+		val page: Int?,
+		@ApiModelProperty(
+				value = "Sorting criteria in the format: property(,asc|desc). Default sort order is ascending",
+				example = "id,asc"
+		)
+		var sort: String?
+)
+

@@ -1,0 +1,23 @@
+{{#vendorExtensions.isGetListMethod}}
+return delegate.getAll(search, page{{#vendorExtensions.hasPathParent}}, {{vendorExtensions.parentPathParamName}}{{/vendorExtensions.hasPathParent}}{{>preFuncMethodBody}})
+{{/vendorExtensions.isGetListMethod}}
+{{#vendorExtensions.isGetMethod}}
+return delegate.getById({{vendorExtensions.primaryPathParamName}}{{#vendorExtensions.hasPathParent}}, {{vendorExtensions.parentPathParamName}}{{/vendorExtensions.hasPathParent}}{{>preFuncMethodBody}})
+{{/vendorExtensions.isGetMethod}}
+{{#vendorExtensions.isPostMethod}}
+{{#isArray}}
+return ResponseEntity.ok(delegate.saveAll({{/isArray}}{{^isArray}}return delegate.create({{/isArray}}{{bodyParam.paramName}}{{#vendorExtensions.hasPathParent}}, {{vendorExtensions.parentPathParamName}}{{/vendorExtensions.hasPathParent}}{{>preFuncMethodBody}}){{#isArray}}){{/isArray}}
+{{/vendorExtensions.isPostMethod}}
+{{#vendorExtensions.isPutMethod}}
+return delegate.update({{vendorExtensions.primaryPathParamName}}, {{bodyParam.paramName}}{{#vendorExtensions.hasPathParent}}, {{vendorExtensions.parentPathParamName}}{{/vendorExtensions.hasPathParent}}{{>preFuncMethodBody}})
+{{/vendorExtensions.isPutMethod}}
+{{#vendorExtensions.isPatchMethod}}
+return delegate.modify({{vendorExtensions.primaryPathParamName}}, {{bodyParam.paramName}}{{#vendorExtensions.hasPathParent}}, {{vendorExtensions.parentPathParamName}}{{/vendorExtensions.hasPathParent}}{{>preFuncMethodBody}})
+{{/vendorExtensions.isPatchMethod}}
+{{#vendorExtensions.isDeleteMethod}}
+{{#isArray}}
+return ResponseEntity.ok(delegate.deleteAll({{/isArray}}{{^isArray}}return delegate.delete({{/isArray}}{{vendorExtensions.primaryPathParamName}}{{#isArray}}{{vendorExtensions.primaryQueryParamName}}){{/isArray}}{{#vendorExtensions.hasPathParent}}, {{vendorExtensions.parentPathParamName}}{{/vendorExtensions.hasPathParent}}{{>preFuncMethodBody}})
+{{/vendorExtensions.isDeleteMethod}}
+{{#vendorExtensions.isNoHttpMethod}}
+return ResponseEntity(HttpStatus.NOT_IMPLEMENTED)
+{{/vendorExtensions.isNoHttpMethod}}

@@ -1,0 +1,27 @@
+spring:
+  jpa:
+    show-sql: true
+{{#h2OnDev}}
+    database: H2
+    database-platform: org.hibernate.dialect.H2Dialect
+{{/h2OnDev}}
+  datasource:
+  {{#h2OnDev}}
+    url: jdbc:h2:~/data/{{systemLower}}_{{appNameLower}};AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+  {{/h2OnDev}}
+  {{^h2OnDev}}
+    url: jdbc:{{database.name}}://${DB_HOST:localhost}:${DB_PORT:{{database.port}}}/{{systemLower}}_{{appNameLower}}?autoReconnect=true&useSSL=false&rewriteBatchedStatements=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+  {{/h2OnDev}}
+    username: ${DB_USER:root}
+    password: ${DB_PASS:Qw123456}
+{{#opentelemetry.enabled}}
+
+otel:
+  exporter:
+    jaeger:
+      endpoint: http://localhost:14250
+  springboot:
+    web:
+      enabled: false
+{{/opentelemetry.enabled}}

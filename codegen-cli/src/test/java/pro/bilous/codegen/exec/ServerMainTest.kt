@@ -7,7 +7,7 @@ import java.io.FileOutputStream
 import java.util.zip.ZipOutputStream
 
 fun main() {
-	ServerMainTest().shouldGenerateValidProject()
+	ServerMainTest().shouldGenerateUsingCustomTemplates()
 }
 
 class ServerMainTest {
@@ -39,16 +39,29 @@ class ServerMainTest {
 		unzipProject();
 	}
 
+	fun shouldGenerateUsingCustomTemplates() {
+		val execSettings = ExecSettings(
+			projectPath = "",
+			specFilePath = "/Users/vova/Projects/djai-codegen/codegen-cli/src/test/resources/pet-api.yml",
+			configFile = "/Users/vova/Projects/djai-codegen/codegen-cli/src/test/resources/pet-settings.yml",
+			templateDir = "/Users/vova/Projects/djai-codegen/codegen-cli/src/test/resources/test-templates"
+		)
+		val outputStream = FileOutputStream(outputZip)
+		ServerMain().generate(outputStream, execSettings)
+
+		unzipProject();
+	}
+
 	private fun unzipProject() {
 		ProcessBuilder()
-			.command("rm", "-rf", "/Users/vova/Projects/test-results/project-out/")
+			.command("rm", "-rf", "/Users/vova/Projects/test-results/project-flo//")
 			.redirectError(ProcessBuilder.Redirect.INHERIT)
 			.redirectOutput(ProcessBuilder.Redirect.INHERIT)
 			.start()
 			.waitFor()
 
 		ProcessBuilder()
-			.command("unzip", "-o", outputZip, "-d", "/Users/vova/Projects/test-results/project-out/")
+			.command("unzip", "-o", outputZip, "-d", "/Users/vova/Projects/test-results/project-flo/")
 			.redirectError(ProcessBuilder.Redirect.INHERIT)
 			.redirectOutput(ProcessBuilder.Redirect.INHERIT)
 			.start()

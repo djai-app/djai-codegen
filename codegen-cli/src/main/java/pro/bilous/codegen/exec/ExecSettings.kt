@@ -4,5 +4,6 @@ data class ExecSettings(
 	val projectPath: String,
 	val specFilePath: String,
 	val configFile: String,
-	val additionalSettings: Map<String, String> = mutableMapOf()
+	val additionalSettings: Map<String, String> = mutableMapOf(),
+	val templateDir: String? = null
 )

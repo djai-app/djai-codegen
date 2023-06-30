@@ -1,0 +1,30 @@
+server:
+  port: ${SERVER_PORT:{{serverPort}}}
+  forward-headers-strategy: framework
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: {{systemLower}}-{{appNameLower}}
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev{{#keycloak.enabled}},nosecure{{/keycloak.enabled}}}
+  datasource:
+    url: jdbc:{{database.name}}://${DB_HOST:localhost}:${DB_PORT:{{database.port}}}/{{systemLower}}_{{appNameLower}}?autoReconnect=true&useSSL=false&rewriteBatchedStatements=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: ${DB_USER:root}
+    password: ${DB_PASS:Qw123456}
+    driver-class-name: {{database.driver}}
+    type: com.zaxxer.hikari.HikariDataSource
+  jpa:
+    open-in-view: false
+    database: {{database.type}}
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    change-log: classpath:/liquibase/liquibase-changeLog.xml
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

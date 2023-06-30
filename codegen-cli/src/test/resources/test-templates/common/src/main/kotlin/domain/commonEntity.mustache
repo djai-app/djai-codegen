@@ -1,0 +1,21 @@
+package {{basePackage}}.domain
+
+{{#imports}}import {{import}}
+{{/imports}}
+import javax.persistence.*
+import org.hibernate.annotations.LazyCollection
+import org.hibernate.annotations.LazyCollectionOption
+{{#entityHasUUID}}
+import java.util.UUID
+{{/entityHasUUID}}
+
+{{#models}}
+{{#model}}
+{{#isEnum}}
+{{>enumOuterClass}}
+{{/isEnum}}
+{{^isEnum}}
+{{>common/src/main/kotlin/domain/commonPojoentity.kt}}
+{{/isEnum}}
+{{/model}}
+{{/models}}

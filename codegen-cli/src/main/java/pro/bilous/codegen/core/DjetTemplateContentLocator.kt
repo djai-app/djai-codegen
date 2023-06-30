@@ -20,6 +20,6 @@ class DjetTemplateContentLocator(private val codegenConfig: CodegenConfig?) : Ge
 		if (embeddedTemplateExists(embedPath)) {
 			return embedPath
 		}
-		return null
+		return embedPath
 	}
 }

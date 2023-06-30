@@ -1,0 +1,129 @@
+package {{appPackage}}.controller
+
+{{#imports}}import {{import}}
+{{/imports}}
+{{#testImports}}import {{import}}
+{{/testImports}}
+{{#hasPathParent}}
+	{{#testModel.vendorExtensions.hasIdentity}}
+import {{basePackage}}.domain.Identity
+	{{/testModel.vendorExtensions.hasIdentity}}
+{{/hasPathParent}}
+import {{appPackage}}.{{appRealName}}Application
+import {{appPackage}}.repository.{{repositoryClassname}}
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.test.web.servlet.MvcResult
+import org.springframework.util.LinkedMultiValueMap
+import java.util.*
+import kotlin.test.*
+
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(classes = [{{appRealName}}Application::class])
+@AutoConfigureMockMvc
+class {{classname}}IT : AbstractIntegrationTest<{{returnEntityType}}>() {
+
+	private val url = "{{^hasPathParent}}{{controllerPath}}{{/hasPathParent}}{{#hasPathParent}}{{testParentControllerPath}}{{/hasPathParent}}"
+
+	@Autowired
+	lateinit var repository: {{repositoryClassname}}
+
+{{#operations}}
+{{#operation}}
+{{>app-module/src/test/kotlin/controller/apiTestMethod}}
+{{/operation}}
+{{/operations}}
+
+	private fun resourceAsserts(savedResource: {{returnEntityType}}, result: MvcResult, index: Int = -1) {
+		val prefix = if (index == -1) "$" else "$.content[$index]"
+		if (savedResource.id != null) {
+		{{#hasIdentityBlocks}}
+			assertEquals(savedResource.id, getValue(result, "$prefix.identity.id"))
+		{{/hasIdentityBlocks}}
+		{{^hasIdentityBlocks}}
+			assertEquals(savedResource.id, getValue(result, "$prefix.id"))
+		{{/hasIdentityBlocks}}
+		} else {
+		{{#hasIdentityBlocks}}
+			assertNotNull(getValue(result, "$prefix.identity.id"))
+		{{/hasIdentityBlocks}}
+		{{^hasIdentityBlocks}}
+			assertNotNull(getValue(result, "$prefix.id"))
+		{{/hasIdentityBlocks}}
+		}
+		{{#testModel}}
+		{{#vendorExtensions.hasIdentity}}
+		assertEquals(savedResource.identity.name, getValue(result, "$prefix.identity.name"))
+		assertEquals(savedResource.identity.description, getValue(result, "$prefix.identity.description"))
+		assertEquals(savedResource.entity.state, getValue(result, "$prefix.entity.state"))
+		{{/vendorExtensions.hasIdentity}}
+		{{#vars}}
+		{{^isArray}}
+		{{#vendorExtensions.hasTestModel}}
+		assertObjectEquals(savedResource.{{name}}, getValue(result, "$prefix.{{name}}"))
+		{{/vendorExtensions.hasTestModel}}
+		{{^vendorExtensions.hasTestModel}}
+		{{#isDate}}
+		assertDateEquals(savedResource.{{name}}, getValue(result, "$prefix.{{name}}"))
+		{{/isDate}}
+		{{^isDate}}
+		{{#vendorExtensions.isBigDecimal}}
+		assertEquals(savedResource.{{name}}, getValue<Double?>(result, "$prefix.{{name}}")?.toBigDecimal())
+		{{/vendorExtensions.isBigDecimal}}
+		{{^vendorExtensions.isBigDecimal}}
+		assertEquals(savedResource.{{name}}, getValue(result, "$prefix.{{name}}"){{#isInteger}} as Int?{{/isInteger}})
+		{{/vendorExtensions.isBigDecimal}}
+		{{/isDate}}
+		{{/vendorExtensions.hasTestModel}}
+		{{/isArray}}
+		{{#isArray}}
+		assertListsEquals(savedResource.{{name}}, getValue(result, "$prefix.{{name}}"))
+		{{/isArray}}
+		{{/vars}}
+		{{/testModel}}
+	}
+
+	private fun createWithRequiredFields(): {{returnEntityType}} {
+	return {{returnEntityType}}(
+			{{#testModel}}
+				{{#vars}}
+				{{#required}}
+				{{>app-module/src/test/kotlin/controller/apiTestVar}}{{^-last}},{{/-last}}
+				{{/required}}
+				{{^required}}
+				{{name}} = null{{^-last}},{{/-last}}
+				{{/required}}
+				{{/vars}}
+			{{/testModel}}
+		){{#testModel.vendorExtensions.hasIdentity}}.apply {
+			this.identity.name = "test name"
+			this.identity.description = "test description"
+			this.entity.state = "active"
+			{{#hasPathParent}}
+			this.entity.parent = Identity(id = "parent-id")
+			{{/hasPathParent}}
+		}{{/testModel.vendorExtensions.hasIdentity}}
+	}
+
+	private fun createWithAllFields(): {{returnEntityType}} {
+		return {{returnEntityType}}(
+			{{#testModel}}
+				{{#vars}}
+				{{>app-module/src/test/kotlin/controller/apiTestVar}}{{^-last}},{{/-last}}
+				{{/vars}}
+			{{/testModel}}
+		){{#testModel.vendorExtensions.hasIdentity}}.apply {
+			this.identity.name = "test user name"
+			this.identity.description = "test user description"
+			this.entity.state = "active"
+			{{#hasPathParent}}
+			this.entity.parent = Identity(id = "parent-id")
+			{{/hasPathParent}}
+		}{{/testModel.vendorExtensions.hasIdentity}}
+	}
+
+}

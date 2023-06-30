@@ -1,0 +1,53 @@
+package {{appPackage}}.config
+
+import {{basePackage}}.config.FixedKeycloakConfigurerAdapter
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+{{#security.addGuest}}
+import org.springframework.http.HttpMethod
+{{/security.addGuest}}
+
+@Profile("secure")
+@Configuration
+@EnableWebSecurity
+class {{appRealName}}SecurityConfig : FixedKeycloakConfigurerAdapter() {
+
+	companion object {
+		val log: Logger = LoggerFactory.getLogger("{{appRealName}}SecurityConfig")
+{{#security.addGuest}}
+		const val AUTHENTICATED_NOT_GUEST = "isAuthenticated() and not(hasAuthority('guest'))"
+{{/security.addGuest}}
+	}
+
+	override fun configure(http: HttpSecurity) {
+		super.configure(http)
+		http
+			.authorizeRequests()
+{{#security.addGuest}}
+{{#authRules}}
+			{{#secured}}
+			.antMatchers(HttpMethod.GET,"{{antMatcher}}").{{#hasGuards}}access("isAuthenticated() and{{#multiGuards}} ({{/multiGuards}}"{{#guards}}
+			 	+ "{{^-first}}or {{/-first}}@{{guardName}}.check({{#args}}{{{.}}}{{^-last}}, {{/-last}}{{/args}}){{^-last}}"{{/-last}}{{/guards}}{{#multiGuards}}){{/multiGuards}}"){{/hasGuards}}{{^hasGuards}}authenticated(){{/hasGuards}}
+			.antMatchers("{{antMatcher}}").{{#hasGuards}}access("$AUTHENTICATED_NOT_GUEST and{{#multiGuards}} ({{/multiGuards}}"{{#guards}}
+			 	+ "{{^-first}}or {{/-first}}@{{guardName}}.check({{#args}}{{{.}}}{{^-last}}, {{/-last}}{{/args}}){{^-last}}"{{/-last}}{{/guards}}{{#multiGuards}}){{/multiGuards}}"){{/hasGuards}}{{^hasGuards}}access(AUTHENTICATED_NOT_GUEST){{/hasGuards}}
+			{{/secured}}
+			{{^secured}}
+			.antMatchers("{{antMatcher}}").permitAll()
+			{{/secured}}
+{{/authRules}}
+{{/security.addGuest}}
+{{^security.addGuest}}
+{{#authRules}}
+			.antMatchers("{{antMatcher}}").{{#secured}}{{#hasGuards}}access("isAuthenticated() and{{#multiGuards}} ({{/multiGuards}}"{{#guards}}
+			 	+ "{{^-first}}or {{/-first}}@{{guardName}}.check({{#args}}{{{.}}}{{^-last}}, {{/-last}}{{/args}}){{^-last}}"{{/-last}}{{/guards}}{{#multiGuards}}){{/multiGuards}}"){{/hasGuards}}{{^hasGuards}}authenticated(){{/hasGuards}}{{/secured}}{{^secured}}permitAll(){{/secured}}
+{{/authRules}}
+{{/security.addGuest}}
+			.anyRequest().permitAll()
+
+		log.debug("{{appRealName}}SecurityConfig successfully configured")
+	}
+}

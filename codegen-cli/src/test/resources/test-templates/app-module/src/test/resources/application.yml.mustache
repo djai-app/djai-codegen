@@ -1,0 +1,41 @@
+spring:
+  {{#keycloak.enabled}}
+  profiles:
+    active: nosecure
+  {{/keycloak.enabled}}
+  application:
+    name: {{systemLower}}-{{appNameLower}}
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:h2:mem:{{systemLower}}_{{appNameLower}};DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MYSQL
+    name:
+    username:
+    password:
+    hikari:
+      auto-commit: false
+    driver-class-name: org.h2.Driver
+  jpa:
+    database: H2
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    change-log: classpath:/liquibase/liquibase-changeLog.xml
+
+server:
+  port: 1{{serverPort}}
+  address: localhost
+{{#keycloak.enabled}}
+{{^springdoc}}
+
+swagger-ui:
+  keycloak-url: http://localhost:8099/auth
+keycloak:
+  resource: client
+  realm: client
+  credentials:
+    secret: secret
+  enabled: false
+{{/springdoc}}
+{{/keycloak.enabled}}

@@ -1,0 +1,41 @@
+package {{basePackage}}.domain
+
+import {{basePackage}}.listener.BaseResourceListener
+{{#hasIdentityBlocks}}
+import com.fasterxml.jackson.annotation.
+{{/hasIdentityBlocks}}
+import javax.persistence.*
+{{#entityHasUUID}}
+import java.util.UUID
+{{/entityHasUUID}}
+
+@MappedSuperclass
+@EntityListeners(BaseResourceListener::class)
+open class BaseResource {
+
+	{{#hasIdentityBlocks}}
+	@JsonIgnore
+	{{/hasIdentityBlocks}}
+	@Id
+	open var id: {{entityIdType}}? = null
+		set(value) {
+			field = value
+			{{#hasIdentityBlocks}}
+			identity.id = value
+			{{/hasIdentityBlocks}}
+			{{#hasEntityBlocks}}
+			entity.entityId = value
+			{{/hasEntityBlocks}}
+		}
+	{{#hasIdentityBlocks}}
+
+	@Embedded
+	var identity: Identity = Identity()
+	{{/hasIdentityBlocks}}
+	{{#hasEntityBlocks}}
+
+	@OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name = "id")
+	var entity: ResourceEntity = ResourceEntity()
+	{{/hasEntityBlocks}}
+}

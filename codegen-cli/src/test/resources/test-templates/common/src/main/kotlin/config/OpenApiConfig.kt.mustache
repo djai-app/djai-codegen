@@ -1,0 +1,62 @@
+package {{basePackage}}.config
+
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
+{{#keycloak.enabled}}
+import io.swagger.v3.oas.models.Components
+import io.swagger.v3.oas.models.security.*
+import org.springframework.context.EnvironmentAware
+import org.springframework.core.env.Environment
+{{/keycloak.enabled}}
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+
+@Configuration
+class OpenApiConfig{{#keycloak.enabled}} : EnvironmentAware{{/keycloak.enabled}} {
+{{#keycloak.enabled}}
+
+	private lateinit var env: Environment
+
+	override fun setEnvironment(environment: Environment) {
+		env = environment
+	}
+{{/keycloak.enabled}}
+
+	@Bean
+	fun springOpenAPI(): OpenAPI? {
+		val openAPI = OpenAPI()
+			.info(
+				Info().title("Application API")
+					.description("Spring Boot application")
+					.version("{{imageVersion}}")
+			)
+{{#keycloak.enabled}}
+		addSecurity(openAPI)
+{{/keycloak.enabled}}
+		return openAPI
+	}
+{{#keycloak.enabled}}
+
+	private fun addSecurity(openAPI: OpenAPI) {
+		if (!env.activeProfiles.contains("secure")) {
+			return
+		}
+		val authServer = env.getProperty("keycloak.auth-server-url")
+		val realm = env.getProperty("keycloak.realm")
+		val authUrl = "${authServer}/realms/${realm}/protocol/openid-connect"
+
+		openAPI.components(Components()
+			.addSecuritySchemes("spring_oauth", SecurityScheme()
+				.type(SecurityScheme.Type.OAUTH2)
+				.description("Oauth2 flow")
+				.flows(
+					OAuthFlows()
+						.implicit(
+							OAuthFlow()
+								.authorizationUrl("$authUrl/auth")
+								.scopes(Scopes().addString("openid", "openid"))
+						)))
+		).security(arrayListOf(SecurityRequirement().addList("spring_oauth")))
+	}
+{{/keycloak.enabled}}
+}
