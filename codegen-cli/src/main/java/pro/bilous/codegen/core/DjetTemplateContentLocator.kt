@@ -12,7 +12,9 @@ class DjetTemplateContentLocator(private val codegenConfig: CodegenConfig?) : Ge
 		if (relativeTemplateFile.contains("generatedAnnotation")) {
 			println()
 		}
-
+		if (relativeTemplateFile.endsWith(".openapi-generator-ignore")) {
+			return superPath
+		}
 		if (!superPath.isNullOrEmpty()) {
 			return superPath
 		}

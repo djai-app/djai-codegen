@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "app.djai"
-version = "1.2.2"
+version = "1.2.3"
 
 release {
 	defaultVersionStrategy = Strategies.getSNAPSHOT()
