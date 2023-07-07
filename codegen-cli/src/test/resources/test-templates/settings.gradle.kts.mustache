@@ -3,3 +3,17 @@ include("common")
 {{#appsLower}}
 include("{{>app-module/src/main/kotlin/domain/modulePrefixNameDefinition}}{{.}}")
 {{/appsLower}}
+dependencyResolutionManagement {
+    repositories {
+        maven { url = uri("https://arti.floliveinfra.net/repository/maven-releases/") }
+    }
+    versionCatalogs {
+        create("libs") { from("com.flo.modules:flo-gradle-versions-catalog:0.0.145") }
+    }
+}
+pluginManagement {
+    repositories {
+        maven { url = uri("https://arti.floliveinfra.net/repository/maven-releases/") }
+        gradlePluginPortal()
+    }
+}

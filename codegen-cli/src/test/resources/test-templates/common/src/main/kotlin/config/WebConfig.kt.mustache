@@ -1,8 +1,14 @@
 package {{basePackage}}.config
 
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.web.client.RestTemplate
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 @Configuration
 class WebConfig : WebMvcConfigurer {
@@ -10,4 +16,11 @@ class WebConfig : WebMvcConfigurer {
 	override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**").allowedMethods("*")
 	}
+
+    @Bean
+    fun restTemplate(builder: RestTemplateBuilder): RestTemplate = builder.build()
+
+    @Bean
+    fun objectMapper(): ObjectMapper =
+        jacksonObjectMapper().configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
 }

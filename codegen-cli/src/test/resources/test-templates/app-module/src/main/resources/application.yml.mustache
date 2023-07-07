@@ -23,8 +23,31 @@ spring:
   liquibase:
     change-log: classpath:/liquibase/liquibase-changeLog.xml
 
+  main:
+    allow-bean-definition-overriding: true
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  security:
+    user:
+      name: ${FLO_ACTUATOR_USER_NAME:sba-user}
+      password: ${FLO_ACTUATOR_USER_PASSWORD:sba-user}
+      roles: ${FLO_ACTUATOR_USER_ROLES:actuator}
+
+logging:
+  level:
+    com.flo: INFO
+
 management:
+  info:
+    git:
+      mode: full
   endpoints:
     web:
       exposure:
-        include: health
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS

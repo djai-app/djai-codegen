@@ -15,3 +15,4 @@ entityIdType: String
 h2OnDev: true
 #controllerDelegate: true
 springdoc: true
+database: PostgreSQL
